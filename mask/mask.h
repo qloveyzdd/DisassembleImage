@@ -9,3 +9,5 @@ cv::Point2f GetCenter(std::vector<cv::Point2f> point);  //获取mask的中心点
 void sortCorners(std::vector<cv::Point2f>& corners,cv::Point2f center); //对四个点的顺序进行校对
 
 void DilationMask(cv::Mat& src,cv::Mat& dst); //将mask膨胀作为遮照保留图片信息
+
+void Mattopts(cv::Mat quad,std::vector<cv::Point2f>quad_pts);//设置最终图片的锚点位置
