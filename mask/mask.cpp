@@ -70,3 +70,11 @@ void DilationMask(cv::Mat& src,cv::Mat& dst)
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(50,50));
     cv::dilate(src,dst,element);
 }
+
+void Mattopts(cv::Mat quad,std::vector<cv::Point2f>quad_pts)
+{
+    quad_pts.push_back(cv::Point2f(0,0));
+    quad_pts.push_back(cv::Point2f(quad.cols,0));
+    quad_pts.push_back(cv::Point2f(quad.cols,quad.rows));
+    quad_pts.push_back(cv::Point2f(0,quad.rows));
+}

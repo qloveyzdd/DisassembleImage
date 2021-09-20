@@ -18,6 +18,8 @@ private:
 public:
     server_info();
     string GetLoadName()const{return load_name;}
+    int Get_x()const{return x;}
+    int Get_y()const{return y;}
 };
 
 class load_list
