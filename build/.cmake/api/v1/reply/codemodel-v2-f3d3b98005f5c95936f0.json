@@ -1,0 +1,86 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "server_info",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "server_info",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "DEBUG",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1
+					],
+					"name" : "DISASSEMBLEIMAGE",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 1,
+					"id" : "serverinfo::@8b7883f9d523504f1733",
+					"jsonFile" : "target-serverinfo-DEBUG-bfc6c3735967139222ce.json",
+					"name" : "serverinfo",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "source::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-source-DEBUG-e4f94f5940512f32eac3.json",
+					"name" : "source",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build",
+		"source" : "/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 0
+	}
+}
