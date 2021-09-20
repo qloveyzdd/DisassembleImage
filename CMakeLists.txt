@@ -9,12 +9,14 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 aux_source_directory(. source_list)
 
 add_subdirectory(server_info)
+add_subdirectory(mask)
 
 add_executable(source ${source_list})
 
 link_directories(${OpenCV_LIBRARY_DIRS})
 
 target_link_libraries(source serverinfo)
+target_link_libraries(source mask)
 
 # 链接opencv库
 target_link_libraries(source ${OpenCV_LIBS})
