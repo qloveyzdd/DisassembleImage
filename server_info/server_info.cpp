@@ -1,5 +1,6 @@
 #include "server_info.h"
 #include <iostream>
+#include <fstream>
 
 server_info::server_info()
 {
@@ -28,7 +29,38 @@ server_info::server_info()
 
     cout << "输入mask:" << endl;
     cin >> mask;
+
+    cout << "输入读取待拆分文件目录:" << endl;
+    cin >> load_name;
     
     cout << "输入存储路径:" << endl;
-    cin >> save_file;
+    cin >> save_path;
+}
+
+load_list::load_list(server_info serverinfo)
+{
+    ifstream inf(serverinfo.GetLoadName());
+    string image_name;
+    int count;
+    while (getline(inf,image_name))
+    {
+        list.push_back(image_name);
+        cout<<image_name<<endl;
+        count++;
+    }
+    cout<<count<<endl;
+}
+
+load_list::load_list(string load_name)
+{
+    ifstream inf(load_name);
+    string image_name;
+    int count;
+    while (getline(inf,image_name))
+    {
+        list.push_back(image_name);
+        cout<<image_name<<endl;
+        count++;
+    }
+    cout<<count<<endl;
 }

@@ -55,19 +55,40 @@ CMAKE_BINARY_DIR = /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/bu
 # The main recursive "all" target.
 all: CMakeFiles/source.dir/all
 all: server_info/all
+all: mask/all
 
 .PHONY : all
 
 # The main recursive "preinstall" target.
 preinstall: server_info/preinstall
+preinstall: mask/preinstall
 
 .PHONY : preinstall
 
 # The main recursive "clean" target.
 clean: CMakeFiles/source.dir/clean
 clean: server_info/clean
+clean: mask/clean
 
 .PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory mask
+
+# Recursive "all" directory target.
+mask/all: mask/CMakeFiles/mask.dir/all
+
+.PHONY : mask/all
+
+# Recursive "preinstall" directory target.
+mask/preinstall:
+
+.PHONY : mask/preinstall
+
+# Recursive "clean" directory target.
+mask/clean: mask/CMakeFiles/mask.dir/clean
+
+.PHONY : mask/clean
 
 #=============================================================================
 # Directory level rules for directory server_info
@@ -92,14 +113,15 @@ server_info/clean: server_info/CMakeFiles/serverinfo.dir/clean
 
 # All Build rule for target.
 CMakeFiles/source.dir/all: server_info/CMakeFiles/serverinfo.dir/all
+CMakeFiles/source.dir/all: mask/CMakeFiles/mask.dir/all
 	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/depend
 	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=3,4 "Built target source"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=5,6 "Built target source"
 .PHONY : CMakeFiles/source.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/source.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/source.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 0
 .PHONY : CMakeFiles/source.dir/rule
@@ -121,7 +143,7 @@ CMakeFiles/source.dir/clean:
 server_info/CMakeFiles/serverinfo.dir/all:
 	$(MAKE) -f server_info/CMakeFiles/serverinfo.dir/build.make server_info/CMakeFiles/serverinfo.dir/depend
 	$(MAKE) -f server_info/CMakeFiles/serverinfo.dir/build.make server_info/CMakeFiles/serverinfo.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=1,2 "Built target serverinfo"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=3,4 "Built target serverinfo"
 .PHONY : server_info/CMakeFiles/serverinfo.dir/all
 
 # Build rule for subdir invocation for target.
@@ -140,6 +162,33 @@ serverinfo: server_info/CMakeFiles/serverinfo.dir/rule
 server_info/CMakeFiles/serverinfo.dir/clean:
 	$(MAKE) -f server_info/CMakeFiles/serverinfo.dir/build.make server_info/CMakeFiles/serverinfo.dir/clean
 .PHONY : server_info/CMakeFiles/serverinfo.dir/clean
+
+#=============================================================================
+# Target rules for target mask/CMakeFiles/mask.dir
+
+# All Build rule for target.
+mask/CMakeFiles/mask.dir/all:
+	$(MAKE) -f mask/CMakeFiles/mask.dir/build.make mask/CMakeFiles/mask.dir/depend
+	$(MAKE) -f mask/CMakeFiles/mask.dir/build.make mask/CMakeFiles/mask.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=1,2 "Built target mask"
+.PHONY : mask/CMakeFiles/mask.dir/all
+
+# Build rule for subdir invocation for target.
+mask/CMakeFiles/mask.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 mask/CMakeFiles/mask.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 0
+.PHONY : mask/CMakeFiles/mask.dir/rule
+
+# Convenience name for target.
+mask: mask/CMakeFiles/mask.dir/rule
+
+.PHONY : mask
+
+# clean rule for target.
+mask/CMakeFiles/mask.dir/clean:
+	$(MAKE) -f mask/CMakeFiles/mask.dir/build.make mask/CMakeFiles/mask.dir/clean
+.PHONY : mask/CMakeFiles/mask.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
