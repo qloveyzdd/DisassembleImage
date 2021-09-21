@@ -53,9 +53,9 @@ int main()
     for (int i = playerset.get_begin() - 1; i < playerset.get_begin() + playerset.get_count() - 1; i++)
     {
         std::cout << "processing：" << loadlist.file_name(i) << endl;
-        string savefile = loadlist.file_name(i);
-
-        quad = imread(loadlist.file_name(i), -1);
+        string savefile = serverinfo.GetSavePath() + "/" + serverinfo.GetPrefix() + loadlist.file_name(i);
+        string qaz = serverinfo.GetLoadPath() + "/" + loadlist.file_name(i);
+        quad = imread(serverinfo.GetLoadPath() + "/" + loadlist.file_name(i), -1);
         if (!quad.data)
         {
             printf("读取图片错误");
@@ -83,20 +83,22 @@ int main()
         switch (serverinfo.Get_fz())
         {
         case 0:
-            quad = image_fliped_temp;
+            quad = dstImage;
             break;
         case 1:
-            flip(image_fliped_temp, quad, 1);
+            flip(dstImage, quad, 1);
             break;
         case 2:
-            flip(image_fliped_temp, quad, 0);
+            flip(dstImage, quad, 0);
             break;
         case 3:
-            flip(image_fliped_temp, quad, -1);
+            flip(dstImage, quad, -1);
             break;
         default:
             break;
         }
+        // namedWindow("A",CV_WINDOW_NORMAL);
+        // imshow("A",quad);
         imwrite(savefile, quad);
         count++;
     }

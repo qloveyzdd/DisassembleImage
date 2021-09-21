@@ -85,8 +85,9 @@ load_list::load_list(server_info serverinfo)
     int count = 0;
     while (getline(inf, image_name))
     {
-        list.push_back(serverinfo.GetLoadPath()+"/"+image_name);
-        cout << serverinfo.GetLoadPath()+"/"+image_name << endl;
+        image_name.erase(image_name.end()-1,image_name.end());
+        list.push_back(image_name);
+        cout << serverinfo.GetLoadPath() + "/" + image_name << endl;
         count++;
     }
     cout << count << endl;
@@ -100,7 +101,7 @@ load_list::load_list(string load_path, string load_name)
     while (getline(inf, image_name))
     {
         string temp = load_path + "/" + image_name;
-        list.push_back(temp);
+        list.push_back(image_name);
         cout << temp << endl;
         count++;
     }
