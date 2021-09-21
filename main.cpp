@@ -26,7 +26,7 @@ int main()
 
     server_info serverinfo;
     load_list loadlist(serverinfo);
-    // player_settings playerset(loadlist);
+    player_settings playerset(loadlist);
 
     mask = imread("mask.jpg");
     DilationMask(mask, mask_dilate);
@@ -48,17 +48,60 @@ int main()
 
     cv::Mat transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts);
 
-    // for (int i = playerset.get_begin()-1; i < playerset.get_begin()+playerset.get_count(); i++)
-    // {
-    //     std::cout << "processing：" << loadlist.file_name(i) << endl;
-    // }
-    
-    // cv::warpPerspective(dstImage, quad, transmtx, quad.size());
-    // namedWindow("A");
-    // namedWindow("B");
-    // imshow("A",mask);
-    // imshow("B",mask_dilate);
+    cv::Mat dstImage;
+    int count = 0;
+    for (int i = playerset.get_begin() - 1; i < playerset.get_begin() + playerset.get_count() - 1; i++)
+    {
+        std::cout << "processing：" << loadlist.file_name(i) << endl;
+        string savefile = loadlist.file_name(i);
 
+        quad = imread(loadlist.file_name(i), -1);
+        if (!quad.data)
+        {
+            printf("读取图片错误");
+            return false;
+        }
+
+        quad.copyTo(dstImage, mask_dilate);
+
+        cv::warpPerspective(dstImage, quad, transmtx, quad.size());
+
+        cv::Mat image_fliped_temp;
+        switch (serverinfo.Get_xz())
+        {
+        case 0:
+            dstImage = quad;
+            break;
+        case 1:
+            transpose(quad, image_fliped_temp);
+            flip(image_fliped_temp, dstImage, 0);
+            break;
+        default:
+            break;
+        }
+
+        switch (serverinfo.Get_fz())
+        {
+        case 0:
+            quad = image_fliped_temp;
+            break;
+        case 1:
+            flip(image_fliped_temp, quad, 1);
+            break;
+        case 2:
+            flip(image_fliped_temp, quad, 0);
+            break;
+        case 3:
+            flip(image_fliped_temp, quad, -1);
+            break;
+        default:
+            break;
+        }
+        imwrite(savefile, quad);
+        count++;
+    }
+
+    std::cout << "一共处理的图像数目" << count << endl;
     waitKey(0);
 
     return 0;
