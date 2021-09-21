@@ -38,6 +38,9 @@ server_info::server_info()
         cout << "输入mask:" << endl;
         cin >> mask;
 
+        cout << "输入读取待拆分文件路径:" << endl;
+        cin >> load_path;
+
         cout << "输入读取待拆分文件目录:" << endl;
         cin >> load_name;
 
@@ -64,8 +67,9 @@ server_info::server_info()
         fz = atoi(info[3].c_str());
         Prefix = info[4];
         mask = info[5];
-        load_name = info[6];
-        save_path = info[7];
+        load_path = info[6];
+        load_name = info[7];
+        save_path = info[8];
         break;
     }
 
@@ -81,8 +85,8 @@ load_list::load_list(server_info serverinfo)
     int count = 0;
     while (getline(inf, image_name))
     {
-        list.push_back(image_name);
-        cout << image_name << endl;
+        list.push_back(serverinfo.GetLoadPath()+"/"+image_name);
+        cout << serverinfo.GetLoadPath()+"/"+image_name << endl;
         count++;
     }
     cout << count << endl;
