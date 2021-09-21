@@ -32,7 +32,6 @@ class load_list
 {
 private:
     vector<string> list;
-    vector<string> save_list;
 
 public:
     load_list(server_info serverinfo);
