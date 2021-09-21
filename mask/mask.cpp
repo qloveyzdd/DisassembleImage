@@ -65,16 +65,72 @@ void sortCorners(std::vector<cv::Point2f> &corners, cv::Point2f center)
     }
 }
 
-void DilationMask(cv::Mat& src,cv::Mat& dst)
+void DilationMask(cv::Mat &src, cv::Mat &dst)
 {
-    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(50,50));
-    cv::dilate(src,dst,element);
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(50, 50));
+    cv::dilate(src, dst, element);
 }
 
-void Mattopts(cv::Mat quad,std::vector<cv::Point2f>quad_pts)
+void Mattopts(cv::Mat quad, std::vector<cv::Point2f> quad_pts)
 {
-    quad_pts.push_back(cv::Point2f(0,0));
-    quad_pts.push_back(cv::Point2f(quad.cols,0));
-    quad_pts.push_back(cv::Point2f(quad.cols,quad.rows));
-    quad_pts.push_back(cv::Point2f(0,quad.rows));
+    quad_pts.push_back(cv::Point2f(0, 0));
+    quad_pts.push_back(cv::Point2f(quad.cols, 0));
+    quad_pts.push_back(cv::Point2f(quad.cols, quad.rows));
+    quad_pts.push_back(cv::Point2f(0, quad.rows));
 }
+
+void RoadImageAndSetMask(cv::Mat &dst, const std::string Image, const cv::Mat &mask)
+{
+    cv::Mat temp = cv::imread(Image, -1);
+    if (!temp.data)
+    {
+        printf("读取文件错误！！！");
+        return;
+    }
+    temp.copyTo(dst, mask);
+}
+
+// void perspective_to_maps(const cv::Mat &perspective_mat, const cv::Size img_size,
+// 	cv::Mat &map1, cv::Mat &map2)
+// {
+// 	// invert the matrix because the transformation maps must be
+// 	// bird's view -> original
+// 	cv::Mat inv_perspective(perspective_mat.inv());
+// 	inv_perspective.convertTo(inv_perspective, CV_32FC1);
+
+// 	// create XY 2D array
+// 	// (((0, 0), (1, 0), (2, 0), ...),
+// 	//  ((0, 1), (1, 1), (2, 1), ...),
+// 	// ...)
+// 	cv::Mat xy(img_size, CV_32FC2);
+// 	float *pxy = (float*)xy.data;
+// 	for (int y = 0; y < img_size.height; y++)
+// 		for (int x = 0; x < img_size.width; x++)
+// 		{
+// 			*pxy++ = x;
+// 			*pxy++ = y;
+// 		}
+
+// 	// perspective transformation of the points
+// 	cv::Mat xy_transformed;
+// 	cv::perspectiveTransform(xy, xy_transformed, inv_perspective);
+
+//        //Prevent errors when float32 to int16
+//         float *pmytest = (float*)xy_transformed.data;
+// 	for (int y = 0; y < xy_transformed.rows; y++)
+// 		for (int x = 0; x < xy_transformed.cols; x++)
+// 		{
+// 			if (abs(*pmytest) > 5000) *pmytest = 5000.00;
+// 			pmytest++;
+// 			if (abs(*pmytest) > 5000) *pmytest = 5000.00;
+// 			pmytest++;
+// 		}
+
+// 	// split x/y to extra maps
+// 	assert(xy_transformed.channels() == 2);
+// 	cv::Mat maps[2]; // map_x, map_y
+// 	cv::split(xy_transformed, maps);
+
+// 	// remap() with integer maps is faster
+// 	cv::convertMaps(maps[0], maps[1], map1, map2, CV_16SC2);
+// }
