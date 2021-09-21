@@ -71,7 +71,7 @@ void DilationMask(cv::Mat &src, cv::Mat &dst)
     cv::dilate(src, dst, element);
 }
 
-void Mattopts(cv::Mat quad, std::vector<cv::Point2f> quad_pts)
+void Mattopts(const cv::Mat quad, std::vector<cv::Point2f>& quad_pts)
 {
     quad_pts.push_back(cv::Point2f(0, 0));
     quad_pts.push_back(cv::Point2f(quad.cols, 0));

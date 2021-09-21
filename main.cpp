@@ -26,7 +26,7 @@ int main()
 
     server_info serverinfo;
     load_list loadlist(serverinfo);
-    player_settings playerset(loadlist);
+    // player_settings playerset(loadlist);
 
     mask = imread("mask.jpg");
     DilationMask(mask, mask_dilate);
@@ -48,10 +48,10 @@ int main()
 
     cv::Mat transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts);
 
-    for (int i = playerset.get_begin()-1; i < playerset.get_begin()+playerset.get_count(); i++)
-    {
-        std::cout << "processing：" << loadlist.file_name(i) << endl;
-    }
+    // for (int i = playerset.get_begin()-1; i < playerset.get_begin()+playerset.get_count(); i++)
+    // {
+    //     std::cout << "processing：" << loadlist.file_name(i) << endl;
+    // }
     
     // cv::warpPerspective(dstImage, quad, transmtx, quad.size());
     // namedWindow("A");
