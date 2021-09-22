@@ -1,8 +1,8 @@
-2000
-2000
+3840
+2624
 0
 0
-qaz
+back
 mask.jpg
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/test
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/yaleok.txt
