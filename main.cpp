@@ -55,48 +55,48 @@ int main()
         std::cout << "processing：" << loadlist.file_name(i) << endl;
         string savefile = serverinfo.GetSavePath() + "/" + serverinfo.GetPrefix() + loadlist.file_name(i);
         string qaz = serverinfo.GetLoadPath() + "/" + loadlist.file_name(i);
-        quad = imread(serverinfo.GetLoadPath() + "/" + loadlist.file_name(i), -1);
-        if (!quad.data)
+        Mat quad1 = imread(serverinfo.GetLoadPath() + "/" + loadlist.file_name(i), -1);
+        if (!quad1.data)
         {
             printf("读取图片错误");
             return false;
         }
 
-        quad.copyTo(dstImage, mask_dilate);
+        quad1.copyTo(dstImage, mask_dilate);
 
         cv::warpPerspective(dstImage, quad, transmtx, quad.size());
 
-        cv::Mat image_fliped_temp;
-        switch (serverinfo.Get_xz())
-        {
-        case 0:
-            dstImage = quad;
-            break;
-        case 1:
-            transpose(quad, image_fliped_temp);
-            flip(image_fliped_temp, dstImage, 0);
-            break;
-        default:
-            break;
-        }
+        // cv::Mat image_fliped_temp;
+        // switch (serverinfo.Get_xz())
+        // {
+        // case 0:
+        //     dstImage = quad;
+        //     break;
+        // case 1:
+        //     transpose(quad, image_fliped_temp);
+        //     flip(image_fliped_temp, dstImage, 0);
+        //     break;
+        // default:
+        //     break;
+        // }
 
-        switch (serverinfo.Get_fz())
-        {
-        case 0:
-            quad = dstImage;
-            break;
-        case 1:
-            flip(dstImage, quad, 1);
-            break;
-        case 2:
-            flip(dstImage, quad, 0);
-            break;
-        case 3:
-            flip(dstImage, quad, -1);
-            break;
-        default:
-            break;
-        }
+        // switch (serverinfo.Get_fz())
+        // {
+        // case 0:
+        //     quad = dstImage;
+        //     break;
+        // case 1:
+        //     flip(dstImage, quad, 1);
+        //     break;
+        // case 2:
+        //     flip(dstImage, quad, 0);
+        //     break;
+        // case 3:
+        //     flip(dstImage, quad, -1);
+        //     break;
+        // default:
+        //     break;
+        // }
         // namedWindow("A",CV_WINDOW_NORMAL);
         // imshow("A",quad);
         imwrite(savefile, quad);
