@@ -24,6 +24,7 @@ public:
     int Get_xz() const { return xz; }
     int Get_fz() const { return fz; }
     string GetPrefix() const { return Prefix; }
+    string GetMask() const { return mask; }
     int Get_x() const { return x; }
     int Get_y() const { return y; }
 };
