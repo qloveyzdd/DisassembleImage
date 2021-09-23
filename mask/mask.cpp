@@ -6,25 +6,25 @@ std::vector<cv::Point2f> RoiPointApprox(cv::Mat src)
     cv::cvtColor(src, bw, CV_BGR2GRAY);
     cv::Canny(bw, bw, 100, 100, 3);
     std::vector<std::vector<cv::Point>> roi_point;
-    cv::findContours(bw, roi_point, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    cv::findContours(bw, roi_point, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
     std::vector<cv::Point2f> roi_point_approx;
     cv::Mat roi_approx(bw.size(), CV_8UC3, cv::Scalar(0, 0, 0));
     auto i = roi_point.begin();
-    approxPolyDP(*i, roi_point_approx, 7, 1);
+    approxPolyDP(*i, roi_point_approx, 20, true);
 
     sort(roi_point_approx.begin(), roi_point_approx.end(), [](cv::Point2f a, cv::Point2f b)
          { return sqrt(pow(a.x, 2) + pow(a.y, 2)) > sqrt(pow(b.x, 2) + pow(b.y, 2)); });
     std::vector<cv::Point2f> roi_point_approx_end;
     for (int i = 0; i < roi_point_approx.size() - 1; i++)
     {
-        if (abs(sqrt(pow(roi_point_approx[i].x, 2) + pow(roi_point_approx[i].y, 2)) - sqrt(pow(roi_point_approx[i + 1].x, 2) + pow(roi_point_approx[i + 1].y, 2))) > 10)
+        if (abs(sqrt(pow(roi_point_approx[i].x, 2) + pow(roi_point_approx[i].y, 2)) - sqrt(pow(roi_point_approx[i + 1].x, 2) + pow(roi_point_approx[i + 1].y, 2))) > 100)
         {
             roi_point_approx_end.push_back(roi_point_approx[i]);
         }
     }
     roi_point_approx_end.push_back(roi_point_approx.back());
 
-    return roi_point_approx;
+    return roi_point_approx_end;
 }
 
 cv::Point2f GetCenter(std::vector<cv::Point2f> point)

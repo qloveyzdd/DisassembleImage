@@ -28,7 +28,7 @@ int main()
     load_list loadlist(serverinfo);
     player_settings playerset(loadlist);
 
-    mask = imread("mask.jpg");
+    mask = imread("up.jpg");
     DilationMask(mask, mask_dilate);
 
     std::vector<cv::Point2f> roi_point_approx;
