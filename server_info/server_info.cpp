@@ -1,6 +1,7 @@
 #include "server_info.h"
 #include <iostream>
 #include <fstream>
+#include <unistd.h>
 
 server_info::server_info()
 {
@@ -108,6 +109,20 @@ load_list::load_list(string load_path, string load_name)
     cout << count << endl;
 }
 
+void load_list::cpu_thread_list_settings(player_settings playerset)
+{
+    cpus_count = sysconf(_SC_NPROCESSORS_ONLN);
+    for (int i = 0; i < cpus_count; i++)
+    {
+        cpu_list.push_back(*new vector<string>);
+    }
+    for (int i = 0; i < playerset.get_count(); i++)
+    {
+        cpu_list[i%cpus_count].push_back(list[playerset.get_begin()+i]);
+    }
+    
+}
+
 player_settings::player_settings(load_list loadlist)
 {
     string temp;
@@ -128,3 +143,4 @@ player_settings::player_settings(load_list loadlist)
     else
         count + begin > loadlist.get_size() ? loadlist.get_size() - begin : count;
 }
+

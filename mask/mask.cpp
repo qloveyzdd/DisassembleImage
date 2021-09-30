@@ -6,18 +6,18 @@ std::vector<cv::Point2f> RoiPointApprox(cv::Mat src)
     cv::cvtColor(src, bw, CV_BGR2GRAY);
     cv::Canny(bw, bw, 100, 100, 3);
     std::vector<std::vector<cv::Point>> roi_point;
-    cv::findContours(bw, roi_point, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+    cv::findContours(bw, roi_point, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
     std::vector<cv::Point2f> roi_point_approx;
-    cv::Mat roi_approx(bw.size(), CV_8UC3, cv::Scalar(0, 0, 0));
+    // cv::Mat roi_approx(bw.size(), CV_8UC3, cv::Scalar(0, 0, 0));
     auto i = roi_point.begin();
-    approxPolyDP(*i, roi_point_approx, 20, true);
+    approxPolyDP(*i, roi_point_approx, 7, 1);
 
     sort(roi_point_approx.begin(), roi_point_approx.end(), [](cv::Point2f a, cv::Point2f b)
          { return sqrt(pow(a.x, 2) + pow(a.y, 2)) > sqrt(pow(b.x, 2) + pow(b.y, 2)); });
     std::vector<cv::Point2f> roi_point_approx_end;
     for (int i = 0; i < roi_point_approx.size() - 1; i++)
     {
-        if (abs(sqrt(pow(roi_point_approx[i].x, 2) + pow(roi_point_approx[i].y, 2)) - sqrt(pow(roi_point_approx[i + 1].x, 2) + pow(roi_point_approx[i + 1].y, 2))) > 100)
+        if (abs(sqrt(pow(roi_point_approx[i].x, 2) + pow(roi_point_approx[i].y, 2)) - sqrt(pow(roi_point_approx[i + 1].x, 2) + pow(roi_point_approx[i + 1].y, 2))) > 10)
         {
             roi_point_approx_end.push_back(roi_point_approx[i]);
         }
@@ -40,16 +40,29 @@ cv::Point2f GetCenter(std::vector<cv::Point2f> point)
 
 void sortCorners(std::vector<cv::Point2f> &corners, cv::Point2f center)
 {
-    std::vector<cv::Point2f> top, bot;
+    std::vector<cv::Point2f> top_temp, bot_temp, top, bot;
 
     for (int i = 0; i < corners.size(); i++)
     {
         if (corners[i].y < center.y)
-            top.push_back(corners[i]);
+            top_temp.push_back(corners[i]);
         else
-            bot.push_back(corners[i]);
+            bot_temp.push_back(corners[i]);
     }
     corners.clear();
+
+    if (top.size() != 2 || bot.size() != 2)
+    {
+        sort(top_temp.begin(), top_temp.end(), [](cv::Point2f a, cv::Point2f b)
+             { return a.x > b.x; });
+        top.push_back(top_temp[0]);
+        top.push_back(top_temp[top_temp.size() - 1]);
+
+        sort(bot_temp.begin(), bot_temp.end(), [](cv::Point2f a, cv::Point2f b)
+             { return a.x > b.x; });
+        bot.push_back(bot_temp[0]);
+        bot.push_back(bot_temp[bot_temp.size() - 1]);
+    }
 
     if (top.size() == 2 && bot.size() == 2)
     {
@@ -71,7 +84,7 @@ void DilationMask(cv::Mat &src, cv::Mat &dst)
     cv::dilate(src, dst, element);
 }
 
-void Mattopts(const cv::Mat quad, std::vector<cv::Point2f>& quad_pts)
+void Mattopts(const cv::Mat quad, std::vector<cv::Point2f> &quad_pts)
 {
     quad_pts.push_back(cv::Point2f(0, 0));
     quad_pts.push_back(cv::Point2f(quad.cols, 0));

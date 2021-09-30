@@ -4,6 +4,10 @@
 
 using namespace std;
 
+class server_info;
+class load_list;
+class player_settings;
+
 class server_info
 {
 private:
@@ -33,12 +37,16 @@ class load_list
 {
 private:
     vector<string> list;
+    int cpus_count;
+    vector<vector<string>> cpu_list;
 
 public:
     load_list(server_info serverinfo);
     load_list(string load_path, string load_name);
     int get_size() { return list.size(); }
     string file_name(int a) const { return list[a];}
+    public:
+    void cpu_thread_list_settings(player_settings playerset);
 };
 
 class player_settings
