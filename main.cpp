@@ -52,25 +52,9 @@ int main()
 
     cv::Mat transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts);
 
-<<<<<<< HEAD
     
     int count = 0;
     for (int i = playerset.get_begin() - 1; i < playerset.get_begin() + playerset.get_count(); i++)
-=======
-    loadlist.cpu_thread_list_settings(playerset);
-
-    thread_main(quad,mask_dilate,serverinfo,loadlist,playerset,transmtx);
-
-    waitKey(0);
-
-    return 0;
-}
-
-void thread_main(Mat quad, Mat mask_dilate, server_info serverinfo, load_list loadlist, player_settings playerset, cv::Mat transmtx)
-{
-    cv::Mat dstImage;
-    for (int i = playerset.get_begin() - 1; i < playerset.get_begin() + playerset.get_count() - 1; i++)
->>>>>>> main
     {
         cv::Mat quad_copy = quad;
         cv::Mat dstImage;
@@ -121,11 +105,7 @@ void thread_main(Mat quad, Mat mask_dilate, server_info serverinfo, load_list lo
         }
         // namedWindow("A",CV_WINDOW_NORMAL);
         // imshow("A",quad);
-<<<<<<< HEAD
         imwrite(savefile, quad_copy);
         count++;
-=======
-        imwrite(savefile, quad);
->>>>>>> main
     }
 }
