@@ -65,7 +65,7 @@ int main()
         if (!quad1.data)
         {
             printf("读取图片错误");
-            return;
+            return 0;
         }
 
         quad1.copyTo(dstImage, mask_dilate);
