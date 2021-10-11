@@ -37,8 +37,8 @@ class load_list
 {
 private:
     vector<string> list;
-    int cpus_count;
-    vector<vector<string>> cpu_list;
+    int cpus_count;     //cpu线程数
+    vector<vector<string>> cpu_list; //cpu线程数
 
 public:
     load_list(server_info serverinfo);
