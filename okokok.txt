@@ -2,8 +2,8 @@
 2624
 0
 0
-back
-up.jpg
+down
+down.jpg
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/test
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/yaleok.txt
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/xxx
