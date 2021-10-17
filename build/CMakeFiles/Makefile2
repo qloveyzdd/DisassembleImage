@@ -56,12 +56,14 @@ CMAKE_BINARY_DIR = /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/bu
 all: CMakeFiles/source.dir/all
 all: server_info/all
 all: mask/all
+all: player_settings_factory/all
 
 .PHONY : all
 
 # The main recursive "preinstall" target.
 preinstall: server_info/preinstall
 preinstall: mask/preinstall
+preinstall: player_settings_factory/preinstall
 
 .PHONY : preinstall
 
@@ -69,6 +71,7 @@ preinstall: mask/preinstall
 clean: CMakeFiles/source.dir/clean
 clean: server_info/clean
 clean: mask/clean
+clean: player_settings_factory/clean
 
 .PHONY : clean
 
@@ -89,6 +92,24 @@ mask/preinstall:
 mask/clean: mask/CMakeFiles/mask.dir/clean
 
 .PHONY : mask/clean
+
+#=============================================================================
+# Directory level rules for directory player_settings_factory
+
+# Recursive "all" directory target.
+player_settings_factory/all: player_settings_factory/CMakeFiles/playersettingsfactory.dir/all
+
+.PHONY : player_settings_factory/all
+
+# Recursive "preinstall" directory target.
+player_settings_factory/preinstall:
+
+.PHONY : player_settings_factory/preinstall
+
+# Recursive "clean" directory target.
+player_settings_factory/clean: player_settings_factory/CMakeFiles/playersettingsfactory.dir/clean
+
+.PHONY : player_settings_factory/clean
 
 #=============================================================================
 # Directory level rules for directory server_info
@@ -114,14 +135,15 @@ server_info/clean: server_info/CMakeFiles/serverinfo.dir/clean
 # All Build rule for target.
 CMakeFiles/source.dir/all: server_info/CMakeFiles/serverinfo.dir/all
 CMakeFiles/source.dir/all: mask/CMakeFiles/mask.dir/all
+CMakeFiles/source.dir/all: player_settings_factory/CMakeFiles/playersettingsfactory.dir/all
 	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/depend
 	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=5,6 "Built target source"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=7,8 "Built target source"
 .PHONY : CMakeFiles/source.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/source.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 8
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/source.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 0
 .PHONY : CMakeFiles/source.dir/rule
@@ -143,7 +165,7 @@ CMakeFiles/source.dir/clean:
 server_info/CMakeFiles/serverinfo.dir/all:
 	$(MAKE) -f server_info/CMakeFiles/serverinfo.dir/build.make server_info/CMakeFiles/serverinfo.dir/depend
 	$(MAKE) -f server_info/CMakeFiles/serverinfo.dir/build.make server_info/CMakeFiles/serverinfo.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=3,4 "Built target serverinfo"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=5,6 "Built target serverinfo"
 .PHONY : server_info/CMakeFiles/serverinfo.dir/all
 
 # Build rule for subdir invocation for target.
@@ -189,6 +211,33 @@ mask: mask/CMakeFiles/mask.dir/rule
 mask/CMakeFiles/mask.dir/clean:
 	$(MAKE) -f mask/CMakeFiles/mask.dir/build.make mask/CMakeFiles/mask.dir/clean
 .PHONY : mask/CMakeFiles/mask.dir/clean
+
+#=============================================================================
+# Target rules for target player_settings_factory/CMakeFiles/playersettingsfactory.dir
+
+# All Build rule for target.
+player_settings_factory/CMakeFiles/playersettingsfactory.dir/all: server_info/CMakeFiles/serverinfo.dir/all
+	$(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/depend
+	$(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=3,4 "Built target playersettingsfactory"
+.PHONY : player_settings_factory/CMakeFiles/playersettingsfactory.dir/all
+
+# Build rule for subdir invocation for target.
+player_settings_factory/CMakeFiles/playersettingsfactory.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 4
+	$(MAKE) -f CMakeFiles/Makefile2 player_settings_factory/CMakeFiles/playersettingsfactory.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 0
+.PHONY : player_settings_factory/CMakeFiles/playersettingsfactory.dir/rule
+
+# Convenience name for target.
+playersettingsfactory: player_settings_factory/CMakeFiles/playersettingsfactory.dir/rule
+
+.PHONY : playersettingsfactory
+
+# clean rule for target.
+player_settings_factory/CMakeFiles/playersettingsfactory.dir/clean:
+	$(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/clean
+.PHONY : player_settings_factory/CMakeFiles/playersettingsfactory.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

@@ -80,14 +80,14 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/player_settings_factory/CMakeFiles/progress.marks
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(MAKE) -f CMakeFiles/Makefile2 player_settings_factory/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles/Makefile2 clean
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(MAKE) -f CMakeFiles/Makefile2 player_settings_factory/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,97 +97,60 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(MAKE) -f CMakeFiles/Makefile2 player_settings_factory/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(MAKE) -f CMakeFiles/Makefile2 player_settings_factory/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named source
+# Convenience name for target.
+player_settings_factory/CMakeFiles/playersettingsfactory.dir/rule:
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(MAKE) -f CMakeFiles/Makefile2 player_settings_factory/CMakeFiles/playersettingsfactory.dir/rule
+.PHONY : player_settings_factory/CMakeFiles/playersettingsfactory.dir/rule
 
-# Build rule for target.
-source: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 source
-.PHONY : source
+# Convenience name for target.
+playersettingsfactory: player_settings_factory/CMakeFiles/playersettingsfactory.dir/rule
 
-# fast build rule for target.
-source/fast:
-	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/build
-.PHONY : source/fast
-
-#=============================================================================
-# Target rules for targets named serverinfo
-
-# Build rule for target.
-serverinfo: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 serverinfo
-.PHONY : serverinfo
-
-# fast build rule for target.
-serverinfo/fast:
-	$(MAKE) -f server_info/CMakeFiles/serverinfo.dir/build.make server_info/CMakeFiles/serverinfo.dir/build
-.PHONY : serverinfo/fast
-
-#=============================================================================
-# Target rules for targets named mask
-
-# Build rule for target.
-mask: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 mask
-.PHONY : mask
-
-# fast build rule for target.
-mask/fast:
-	$(MAKE) -f mask/CMakeFiles/mask.dir/build.make mask/CMakeFiles/mask.dir/build
-.PHONY : mask/fast
-
-#=============================================================================
-# Target rules for targets named playersettingsfactory
-
-# Build rule for target.
-playersettingsfactory: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 playersettingsfactory
 .PHONY : playersettingsfactory
 
 # fast build rule for target.
 playersettingsfactory/fast:
-	$(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/build
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/build
 .PHONY : playersettingsfactory/fast
 
-main.o: main.cpp.o
+player_settings.o: player_settings.cpp.o
 
-.PHONY : main.o
+.PHONY : player_settings.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/main.cpp.o
-.PHONY : main.cpp.o
+player_settings.cpp.o:
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/player_settings.cpp.o
+.PHONY : player_settings.cpp.o
 
-main.i: main.cpp.i
+player_settings.i: player_settings.cpp.i
 
-.PHONY : main.i
+.PHONY : player_settings.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/main.cpp.i
-.PHONY : main.cpp.i
+player_settings.cpp.i:
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/player_settings.cpp.i
+.PHONY : player_settings.cpp.i
 
-main.s: main.cpp.s
+player_settings.s: player_settings.cpp.s
 
-.PHONY : main.s
+.PHONY : player_settings.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/main.cpp.s
-.PHONY : main.cpp.s
+player_settings.cpp.s:
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/player_settings.cpp.s
+.PHONY : player_settings.cpp.s
 
 # Help Target
 help:
@@ -197,13 +160,10 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... source"
-	@echo "... serverinfo"
-	@echo "... mask"
 	@echo "... playersettingsfactory"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... player_settings.o"
+	@echo "... player_settings.i"
+	@echo "... player_settings.s"
 .PHONY : help
 
 
@@ -215,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

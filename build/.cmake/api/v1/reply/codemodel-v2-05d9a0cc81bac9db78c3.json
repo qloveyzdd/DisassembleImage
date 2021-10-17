@@ -9,7 +9,8 @@
 					"childIndexes" : 
 					[
 						1,
-						2
+						2,
+						3
 					],
 					"minimumCMakeVersion" : 
 					{
@@ -19,7 +20,7 @@
 					"source" : ".",
 					"targetIndexes" : 
 					[
-						2
+						3
 					]
 				},
 				{
@@ -33,7 +34,7 @@
 					"source" : "server_info",
 					"targetIndexes" : 
 					[
-						1
+						2
 					]
 				},
 				{
@@ -49,6 +50,20 @@
 					[
 						0
 					]
+				},
+				{
+					"build" : "player_settings_factory",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "player_settings_factory",
+					"targetIndexes" : 
+					[
+						1
+					]
 				}
 			],
 			"name" : "DEBUG",
@@ -59,14 +74,16 @@
 					[
 						0,
 						1,
-						2
+						2,
+						3
 					],
 					"name" : "DISASSEMBLEIMAGE",
 					"targetIndexes" : 
 					[
 						0,
 						1,
-						2
+						2,
+						3
 					]
 				}
 			],
@@ -80,6 +97,13 @@
 					"projectIndex" : 0
 				},
 				{
+					"directoryIndex" : 3,
+					"id" : "playersettingsfactory::@e392fa16ea0855c8803a",
+					"jsonFile" : "target-playersettingsfactory-DEBUG-4e28d0a455603f180c6b.json",
+					"name" : "playersettingsfactory",
+					"projectIndex" : 0
+				},
+				{
 					"directoryIndex" : 1,
 					"id" : "serverinfo::@8b7883f9d523504f1733",
 					"jsonFile" : "target-serverinfo-DEBUG-bfc6c3735967139222ce.json",
@@ -89,7 +113,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "source::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-source-DEBUG-42c7eb33580c4694e634.json",
+					"jsonFile" : "target-source-DEBUG-74e75c20175bee505c4c.json",
 					"name" : "source",
 					"projectIndex" : 0
 				}

@@ -81,6 +81,7 @@ source: CMakeFiles/source.dir/main.cpp.o
 source: CMakeFiles/source.dir/build.make
 source: server_info/libserverinfo.a
 source: mask/libmask.a
+source: player_settings_factory/libplayersettingsfactory.a
 source: /usr/local/lib/libopencv_dnn.so.3.4.15
 source: /usr/local/lib/libopencv_highgui.so.3.4.15
 source: /usr/local/lib/libopencv_ml.so.3.4.15
@@ -98,6 +99,7 @@ source: /usr/local/lib/libopencv_videoio.so.3.4.15
 source: /usr/local/lib/libopencv_imgcodecs.so.3.4.15
 source: /usr/local/lib/libopencv_imgproc.so.3.4.15
 source: /usr/local/lib/libopencv_core.so.3.4.15
+source: server_info/libserverinfo.a
 source: CMakeFiles/source.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable source"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/source.dir/link.txt --verbose=$(VERBOSE)

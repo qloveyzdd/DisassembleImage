@@ -3,5 +3,6 @@
 
 CMakeFiles/source.dir/main.cpp.o: ../main.cpp
 CMakeFiles/source.dir/main.cpp.o: ../mask/mask.h
+CMakeFiles/source.dir/main.cpp.o: ../player_settings_factory/player_settings.h
 CMakeFiles/source.dir/main.cpp.o: ../server_info/server_info.h
 

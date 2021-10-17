@@ -12,6 +12,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.16.3/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.16.3/CMakeSystem.cmake"
   "../mask/CMakeLists.txt"
+  "../player_settings_factory/CMakeLists.txt"
   "../server_info/CMakeLists.txt"
   "/usr/local/share/OpenCV/OpenCVConfig-version.cmake"
   "/usr/local/share/OpenCV/OpenCVConfig.cmake"
@@ -51,6 +52,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "server_info/CMakeFiles/CMakeDirectoryInformation.cmake"
   "mask/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "player_settings_factory/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -58,4 +60,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/source.dir/DependInfo.cmake"
   "server_info/CMakeFiles/serverinfo.dir/DependInfo.cmake"
   "mask/CMakeFiles/mask.dir/DependInfo.cmake"
+  "player_settings_factory/CMakeFiles/playersettingsfactory.dir/DependInfo.cmake"
   )

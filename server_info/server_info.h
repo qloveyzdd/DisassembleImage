@@ -6,15 +6,14 @@ using namespace std;
 
 class server_info;
 class load_list;
-class player_settings;
 
 class server_info
 {
 private:
     int x;            //屏幕横向尺寸
     int y;            //屏幕纵向尺寸
-    int xz;          //旋转
-    int fz;          //翻转
+    int xz;           //旋转
+    int fz;           //翻转
     string Prefix;    //输出前缀
     string mask;      //mask名称
     string load_path; //读取文件路径
@@ -33,29 +32,15 @@ public:
     int Get_y() const { return y; }
 };
 
-class load_list
+class load_list //待处理文件总目录
 {
 private:
     vector<string> list;
-    int cpus_count;     //cpu线程数
-    vector<vector<string>> cpu_list; //cpu线程数
 
 public:
     load_list(server_info serverinfo);
     load_list(string load_path, string load_name);
-    int get_size() { return list.size(); }
-    string file_name(int a) const { return list[a];}
-    public:
-    void cpu_thread_list_settings(player_settings playerset);
-};
-
-class player_settings
-{
-private:
-    int begin; //起始点
-    int count; //数量
-public:
-    player_settings(load_list loadlist_A);
-    int get_begin() { return begin; }
-    int get_count() { return count; }
+    const vector<string> *Get_list() { return &list; }
+    const int list_count() { return list.size(); }
+    string* get_file(int count){return &(list[count]);}
 };
