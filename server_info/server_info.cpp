@@ -86,12 +86,13 @@ load_list::load_list(server_info serverinfo)
     int count = 0;
     while (getline(inf, image_name))
     {
-        image_name.erase(image_name.end()-1,image_name.end());
+        image_name.erase(image_name.end() - 1, image_name.end());
         list.push_back(image_name);
         cout << serverinfo.GetLoadPath() + "/" + image_name << endl;
         count++;
     }
-    cout << count << endl;
+ //   cout << count << endl;
+    cout<<"共有"<<count<<"个文件等待处理"<<endl;
 }
 
 load_list::load_list(string load_path, string load_name)
@@ -106,41 +107,7 @@ load_list::load_list(string load_path, string load_name)
         cout << temp << endl;
         count++;
     }
-    cout << count << endl;
-}
-
-void load_list::cpu_thread_list_settings(player_settings playerset)
-{
-    cpus_count = sysconf(_SC_NPROCESSORS_ONLN);
-    for (int i = 0; i < cpus_count; i++)
-    {
-        cpu_list.push_back(*new vector<string>);
-    }
-    for (int i = 0; i < playerset.get_count(); i++)
-    {
-        cpu_list[i%cpus_count].push_back(list[playerset.get_begin()+i]);
-    }
-    
-}
-
-player_settings::player_settings(load_list loadlist)
-{
-    string temp;
-    cout << "输入起始位置（设置为小于等于0则为列表起始位置,超过最大值则为最大值）:" << endl;
-    cin >> temp;
-    begin = atoi(temp.c_str());
-    if (begin <= 0)
-        begin = 1;
-    else if (begin > loadlist.get_size())
-        begin = loadlist.get_size();
-
-    temp = "";
-    cout << "输入计算数量（设置为小于等于0则为从开始端口到列表末尾位置,超过最大数量则计算到末尾）:" << endl;
-    cin >> temp;
-    count = atoi(temp.c_str());
-    if (count <= 0)
-        count = loadlist.get_size() - begin;
-    else
-        count + begin > loadlist.get_size() ? loadlist.get_size() - begin : count;
+ //   cout << count << endl;
+    cout<<"共有"<<count<<"个文件等待处理"<<endl;
 }
 
