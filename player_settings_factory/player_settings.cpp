@@ -27,7 +27,7 @@ player_settings_factory::player_settings_factory(load_list *list_in)
     cout << "处理核心数量为" << cpu_count << "个" << endl;
 }
 
-vector<cpu_settings *> player_settings_factory::create()
+vector<cpu_settings *> player_settings_factory::create(disassembly *disassembly, server_info *serverinfo_in)
 {
     int count = ceil(float(list->list_count()) / float(cpu_count));
     cout << "单核心处理" << count << "个文件" << endl;
@@ -35,6 +35,8 @@ vector<cpu_settings *> player_settings_factory::create()
     for (int i = 0; i < cpu_count; i++)
     {
         cpu_settings *cpu_list = new cpu_settings;
+        cpu_list->set_disassemblyIm(disassembly);
+        cpu_list->set_server_info(serverinfo_in);
         int max_file = (i + 1) * count > list->list_count() ? list->list_count() : (i + 1) * count;
         for (int j = i * count; j < max_file; j++)
         {
@@ -43,4 +45,48 @@ vector<cpu_settings *> player_settings_factory::create()
         cpus.push_back(cpu_list);
     }
     return cpus;
+}
+
+void cpu_settings::cpu_work()
+{
+    int count = 0;
+    for (auto filename : cpu_list)
+    {
+        Mat dstImage;
+        std::cout << "processing：" << get_server_info()->GetPrefix() << *filename << endl;
+        string savefile = get_server_info()->GetSavePath() + "/" + get_server_info()->GetPrefix() + *filename;
+        string loadfile = get_server_info()->GetLoadPath() + "/" + *filename;
+        Mat quad = imread(loadfile, -1);
+        if (!quad.data)
+        {
+            printf("读取图片错误");
+            abort();
+        }
+        quad.copyTo(dstImage, get_disassembly()->get_mask_dilate());
+        cv::warpPerspective(dstImage, quad, get_disassembly()->get_transmtx(), quad.size());
+        switch (get_server_info()->Get_xz())
+        {
+        case 1:
+            transpose(quad, quad);
+            flip(quad, quad, 0);
+            break;
+        default:
+            break;
+        }
+        switch (get_server_info()->Get_fz())
+        {
+        case 1:
+            flip(quad, quad, 1);
+            break;
+        case 2:
+            flip(quad, quad, 0);
+            break;
+        case 3:
+            flip(quad, quad, -1);
+            break;
+        default:
+            break;
+        }
+        imwrite(savefile, quad);
+    }
 }

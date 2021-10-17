@@ -16,7 +16,7 @@
 },
 {
   "directory": "/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/player_settings_factory",
-  "command": "/bin/x86_64-linux-gnu-g++-9   -I/usr/local/include/opencv  -g   -o CMakeFiles/playersettingsfactory.dir/player_settings.cpp.o -c /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/player_settings_factory/player_settings.cpp",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -isystem /usr/local/include/opencv  -g   -o CMakeFiles/playersettingsfactory.dir/player_settings.cpp.o -c /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/player_settings_factory/player_settings.cpp",
   "file": "/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/player_settings_factory/player_settings.cpp"
 }
 ]

@@ -133,6 +133,16 @@
 				"role" : "libraries"
 			},
 			{
+				"backtrace" : 2,
+				"fragment" : "server_info/libserverinfo.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "mask/libmask.a",
+				"role" : "libraries"
+			},
+			{
 				"backtrace" : 5,
 				"fragment" : "/usr/local/lib/libopencv_dnn.so.3.4.15",
 				"role" : "libraries"
@@ -215,11 +225,6 @@
 			{
 				"backtrace" : 5,
 				"fragment" : "/usr/local/lib/libopencv_core.so.3.4.15",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 2,
-				"fragment" : "server_info/libserverinfo.a",
 				"role" : "libraries"
 			}
 		],

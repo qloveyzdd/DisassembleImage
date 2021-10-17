@@ -1,4 +1,6 @@
 #include "mask.h"
+#include <stdlib.h>
+#include <iostream>
 
 void DilationMask(const cv::Mat &src, cv::Mat &dst) //膨胀mask
 {
@@ -98,7 +100,7 @@ disassembly::disassembly(const server_info *serverinfo)
 
     if (!mask.data)
     {
-        printf("读取文件错误！！！");
+        cout << "读取文件错误！！！" << endl;
         abort();
     }
 
@@ -109,7 +111,7 @@ disassembly::disassembly(const server_info *serverinfo)
 
     if (roi_point_approx.size() != 4)
     {
-        printf("锚点不为4！");
+        cout << "锚点不为4！" << endl;
         abort();
     }
 

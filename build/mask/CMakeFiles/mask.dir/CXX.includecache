@@ -9,6 +9,10 @@
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/mask/mask.cpp
 mask.h
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/mask/mask.h
+stdlib.h
+-
+iostream
+-
 
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/mask/mask.h
 opencv2/highgui/highgui.hpp
@@ -17,18 +21,8 @@ opencv2/imgproc/imgproc.hpp
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/mask/opencv2/imgproc/imgproc.hpp
 string
 -
-stdlib.h
--
 ../server_info/server_info.h
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/server_info/server_info.h
-../player_settings_factory/player_settings.h
-/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/player_settings_factory/player_settings.h
-
-/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/player_settings_factory/player_settings.h
-../server_info/server_info.h
-/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/server_info/server_info.h
-iostream
--
 
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/server_info/server_info.h
 string

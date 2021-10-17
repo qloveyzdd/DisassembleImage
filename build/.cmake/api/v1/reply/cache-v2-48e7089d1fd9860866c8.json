@@ -1191,7 +1191,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "general;serverinfo;"
+			"value" : "general;serverinfo;general;mask;"
 		}
 	],
 	"kind" : "cache",
