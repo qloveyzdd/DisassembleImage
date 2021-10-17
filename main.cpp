@@ -3,7 +3,7 @@
 
 #ifdef _WINDOWS_
 
-#include <windows.h> 
+#include <windows.h>
 
 #endif // _WINDOWS_
 
@@ -31,6 +31,11 @@ int main()
     load_list loadlist(serverinfo);
     player_settings_factory playerset(&loadlist);
     vector<cpu_settings *> cpus_list = playerset.create();
+    for (int i = 0; i < 100; i++)
+    {
+        cout << *(cpus_list[15]->cpu_list_show(i)) << endl;
+    }
+
     return 0;
 
     // mask = imread(serverinfo.GetMask());
@@ -38,7 +43,7 @@ int main()
 
     // std::vector<cv::Point2f> roi_point_approx;
     // roi_point_approx = RoiPointApprox(mask);
-    
+
     // cv::Point2f center(0, 0);
     // center = GetCenter(roi_point_approx);
     // sortCorners(roi_point_approx, center);
@@ -55,7 +60,6 @@ int main()
 
     // cv::Mat transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts);
 
-    
     // int count = 0;
     // for (int i = playerset.get_begin() - 1; i < playerset.get_begin() + playerset.get_count(); i++)
     // {

@@ -36,7 +36,7 @@ vector<cpu_settings *> player_settings_factory::create()
     {
         cpu_settings *cpu_list = new cpu_settings;
         int max_file = (i + 1) * count > list->list_count() ? list->list_count() : (i + 1) * count;
-        for (int j = i * count; j < (i + 1) * count; j++)
+        for (int j = i * count; j < max_file; j++)
         {
             cpu_list->cpu_list_add(list->get_file(j));
         }
