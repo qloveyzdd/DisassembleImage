@@ -116,7 +116,7 @@ disassembly::disassembly(const server_info *serverinfo)
     }
 
     Mattopts(quad_pts, serverinfo);
-    cv::Mat transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts); //最终矩阵
+    transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts); //最终矩阵
 }
 
 void RoadImageAndSetMask(cv::Mat &dst, const std::string Image, const cv::Mat &mask)

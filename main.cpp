@@ -29,9 +29,8 @@ int main()
 
     player_settings_factory playerset(&loadlist);
     vector<cpu_settings *> cpus_list = playerset.create(&disassemblyImage,&serverinfo);
-
     cpus_list[0]->cpu_work();
-    // cpus_list[0]->cpu_work();
+
 
     // std::thread tt(&)
 
