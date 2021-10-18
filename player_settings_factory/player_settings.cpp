@@ -59,11 +59,17 @@ void cpu_settings::cpu_work()
         Mat quad = imread(loadfile, -1);
         if (!quad.data)
         {
-            printf("读取图片错误");
+            cout<<"读取图片错误"<<endl;;
             abort();
         }
         quad.copyTo(dstImage, get_disassembly()->get_mask_dilate());
-        cv::warpPerspective(dstImage, quad, get_disassembly()->get_transmtx(), quad.size());
+        if (!dstImage.data)
+        {
+            cout<<"mask图片错误"<<endl;
+            abort();
+        }
+        Mat quad1 = get_disassembly()->get_mask_dilate();
+        cv::warpPerspective(dstImage, quad, quad1, quad.size());
         switch (get_server_info()->Get_xz())
         {
         case 1:
