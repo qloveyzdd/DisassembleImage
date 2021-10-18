@@ -49,7 +49,7 @@ vector<cpu_settings *> player_settings_factory::create(disassembly *disassembly,
 
 void cpu_settings::cpu_work()
 {
-    int count = 0;
+    // int count = 0;
     for (auto filename : cpu_list)
     {
         Mat dstImage;
@@ -59,16 +59,17 @@ void cpu_settings::cpu_work()
         Mat quad = imread(loadfile, -1);
         if (!quad.data)
         {
-            cout<<"读取图片错误"<<endl;;
+            cout << "读取图片错误" << endl;
+            ;
             abort();
         }
         quad.copyTo(dstImage, get_disassembly()->get_mask_dilate());
         if (!dstImage.data)
         {
-            cout<<"mask图片错误"<<endl;
+            cout << "mask图片错误" << endl;
             abort();
         }
-        cv::warpPerspective(dstImage, quad, get_disassembly()->get_transmtx(), Size(get_server_info()->Get_x(),get_server_info()->Get_y()));
+        cv::warpPerspective(dstImage, quad, get_disassembly()->get_transmtx(), Size(get_server_info()->Get_x(), get_server_info()->Get_y()));
         switch (get_server_info()->Get_xz())
         {
         case 1:

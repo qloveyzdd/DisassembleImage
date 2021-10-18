@@ -1,8 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 project(DISASSEMBLEIMAGE)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 # 找opencv package----------记得添加这个
 find_package(OpenCV REQUIRED) 
+find_package(Threads REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 
@@ -22,6 +24,7 @@ target_link_libraries(source playersettingsfactory)
 
 # 链接opencv库
 target_link_libraries(source ${OpenCV_LIBS})
+target_link_libraries(source Threads::Threads)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 set(CMAKE_BUILD_TYPE DEBUG)

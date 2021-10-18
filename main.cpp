@@ -14,11 +14,51 @@
 #include <iostream>
 #include <fstream>
 #include <pthread.h>
+#include <unistd.h>
 
 using namespace cv;
 using namespace std;
 
 // void thread_main(Mat quad, Mat mask_dilate, server_info serverinfo, load_list loadlist, player_settings playerset, cv::Mat transmtx);
+
+class TestThread
+{
+private:
+    struct ThreadParam
+    {
+        TestThread *myself_;
+    };
+    cpu_settings *cpusetting;
+
+public:
+    void runThread();
+    void setcpusetting(cpu_settings *cpusetting_in) { cpusetting = cpusetting_in; }
+
+private:
+    static void *threadFunction(void *threadParam);
+    void function();
+};
+
+void TestThread::runThread()
+{
+    pthread_t thread;
+    ThreadParam threadParam;
+
+    threadParam.myself_ = this;
+    pthread_create(&thread, NULL, threadFunction, (ThreadParam *)&threadParam);
+}
+
+void *TestThread::threadFunction(void *threadParam)
+{
+    ThreadParam *thread = (ThreadParam *)threadParam;
+    thread->myself_->function();
+    return NULL;
+}
+
+void TestThread::function()
+{
+    cout<<"AAA"<<endl;
+}
 
 int main()
 {
@@ -28,17 +68,22 @@ int main()
     disassembly disassemblyImage(&serverinfo);
 
     player_settings_factory playerset(&loadlist);
-    vector<cpu_settings *> cpus_list = playerset.create(&disassemblyImage,&serverinfo);
-    cpus_list[0]->cpu_work();
+    vector<cpu_settings *> cpus_list = playerset.create(&disassemblyImage, &serverinfo);
 
+    // cpus_list[0]->cpu_work();
 
-    // std::thread tt(&)
+    // TestThread threadcpu[playerset.get_cpu_count()];
 
-    // pthread_t tids[playerset.get_cpu_count()];
-    // for (int i = 0; playerset.get_cpu_count();i++)
+    // for (int i = 0; i < playerset.get_cpu_count(); i++)
     // {
-    //     int ret = pthread_create(&tids[i], NULL, &cpus_list[i]::cpu_work(), NULL);
+    //     threadcpu[i].setcpusetting(cpus_list[i]);
+    //     threadcpu[i].runThread();
     // }
+
+    // TestThread thread1;
+    // thread1.setcpusetting(cpus_list[0]);
+    // thread1.runThread();
+
     // pthread_exit(NULL);
     return 0;
 }
