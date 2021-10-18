@@ -3,7 +3,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "server_info/libserverinfo.a"
+			"path" : "player_settings_factory/libplayersettingsfactory.a"
 		}
 	],
 	"backtrace" : 1,
@@ -12,11 +12,12 @@
 		"commands" : 
 		[
 			"add_library",
+			"target_link_libraries",
 			"include_directories"
 		],
 		"files" : 
 		[
-			"server_info/CMakeLists.txt",
+			"player_settings_factory/CMakeLists.txt",
 			"CMakeLists.txt"
 		],
 		"nodes" : 
@@ -27,17 +28,29 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 5,
+				"line" : 8,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 10,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 11,
 				"parent" : 0
 			},
 			{
 				"file" : 1
 			},
 			{
-				"command" : 1,
+				"command" : 2,
 				"file" : 1,
-				"line" : 7,
-				"parent" : 2
+				"line" : 9,
+				"parent" : 4
 			}
 		]
 	},
@@ -53,7 +66,8 @@
 			"includes" : 
 			[
 				{
-					"backtrace" : 3,
+					"backtrace" : 5,
+					"isSystem" : true,
 					"path" : "/usr/local/include/opencv"
 				}
 			],
@@ -64,13 +78,24 @@
 			]
 		}
 	],
-	"id" : "serverinfo::@8b7883f9d523504f1733",
-	"name" : "serverinfo",
-	"nameOnDisk" : "libserverinfo.a",
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "serverinfo::@8b7883f9d523504f1733"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "mask::@df855f57255c3408c8be"
+		}
+	],
+	"id" : "playersettingsfactory::@e392fa16ea0855c8803a",
+	"name" : "playersettingsfactory",
+	"nameOnDisk" : "libplayersettingsfactory.a",
 	"paths" : 
 	{
-		"build" : "server_info",
-		"source" : "server_info"
+		"build" : "player_settings_factory",
+		"source" : "player_settings_factory"
 	},
 	"sourceGroups" : 
 	[
@@ -87,7 +112,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "server_info/server_info.cpp",
+			"path" : "player_settings_factory/player_settings.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

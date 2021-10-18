@@ -26,19 +26,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 15,
-				"parent" : 0
-			},
-			{
-				"command" : 1,
-				"file" : 0,
-				"line" : 19,
-				"parent" : 0
-			},
-			{
-				"command" : 1,
-				"file" : 0,
-				"line" : 20,
+				"line" : 17,
 				"parent" : 0
 			},
 			{
@@ -50,13 +38,31 @@
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 24,
+				"line" : 22,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 23,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 26,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 27,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 7,
+				"line" : 9,
 				"parent" : 0
 			}
 		]
@@ -68,12 +74,16 @@
 			[
 				{
 					"fragment" : " -g -g  "
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-pthread"
 				}
 			],
 			"includes" : 
 			[
 				{
-					"backtrace" : 6,
+					"backtrace" : 7,
 					"isSystem" : true,
 					"path" : "/usr/local/include/opencv"
 				}
@@ -225,6 +235,10 @@
 			{
 				"backtrace" : 5,
 				"fragment" : "/usr/local/lib/libopencv_core.so.3.4.15",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-pthread",
 				"role" : "libraries"
 			}
 		],

@@ -461,3 +461,31 @@ Parsed CXX implicit link information from above output:
   implicit fwks: []
 
 
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_77a35/fast && /usr/bin/make -f CMakeFiles/cmTC_77a35.dir/build.make CMakeFiles/cmTC_77a35.dir/build
+make[1]: 进入目录“/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp”
+Building C object CMakeFiles/cmTC_77a35.dir/CheckIncludeFile.c.o
+/bin/x86_64-linux-gnu-gcc-9    -o CMakeFiles/cmTC_77a35.dir/CheckIncludeFile.c.o   -c /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_77a35
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_77a35.dir/link.txt --verbose=1
+/bin/x86_64-linux-gnu-gcc-9      -rdynamic CMakeFiles/cmTC_77a35.dir/CheckIncludeFile.c.o  -o cmTC_77a35 
+make[1]: 离开目录“/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp”
+
+
+
+Determining if the function pthread_create exists in the pthread passed with the following output:
+Change Dir: /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_27e71/fast && /usr/bin/make -f CMakeFiles/cmTC_27e71.dir/build.make CMakeFiles/cmTC_27e71.dir/build
+make[1]: 进入目录“/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp”
+Building C object CMakeFiles/cmTC_27e71.dir/CheckFunctionExists.c.o
+/bin/x86_64-linux-gnu-gcc-9   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_27e71.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
+Linking C executable cmTC_27e71
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_27e71.dir/link.txt --verbose=1
+/bin/x86_64-linux-gnu-gcc-9  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_27e71.dir/CheckFunctionExists.c.o  -o cmTC_27e71  -lpthread 
+make[1]: 离开目录“/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp”
+
+
+
