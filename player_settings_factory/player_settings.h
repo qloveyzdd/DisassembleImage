@@ -38,4 +38,5 @@ private:
 public:
     player_settings_factory(load_list *list);
     vector<cpu_settings *> create(disassembly *disassembly,server_info *serverinfo_in);
+    int get_cpu_count(){return cpu_count; }
 };

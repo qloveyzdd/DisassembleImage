@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <pthread.h>
 
 using namespace cv;
 using namespace std;
@@ -30,6 +31,15 @@ int main()
     vector<cpu_settings *> cpus_list = playerset.create(&disassemblyImage,&serverinfo);
 
     cpus_list[0]->cpu_work();
+    // cpus_list[0]->cpu_work();
 
+    // std::thread tt(&)
+
+    // pthread_t tids[playerset.get_cpu_count()];
+    // for (int i = 0; playerset.get_cpu_count();i++)
+    // {
+    //     int ret = pthread_create(&tids[i], NULL, &cpus_list[i]::cpu_work(), NULL);
+    // }
+    // pthread_exit(NULL);
     return 0;
 }
