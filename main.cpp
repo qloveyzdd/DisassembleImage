@@ -9,103 +9,81 @@
 
 #include "server_info/server_info.h"
 #include "mask/mask.h"
+#include "player_settings_factory/player_settings.h"
 
 #include <iostream>
 #include <fstream>
+#include <pthread.h>
+#include <unistd.h>
 
 using namespace cv;
 using namespace std;
 
-Mat mask, mask_dilate;
-Mat quad;
+// void thread_main(Mat quad, Mat mask_dilate, server_info serverinfo, load_list loadlist, player_settings playerset, cv::Mat transmtx);
 
-void thread_main(Mat quad, Mat mask_dilate, server_info serverinfo, load_list loadlist, player_settings playerset, cv::Mat transmtx);
+class TestThread
+{
+private:
+    struct ThreadParam
+    {
+        TestThread *myself_;
+    };
+    cpu_settings *cpusetting;
+
+public:
+    void runThread();
+    void setcpusetting(cpu_settings *cpusetting_in) { cpusetting = cpusetting_in; }
+
+private:
+    static void *threadFunction(void *threadParam);
+    void function();
+};
+
+void TestThread::runThread()
+{
+    pthread_t thread;
+    ThreadParam threadParam;
+
+    threadParam.myself_ = this;
+    pthread_create(&thread, NULL, threadFunction, (ThreadParam *)&threadParam);
+}
+
+void *TestThread::threadFunction(void *threadParam)
+{
+    ThreadParam *thread = (ThreadParam *)threadParam;
+    thread->myself_->function();
+    return NULL;
+}
+
+void TestThread::function()
+{
+    cout<<"AAA"<<endl;
+}
 
 int main()
 {
-    // load_list loadlist("/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage", "yaleok.txt");
-    // return 0;
-
     server_info serverinfo;
     load_list loadlist(serverinfo);
-    player_settings playerset(loadlist);
 
-    mask = imread(serverinfo.GetMask());
-    DilationMask(mask, mask_dilate);
+    disassembly disassemblyImage(&serverinfo);
 
-    std::vector<cv::Point2f> roi_point_approx;
-    roi_point_approx = RoiPointApprox(mask);
-    
-    cv::Point2f center(0, 0);
-    center = GetCenter(roi_point_approx);
-    sortCorners(roi_point_approx, center);
+    player_settings_factory playerset(&loadlist);
+    vector<cpu_settings *> cpus_list = playerset.create(&disassemblyImage, &serverinfo);
 
-    if (roi_point_approx.size() != 4)
-    {
-        printf("锚点不为4！");
-        return false;
-    }
+    // cpus_list[0]->cpu_work();
 
-    quad = cv::Mat::zeros(serverinfo.Get_y(), serverinfo.Get_x(), CV_8UC3);
-    std::vector<cv::Point2f> quad_pts;
-    Mattopts(quad, quad_pts);
+    // TestThread threadcpu[playerset.get_cpu_count()];
 
-    cv::Mat transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts);
+    // for (int i = 0; i < playerset.get_cpu_count(); i++)
+    // {
+    //     threadcpu[i].setcpusetting(cpus_list[i]);
+    //     threadcpu[i].runThread();
+    // }
 
-    
-    int count = 0;
-    for (int i = playerset.get_begin() - 1; i < playerset.get_begin() + playerset.get_count(); i++)
-    {
-        cv::Mat quad_copy = quad;
-        cv::Mat dstImage;
-        std::cout << "processing：" << loadlist.file_name(i) << endl;
-        string savefile = serverinfo.GetSavePath() + "/" + serverinfo.GetPrefix() + loadlist.file_name(i);
-        string qaz = serverinfo.GetLoadPath() + "/" + loadlist.file_name(i);
-        Mat quad1 = imread(serverinfo.GetLoadPath() + "/" + loadlist.file_name(i), -1);
-        if (!quad1.data)
-        {
-            printf("读取图片错误");
-            return 0;
-        }
+    // TestThread thread1;
+    // thread1.setcpusetting(cpus_list[0]);
+    // thread1.runThread();
 
-        quad1.copyTo(dstImage, mask_dilate);
-
-        cv::warpPerspective(dstImage, quad_copy, transmtx, quad_copy.size());
-
-        cv::Mat image_fliped_temp;
-        switch (serverinfo.Get_xz())
-        {
-        case 0:
-            dstImage = quad_copy;
-            break;
-        case 1:
-            transpose(quad_copy, image_fliped_temp);
-            flip(image_fliped_temp, dstImage, 0);
-            break;
-        default:
-            break;
-        }
-
-        switch (serverinfo.Get_fz())
-        {
-        case 0:
-            quad_copy = dstImage;
-            break;
-        case 1:
-            flip(dstImage, quad_copy, 1);
-            break;
-        case 2:
-            flip(dstImage, quad_copy, 0);
-            break;
-        case 3:
-            flip(dstImage, quad_copy, -1);
-            break;
-        default:
-            break;
-        }
-        // namedWindow("A",CV_WINDOW_NORMAL);
-        // imshow("A",quad);
-        imwrite(savefile, quad_copy);
-        count++;
-    }
+    // pthread_exit(NULL);
+    return 0;
 }

@@ -1,6 +1,14 @@
 #include "mask.h"
+#include <stdlib.h>
+#include <iostream>
 
-std::vector<cv::Point2f> RoiPointApprox(cv::Mat src)
+void DilationMask(const cv::Mat &src, cv::Mat &dst) //膨胀mask
+{
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(50, 50));
+    cv::dilate(src, dst, element);
+}
+
+std::vector<cv::Point2f> RoiPointApprox(const cv::Mat &src) //获取mask的顶点的位置
 {
     cv::Mat bw;
     cv::cvtColor(src, bw, CV_BGR2GRAY);
@@ -27,7 +35,7 @@ std::vector<cv::Point2f> RoiPointApprox(cv::Mat src)
     return roi_point_approx_end;
 }
 
-cv::Point2f GetCenter(std::vector<cv::Point2f> point)
+cv::Point2f GetCenter(const std::vector<cv::Point2f> &point) //获取mask的中心点
 {
     cv::Point2f center(0, 0);
 
@@ -38,7 +46,7 @@ cv::Point2f GetCenter(std::vector<cv::Point2f> point)
     return center;
 }
 
-void sortCorners(std::vector<cv::Point2f> &corners, cv::Point2f center)
+void sortCorners(std::vector<cv::Point2f> &corners, const cv::Point2f &center) //对四个点的顺序进行校对
 {
     std::vector<cv::Point2f> top_temp, bot_temp, top, bot;
 
@@ -78,18 +86,37 @@ void sortCorners(std::vector<cv::Point2f> &corners, cv::Point2f center)
     }
 }
 
-void DilationMask(cv::Mat &src, cv::Mat &dst)
-{
-    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(50, 50));
-    cv::dilate(src, dst, element);
-}
-
-void Mattopts(const cv::Mat quad, std::vector<cv::Point2f> &quad_pts)
+void Mattopts(std::vector<cv::Point2f> &quad_pts, const server_info *serverinfo) //设置最终图片的锚点位置
 {
     quad_pts.push_back(cv::Point2f(0, 0));
-    quad_pts.push_back(cv::Point2f(quad.cols, 0));
-    quad_pts.push_back(cv::Point2f(quad.cols, quad.rows));
-    quad_pts.push_back(cv::Point2f(0, quad.rows));
+    quad_pts.push_back(cv::Point2f(serverinfo->Get_x(), 0));
+    quad_pts.push_back(cv::Point2f(serverinfo->Get_x(), serverinfo->Get_y()));
+    quad_pts.push_back(cv::Point2f(0, serverinfo->Get_y()));
+}
+
+disassembly::disassembly(const server_info *serverinfo)
+{
+    mask = imread(serverinfo->GetMask());
+
+    if (!mask.data)
+    {
+        cout << "读取文件错误！！！" << endl;
+        abort();
+    }
+
+    DilationMask(mask, mask_dilate);
+    roi_point_approx = RoiPointApprox(mask);
+    center = GetCenter(roi_point_approx);
+    sortCorners(roi_point_approx, center);
+
+    if (roi_point_approx.size() != 4)
+    {
+        cout << "锚点不为4！" << endl;
+        abort();
+    }
+
+    Mattopts(quad_pts, serverinfo);
+    transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts); //最终矩阵
 }
 
 void RoadImageAndSetMask(cv::Mat &dst, const std::string Image, const cv::Mat &mask)

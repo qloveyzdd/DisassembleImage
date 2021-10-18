@@ -1,0 +1,134 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "server_info",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "server_info",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "mask",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "mask",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "player_settings_factory",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "player_settings_factory",
+					"targetIndexes" : 
+					[
+						1
+					]
+				}
+			],
+			"name" : "DEBUG",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					],
+					"name" : "DISASSEMBLEIMAGE",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "mask::@df855f57255c3408c8be",
+					"jsonFile" : "target-mask-DEBUG-3de74701ddd2aa42c0a6.json",
+					"name" : "mask",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "playersettingsfactory::@e392fa16ea0855c8803a",
+					"jsonFile" : "target-playersettingsfactory-DEBUG-d11f9aec58bb0359881d.json",
+					"name" : "playersettingsfactory",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "serverinfo::@8b7883f9d523504f1733",
+					"jsonFile" : "target-serverinfo-DEBUG-93e8d44f9e6381362214.json",
+					"name" : "serverinfo",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "source::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-source-DEBUG-c3f4f8bb1bc5ea616e29.json",
+					"name" : "source",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build",
+		"source" : "/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 0
+	}
+}

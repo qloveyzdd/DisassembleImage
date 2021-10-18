@@ -81,6 +81,9 @@ source: CMakeFiles/source.dir/main.cpp.o
 source: CMakeFiles/source.dir/build.make
 source: server_info/libserverinfo.a
 source: mask/libmask.a
+source: player_settings_factory/libplayersettingsfactory.a
+source: server_info/libserverinfo.a
+source: mask/libmask.a
 source: /usr/local/lib/libopencv_dnn.so.3.4.15
 source: /usr/local/lib/libopencv_highgui.so.3.4.15
 source: /usr/local/lib/libopencv_ml.so.3.4.15

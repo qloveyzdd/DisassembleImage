@@ -3,14 +3,24 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <string>
 
-std::vector<cv::Point2f> RoiPointApprox(cv::Mat src); //获取mask的顶点的位置
+#include "../server_info/server_info.h"
 
-cv::Point2f GetCenter(std::vector<cv::Point2f> point); //获取mask的中心点
+using namespace cv;
 
-void sortCorners(std::vector<cv::Point2f> &corners, cv::Point2f center); //对四个点的顺序进行校对
-
-void DilationMask(cv::Mat &src, cv::Mat &dst); //将mask膨胀作为遮照保留图片信息
-
-void Mattopts(const cv::Mat quad, std::vector<cv::Point2f>& quad_pts); //设置最终图片的锚点位置
+class disassembly
+{
+private:
+    bool check = false;                        //是否检查
+    Mat mask;                                  //导入的mask图片；
+    Mat mask_dilate;                           //mask图片膨胀；
+    std::vector<cv::Point2f> roi_point_approx; //mask的顶点的位置
+    cv::Point2f center;                        //mask的中心点
+    std::vector<cv::Point2f> quad_pts;         //最终图片的顶点位置
+    cv::Mat transmtx;                          //变换矩阵
+public:
+    disassembly(const server_info *serverinfo);
+    cv::Mat get_transmtx() const { return transmtx; } //获取变换矩阵
+    Mat get_mask_dilate() const { return mask_dilate; } //获取膨胀mask
+};
 
 void RoadImageAndSetMask(cv::Mat &src, const std::string Image, const cv::Mat &mask); //读取待处理图片并设置边缘mask

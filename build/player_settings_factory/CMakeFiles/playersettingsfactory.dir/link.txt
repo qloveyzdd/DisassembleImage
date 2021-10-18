@@ -1,0 +1,2 @@
+/bin/ar qc libplayersettingsfactory.a  CMakeFiles/playersettingsfactory.dir/player_settings.cpp.o
+/bin/ranlib libplayersettingsfactory.a

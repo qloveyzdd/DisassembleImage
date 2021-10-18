@@ -41,6 +41,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/server_info/cmake_install.cmake")
   include("/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/mask/cmake_install.cmake")
+  include("/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/player_settings_factory/cmake_install.cmake")
 
 endif()
 

@@ -149,6 +149,19 @@ mask/fast:
 	$(MAKE) -f mask/CMakeFiles/mask.dir/build.make mask/CMakeFiles/mask.dir/build
 .PHONY : mask/fast
 
+#=============================================================================
+# Target rules for targets named playersettingsfactory
+
+# Build rule for target.
+playersettingsfactory: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 playersettingsfactory
+.PHONY : playersettingsfactory
+
+# fast build rule for target.
+playersettingsfactory/fast:
+	$(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/build
+.PHONY : playersettingsfactory/fast
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -187,6 +200,7 @@ help:
 	@echo "... source"
 	@echo "... serverinfo"
 	@echo "... mask"
+	@echo "... playersettingsfactory"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
