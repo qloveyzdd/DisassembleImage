@@ -13,51 +13,62 @@
 
 #include <iostream>
 #include <fstream>
-#include <pthread.h>
+// #include <pthread.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include<sys/wait.h>
 
 using namespace cv;
 using namespace std;
 
 // void thread_main(Mat quad, Mat mask_dilate, server_info serverinfo, load_list loadlist, player_settings playerset, cv::Mat transmtx);
 
-class TestThread
+// class TestThread
+// {
+// private:
+//     struct ThreadParam
+//     {
+//         TestThread *myself_;
+//     };
+//     cpu_settings *cpusetting;
+
+// public:
+//     void runThread();
+//     void setcpusetting(cpu_settings *cpusetting_in) { cpusetting = cpusetting_in; }
+
+// private:
+//     static void *threadFunction(void *threadParam);
+//     void function();
+// };
+
+// void TestThread::runThread()
+// {
+//     pthread_t thread;
+//     ThreadParam threadParam;
+
+//     threadParam.myself_ = this;
+//     pthread_create(&thread, NULL, threadFunction, (ThreadParam *)&threadParam);
+// }
+
+// void *TestThread::threadFunction(void *threadParam)
+// {
+//     ThreadParam *thread = (ThreadParam *)threadParam;
+//     thread->myself_->function();
+//     return NULL;
+// }
+
+// void TestThread::function()
+// {
+//     cout<<"AAA"<<endl;
+// }
+
+
+pid_t r_wait(int * stat_loc)
 {
-private:
-    struct ThreadParam
-    {
-        TestThread *myself_;
-    };
-    cpu_settings *cpusetting;
-
-public:
-    void runThread();
-    void setcpusetting(cpu_settings *cpusetting_in) { cpusetting = cpusetting_in; }
-
-private:
-    static void *threadFunction(void *threadParam);
-    void function();
-};
-
-void TestThread::runThread()
-{
-    pthread_t thread;
-    ThreadParam threadParam;
-
-    threadParam.myself_ = this;
-    pthread_create(&thread, NULL, threadFunction, (ThreadParam *)&threadParam);
-}
-
-void *TestThread::threadFunction(void *threadParam)
-{
-    ThreadParam *thread = (ThreadParam *)threadParam;
-    thread->myself_->function();
-    return NULL;
-}
-
-void TestThread::function()
-{
-    cout<<"AAA"<<endl;
+	int revalue;
+	while(((revalue = wait(stat_loc)) == -1) && (errno == EINTR));//如果等待的过程中被一个不可阻塞的信号终断则继续循环等待
+	return revalue;
 }
 
 int main()
@@ -70,6 +81,21 @@ int main()
     player_settings_factory playerset(&loadlist);
     vector<cpu_settings *> cpus_list = playerset.create(&disassemblyImage, &serverinfo);
 
+    for (int i = 0; i < playerset.get_cpu_count(); i++)
+    {
+        if(fork()>0)
+        {
+
+        }
+        else
+        {
+            cpus_list[i]->cpu_work();
+            break;
+        }
+    }
+
+    while(r_wait(NULL) > 0);//wait for all the subprocess.
+    
     // cpus_list[0]->cpu_work();
 
     // TestThread threadcpu[playerset.get_cpu_count()];
