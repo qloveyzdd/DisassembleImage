@@ -56,8 +56,7 @@ void cpu_settings::cpu_work()
         std::cout << "processing：" << get_server_info()->GetPrefix() << *filename << endl;
         string savefile = get_server_info()->GetSavePath() + "/" + get_server_info()->GetPrefix() + *filename;
         string loadfile = get_server_info()->GetLoadPath() + "/" + *filename;
-        Mat quad = imread(loadfile, CV_32FC3);
-        cout<<quad.type()<<endl;
+        Mat quad = imread(loadfile, -1);
         if (!quad.data)
         {
             cout<<"读取图片错误"<<endl;;
@@ -69,10 +68,7 @@ void cpu_settings::cpu_work()
             cout<<"mask图片错误"<<endl;
             abort();
         }
-        cout<<quad.type()<<endl;
-        cout<<dstImage.type()<<endl;
-        cout<<get_disassembly()->get_mask_dilate().type()<<endl;
-        cv::warpPerspective(dstImage, quad, get_disassembly()->get_mask_dilate(), quad.size());
+        cv::warpPerspective(dstImage, quad, get_disassembly()->get_transmtx(), Size(get_server_info()->Get_x(),get_server_info()->Get_y()));
         switch (get_server_info()->Get_xz())
         {
         case 1:
