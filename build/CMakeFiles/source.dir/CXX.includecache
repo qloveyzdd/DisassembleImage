@@ -23,9 +23,13 @@ iostream
 -
 fstream
 -
-pthread.h
--
 unistd.h
+-
+stdio.h
+-
+sys/types.h
+-
+sys/wait.h
 -
 
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/mask/mask.h
