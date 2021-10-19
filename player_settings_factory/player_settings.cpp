@@ -31,19 +31,34 @@ vector<cpu_settings *> player_settings_factory::create(disassembly *disassembly,
 {
     int count = ceil(float(list->list_count()) / float(cpu_count));
     cout << "单核心处理" << count << "个文件" << endl;
+    //    vector<cpu_settings *> cpus;
+    // for (int i = 0; i < cpu_count; i++)
+    // {
+    //     cpu_settings *cpu_list = new cpu_settings;
+    //     cpu_list->set_disassemblyIm(disassembly);
+    //     cpu_list->set_server_info(serverinfo_in);
+    //     int max_file = (i + 1) * count > list->list_count() ? list->list_count() : (i + 1) * count;
+    //     for (int j = i * count; j < max_file; j++)
+    //     {
+    //         cpu_list->cpu_list_add(list->get_file(j));
+    //     }
+    //     cpus.push_back(cpu_list);
+    // }
+
     vector<cpu_settings *> cpus;
     for (int i = 0; i < cpu_count; i++)
     {
         cpu_settings *cpu_list = new cpu_settings;
         cpu_list->set_disassemblyIm(disassembly);
         cpu_list->set_server_info(serverinfo_in);
-        int max_file = (i + 1) * count > list->list_count() ? list->list_count() : (i + 1) * count;
-        for (int j = i * count; j < max_file; j++)
+        // int max_file = (i + 1) * count > list->list_count() ? list->list_count() : (i + 1) * count;
+        for (int j = i; j < list->list_count(); j+=cpu_count)
         {
             cpu_list->cpu_list_add(list->get_file(j));
         }
         cpus.push_back(cpu_list);
     }
+
     return cpus;
 }
 
