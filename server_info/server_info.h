@@ -17,11 +17,11 @@ private:
     string Prefix;    //输出前缀
     string mask;      //mask名称
     string load_path; //读取文件路径
-    string load_name; //读取文件名称
+    // string load_name; //读取文件名称
     string save_path; //存储路径
 public:
     server_info();
-    string GetLoadName() const { return load_name; }
+    // string GetLoadName() const { return load_name; }
     string GetLoadPath() const { return load_path; }
     string GetSavePath() const { return save_path; }
     int Get_xz() const { return xz; }

@@ -31,6 +31,8 @@ sys/types.h
 -
 sys/wait.h
 -
+dirent.h
+-
 
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/mask/mask.h
 opencv2/highgui/highgui.hpp
