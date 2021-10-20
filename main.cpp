@@ -68,8 +68,7 @@ using namespace std;
 pid_t r_wait(int *stat_loc)
 {
     int revalue;
-    while (((revalue = wait(stat_loc)) == -1) && (errno == EINTR))
-        ; //如果等待的过程中被一个不可阻塞的信号终断则继续循环等待
+    while (((revalue = wait(stat_loc)) == -1) && (errno == EINTR)); //如果等待的过程中被一个不可阻塞的信号终断则继续循环等待
     return revalue;
 }
 
@@ -95,8 +94,7 @@ int main()
         }
     }
 
-    while (r_wait(NULL) > 0)
-        ; //wait for all the subprocess.
+    while (r_wait(NULL) > 0); //wait for all the subprocess.
 
     // cpus_list[0]->cpu_work();
 
