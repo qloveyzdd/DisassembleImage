@@ -7,6 +7,17 @@ using namespace std;
 class server_info;
 class load_list;
 
+// class image_info
+// {
+// private:
+//     int x;         //屏幕横向尺寸
+//     int y;         //屏幕纵向尺寸
+//     int xz;        //旋转
+//     int fz;        //翻转
+//     string Prefix; //输出前缀
+//     string mask;   //mask名称
+// };
+
 class server_info
 {
 private:
@@ -42,5 +53,5 @@ public:
     load_list(string load_path, string load_name);
     const vector<string> *Get_list() { return &list; }
     const int list_count() { return list.size(); }
-    string* get_file(int count){return &(list[count]);}
+    string *get_file(int count) { return &(list[count]); }
 };
