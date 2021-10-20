@@ -17,7 +17,9 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/types.h>
-#include<sys/wait.h>
+#include <sys/wait.h>
+
+#include <dirent.h>
 
 using namespace cv;
 using namespace std;
@@ -63,12 +65,12 @@ using namespace std;
 //     cout<<"AAA"<<endl;
 // }
 
-
-pid_t r_wait(int * stat_loc)
+pid_t r_wait(int *stat_loc)
 {
-	int revalue;
-	while(((revalue = wait(stat_loc)) == -1) && (errno == EINTR));//如果等待的过程中被一个不可阻塞的信号终断则继续循环等待
-	return revalue;
+    int revalue;
+    while (((revalue = wait(stat_loc)) == -1) && (errno == EINTR))
+        ; //如果等待的过程中被一个不可阻塞的信号终断则继续循环等待
+    return revalue;
 }
 
 int main()
@@ -83,9 +85,8 @@ int main()
 
     for (int i = 0; i < playerset.get_cpu_count(); i++)
     {
-        if(fork()>0)
+        if (fork() > 0)
         {
-
         }
         else
         {
@@ -94,8 +95,9 @@ int main()
         }
     }
 
-    while(r_wait(NULL) > 0);//wait for all the subprocess.
-    
+    while (r_wait(NULL) > 0)
+        ; //wait for all the subprocess.
+
     // cpus_list[0]->cpu_work();
 
     // TestThread threadcpu[playerset.get_cpu_count()];

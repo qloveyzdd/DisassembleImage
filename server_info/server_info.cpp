@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
+#include <dirent.h>
 
 server_info::server_info()
 {
@@ -42,8 +43,8 @@ server_info::server_info()
         cout << "输入读取待拆分文件路径:" << endl;
         cin >> load_path;
 
-        cout << "输入读取待拆分文件目录:" << endl;
-        cin >> load_name;
+        // cout << "输入读取待拆分文件目录:" << endl;
+        // cin >> load_name;
 
         cout << "输入存储路径:" << endl;
         cin >> save_path;
@@ -69,8 +70,8 @@ server_info::server_info()
         Prefix = info[4];
         mask = info[5];
         load_path = info[6];
-        load_name = info[7];
-        save_path = info[8];
+        // load_name = info[7];
+        save_path = info[7];
         break;
     }
 
@@ -81,18 +82,46 @@ server_info::server_info()
 
 load_list::load_list(server_info serverinfo)
 {
-    ifstream inf(serverinfo.GetLoadName());
-    string image_name;
+    //     ifstream inf(serverinfo.GetLoadName());
+    //     string image_name;
+    //     int count = 0;
+    //     while (getline(inf, image_name))
+    //     {
+    //         image_name.erase(image_name.end() - 1, image_name.end());
+    //         list.push_back(image_name);
+    //         cout << serverinfo.GetLoadPath() + "/" + image_name << endl;
+    //         count++;
+    //     }
+    //  //   cout << count << endl;
+    //     cout<<"共有"<<count<<"个文件等待处理"<<endl;
+
     int count = 0;
-    while (getline(inf, image_name))
+    string dirname;
+    DIR *dp;
+    struct dirent *dirp;
+    dirname = serverinfo.GetLoadPath();
+    if ((dp = opendir(dirname.c_str())) == NULL)
     {
-        image_name.erase(image_name.end() - 1, image_name.end());
-        list.push_back(image_name);
-        cout << serverinfo.GetLoadPath() + "/" + image_name << endl;
-        count++;
+        cout << "Can't open " << dirname << endl;
+        abort();
     }
- //   cout << count << endl;
-    cout<<"共有"<<count<<"个文件等待处理"<<endl;
+    while ((dirp = readdir(dp)) != NULL)
+    {
+        if (dirp->d_type == 8)
+        {
+            string sFilename(dirp->d_name);
+            string suffixStr = sFilename.substr(sFilename.find_last_of('.') + 1);
+            if (suffixStr.compare("jpg") == 0 || suffixStr.compare("png") == 0 || suffixStr.compare("tga") == 0)
+            {
+                list.push_back(dirp->d_name);
+                cout << serverinfo.GetLoadPath() + "/" + dirp->d_name << endl;
+                count++;
+            }
+        }
+    }
+    cout << "共有" << count << "个文件等待处理" << endl;
+
+    closedir(dp);
 }
 
 load_list::load_list(string load_path, string load_name)
@@ -107,7 +136,6 @@ load_list::load_list(string load_path, string load_name)
         cout << temp << endl;
         count++;
     }
- //   cout << count << endl;
-    cout<<"共有"<<count<<"个文件等待处理"<<endl;
+    //   cout << count << endl;
+    cout << "共有" << count << "个文件等待处理" << endl;
 }
-
