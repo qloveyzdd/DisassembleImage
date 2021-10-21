@@ -7,16 +7,16 @@ using namespace std;
 class server_info;
 class load_list;
 
-// class image_info
-// {
-// private:
-//     int x;         //屏幕横向尺寸
-//     int y;         //屏幕纵向尺寸
-//     int xz;        //旋转
-//     int fz;        //翻转
-//     string Prefix; //输出前缀
-//     string mask;   //mask名称
-// };
+class image_info
+{
+private:
+    int x;         //屏幕横向尺寸
+    int y;         //屏幕纵向尺寸
+    int xz;        //旋转
+    int fz;        //翻转
+    string Prefix; //输出前缀
+    string mask;   //mask名称
+};
 
 class server_info
 {

@@ -28,4 +28,5 @@ target_link_libraries(source Threads::Threads)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 set(CMAKE_BUILD_TYPE DEBUG)
+# set(CMAKE_BUILD_TYPE release)
 
