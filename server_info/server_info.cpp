@@ -7,13 +7,14 @@
 server_info::server_info()
 {
     string temp;
-    cout << "选择输入模式（1.手动输入2.文本导入）" << endl;
+    cout << "选择输入模式（1.手动输入(未完成)2.文本导入）" << endl;
     cin >> temp;
     int system = atoi(temp.c_str());
     switch (system)
     {
     case 1:
     {
+        abort();
         temp = "";
         cout << "输入屏幕横向尺寸:" << endl;
         cin >> temp;

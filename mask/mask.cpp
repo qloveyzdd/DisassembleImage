@@ -14,7 +14,15 @@ std::vector<cv::Point2f> RoiPointApprox(const cv::Mat &src) //获取mask的顶�
     cv::cvtColor(src, bw, CV_BGR2GRAY);
     cv::Canny(bw, bw, 100, 100, 3);
     std::vector<std::vector<cv::Point>> roi_point;
-    cv::findContours(bw, roi_point, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    std::vector<std::vector<cv::Point>> roi_point1;
+    cv::findContours(bw, roi_point1, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    for(int i = 0; i < roi_point1.size();i++)
+    {
+        if(roi_point1[i].size()>=5)
+        {
+            roi_point.push_back(roi_point1[i]);
+        }
+    }
     std::vector<cv::Point2f> roi_point_approx;
     // cv::Mat roi_approx(bw.size(), CV_8UC3, cv::Scalar(0, 0, 0));
     auto i = roi_point.begin();

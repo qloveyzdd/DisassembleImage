@@ -598,30 +598,6 @@
 			"value" : ""
 		},
 		{
-			"name" : "CMAKE_HAVE_PTHREADS_CREATE",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Have library pthreads"
-				}
-			],
-			"type" : "INTERNAL",
-			"value" : ""
-		},
-		{
-			"name" : "CMAKE_HAVE_PTHREAD_CREATE",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Have library pthread"
-				}
-			],
-			"type" : "INTERNAL",
-			"value" : "1"
-		},
-		{
 			"name" : "CMAKE_HAVE_PTHREAD_H",
 			"properties" : 
 			[
@@ -1240,18 +1216,6 @@
 			],
 			"type" : "INTERNAL",
 			"value" : "TRUE"
-		},
-		{
-			"name" : "Th_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "The directory containing a CMake configuration file for Th."
-				}
-			],
-			"type" : "PATH",
-			"value" : "Th_DIR-NOTFOUND"
 		},
 		{
 			"name" : "mask_LIB_DEPENDS",
