@@ -16,9 +16,9 @@ std::vector<cv::Point2f> RoiPointApprox(const cv::Mat &src) //获取mask的顶�
     std::vector<std::vector<cv::Point>> roi_point;
     std::vector<std::vector<cv::Point>> roi_point1;
     cv::findContours(bw, roi_point1, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-    for(int i = 0; i < roi_point1.size();i++)
+    for (int i = 0; i < roi_point1.size(); i++)
     {
-        if(roi_point1[i].size()>=5)
+        if (roi_point1[i].size() >= 5)
         {
             roi_point.push_back(roi_point1[i]);
         }
@@ -27,20 +27,26 @@ std::vector<cv::Point2f> RoiPointApprox(const cv::Mat &src) //获取mask的顶�
     // cv::Mat roi_approx(bw.size(), CV_8UC3, cv::Scalar(0, 0, 0));
     auto i = roi_point.begin();
     approxPolyDP(*i, roi_point_approx, 7, 1);
-
-    sort(roi_point_approx.begin(), roi_point_approx.end(), [](cv::Point2f a, cv::Point2f b)
-         { return sqrt(pow(a.x, 2) + pow(a.y, 2)) > sqrt(pow(b.x, 2) + pow(b.y, 2)); });
-    std::vector<cv::Point2f> roi_point_approx_end;
-    for (int i = 0; i < roi_point_approx.size() - 1; i++)
+    if (roi_point_approx.size() != 4)
     {
-        if (abs(sqrt(pow(roi_point_approx[i].x, 2) + pow(roi_point_approx[i].y, 2)) - sqrt(pow(roi_point_approx[i + 1].x, 2) + pow(roi_point_approx[i + 1].y, 2))) > 10)
+        sort(roi_point_approx.begin(), roi_point_approx.end(), [](cv::Point2f a, cv::Point2f b)
+             { return sqrt(pow(a.x, 2) + pow(a.y, 2)) > sqrt(pow(b.x, 2) + pow(b.y, 2)); });
+        std::vector<cv::Point2f> roi_point_approx_end;
+        for (int i = 0; i < roi_point_approx.size() - 1; i++)
         {
-            roi_point_approx_end.push_back(roi_point_approx[i]);
+            if (abs(sqrt(pow(roi_point_approx[i].x, 2) + pow(roi_point_approx[i].y, 2)) - sqrt(pow(roi_point_approx[i + 1].x, 2) + pow(roi_point_approx[i + 1].y, 2))) > 10)
+            {
+                roi_point_approx_end.push_back(roi_point_approx[i]);
+            }
         }
-    }
-    roi_point_approx_end.push_back(roi_point_approx.back());
+        roi_point_approx_end.push_back(roi_point_approx.back());
 
-    return roi_point_approx_end;
+        return roi_point_approx_end;
+    }
+    else
+    {
+        return roi_point_approx;
+    }
 }
 
 cv::Point2f GetCenter(const std::vector<cv::Point2f> &point) //获取mask的中心点
