@@ -2,7 +2,7 @@
 2432
 0
 0
-down
-down.jpg
+up
+up.jpg
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/xxx
 /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/qqq
