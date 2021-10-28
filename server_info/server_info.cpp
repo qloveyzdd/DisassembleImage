@@ -3,6 +3,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <dirent.h>
+#include <algorithm>
 
 server_info::server_info()
 {
@@ -115,10 +116,16 @@ load_list::load_list(server_info serverinfo)
             if (suffixStr.compare("jpg") == 0 || suffixStr.compare("png") == 0 || suffixStr.compare("tga") == 0)
             {
                 list.push_back(dirp->d_name);
-                cout << serverinfo.GetLoadPath() + "/" + dirp->d_name << endl;
+                // cout << serverinfo.GetLoadPath() + "/" + dirp->d_name << endl;
                 count++;
             }
         }
+    }
+    sort(list.begin(), list.end(), [](string a, string b)
+         { return a < b; });
+    for (auto i : list)
+    {
+        cout << serverinfo.GetLoadPath() + "/" + i << endl;
     }
     cout << "共有" << count << "个文件等待处理" << endl;
 
