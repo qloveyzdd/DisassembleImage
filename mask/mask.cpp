@@ -100,15 +100,15 @@ void sortCorners(std::vector<cv::Point2f> &corners, const cv::Point2f &center) /
     }
 }
 
-void Mattopts(std::vector<cv::Point2f> &quad_pts, const server_info *serverinfo) //设置最终图片的锚点位置
+void Mattopts(std::vector<cv::Point2f> &quad_pts, server_info *serverinfo) //设置最终图片的锚点位置
 {
-    quad_pts.push_back(cv::Point2f(0, 0));
-    quad_pts.push_back(cv::Point2f(serverinfo->Get_x(), 0));
-    quad_pts.push_back(cv::Point2f(serverinfo->Get_x(), serverinfo->Get_y()));
-    quad_pts.push_back(cv::Point2f(0, serverinfo->Get_y()));
+    quad_pts.push_back(cv::Point2f(serverinfo->get_tl(0)*serverinfo->Get_x(), serverinfo->get_tl(1)*serverinfo->Get_y()));
+    quad_pts.push_back(cv::Point2f(serverinfo->get_tr(0)*serverinfo->Get_x(), serverinfo->get_tr(1)*serverinfo->Get_y()));
+    quad_pts.push_back(cv::Point2f(serverinfo->get_br(0)*serverinfo->Get_x(), serverinfo->get_br(1)*serverinfo->Get_y()));
+    quad_pts.push_back(cv::Point2f(serverinfo->get_bl(0)*serverinfo->Get_x(), serverinfo->get_bl(1)*serverinfo->Get_y()));
 }
 
-disassembly::disassembly(const server_info *serverinfo)
+disassembly::disassembly(server_info *serverinfo)
 {
     mask = imread(serverinfo->GetMask());
 

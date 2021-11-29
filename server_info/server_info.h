@@ -6,6 +6,7 @@ using namespace std;
 
 class server_info;
 class load_list;
+class server_image_dlc1;
 
 class image_info
 {
@@ -18,7 +19,22 @@ private:
     string mask;   //mask名称
 };
 
-class server_info
+class server_image_dlc1 //对于非完全画面覆盖定制覆盖面锚点
+{
+private:
+    float tl[2]; //上左
+    float tr[2]; //上右
+    float br[2]; //下右
+    float bl[2]; //下左
+public:
+    server_image_dlc1();
+    const float get_tl(int i) { return tl[i]; }
+    const float get_tr(int i) { return tr[i]; }
+    const float get_br(int i) { return br[i]; }
+    const float get_bl(int i) { return bl[i]; }
+};
+
+class server_info : public server_image_dlc1
 {
 private:
     int x;            //屏幕横向尺寸
@@ -41,6 +57,11 @@ public:
     string GetMask() const { return mask; }
     int Get_x() const { return x; }
     int Get_y() const { return y; }
+
+    const float get_tl(int i) { return server_image_dlc1::get_tl(i); }
+    const float get_tr(int i) { return server_image_dlc1::get_tr(i); }
+    const float get_br(int i) { return server_image_dlc1::get_br(i); }
+    const float get_bl(int i) { return server_image_dlc1::get_bl(i); }
 };
 
 class load_list //待处理文件总目录
