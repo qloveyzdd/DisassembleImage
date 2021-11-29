@@ -18,7 +18,7 @@ private:
     std::vector<cv::Point2f> quad_pts;         //最终图片的顶点位置
     cv::Mat transmtx;                          //变换矩阵
 public:
-    disassembly(const server_info *serverinfo);
+    disassembly(server_info *serverinfo);
     cv::Mat get_transmtx() const { return transmtx; } //获取变换矩阵
     Mat get_mask_dilate() const { return mask_dilate; } //获取膨胀mask
 };

@@ -5,6 +5,105 @@
 #include <dirent.h>
 #include <algorithm>
 
+server_image_dlc1::server_image_dlc1()
+{
+    string temp;
+    cout << "此拆分是否占用整个平面（1.是 2.否）" << endl;
+    cin >> temp;
+    int system = atoi(temp.c_str());
+    switch (system)
+    {
+    case 1:
+    {
+        tl[0] = 0.f;
+        tl[1] = 0.f;
+        tr[0] = 1.f;
+        tr[1] = 0.f;
+        bl[0] = 0.f;
+        bl[1] = 1.f;
+        br[0] = 1.f;
+        br[1] = 1.f;
+        break;
+    }
+    case 2:
+    {
+        string temp;
+        cout << "选择输入模式（1.手动输入2.文本导入）" << endl;
+        cin >> temp;
+        int system = atoi(temp.c_str());
+        switch (system)
+        {
+        case 1:
+        {
+            temp = "";
+            cout << "输入屏幕左上角横向比例(万分比):" << endl;
+            cin >> temp;
+            tl[0] = atoi(temp.c_str())/10000;
+
+            temp = "";
+            cout << "输入屏幕左上角纵向比例(万分比):" << endl;
+            cin >> temp;
+            tl[1] = atoi(temp.c_str())/10000;
+            //////////////////////////////////////////////////////////
+            temp = "";
+            cout << "输入屏幕右上角横向比例(万分比):" << endl;
+            cin >> temp;
+            tr[0] = atoi(temp.c_str())/10000;
+
+            temp = "";
+            cout << "输入屏幕右上角纵向比例(万分比):" << endl;
+            cin >> temp;
+            tr[1] = atoi(temp.c_str())/10000;
+            ////////////////////////////////////////////////////////////
+            temp = "";
+            cout << "输入屏幕左下角横向比例(万分比):" << endl;
+            cin >> temp;
+            bl[0] = atoi(temp.c_str())/10000;
+
+            temp = "";
+            cout << "输入屏幕左下角纵向比例(万分比):" << endl;
+            cin >> temp;
+            bl[1] = atoi(temp.c_str())/10000;
+            ///////////////////////////////////////////////////////////
+            temp = "";
+            cout << "输入屏幕右下角横向比例(万分比):" << endl;
+            cin >> temp;
+            br[0] = atoi(temp.c_str())/10000;
+
+            temp = "";
+            cout << "输入屏幕右下角纵向比例(万分比):" << endl;
+            cin >> temp;
+            br[1] = atoi(temp.c_str())/10000;
+
+            break;
+        }
+        case 2:
+        {
+            vector<string> info;
+            temp = "";
+            cout << "请输入文本文件名：" << endl;
+            cin >> temp;
+            ifstream inf(temp);
+            temp = "";
+            while (getline(inf, temp))
+            {
+                info.push_back(temp);
+            }
+            tl[0] = float(atoi(info[0].c_str()))/10000.f;
+            tl[1] = float(atoi(info[1].c_str()))/10000.f;
+            tr[0] = float(atoi(info[2].c_str()))/10000.f;
+            tr[1] = float(atoi(info[3].c_str()))/10000.f;
+            bl[0] = float(atoi(info[4].c_str()))/10000.f;
+            bl[1] = float(atoi(info[5].c_str()))/10000.f;
+            br[0] = float(atoi(info[6].c_str()))/10000.f;
+            br[1] = float(atoi(info[7].c_str()))/10000.f;
+            break;
+        }
+        }
+    }
+    }
+}
+
 server_info::server_info()
 {
     string temp;
@@ -84,19 +183,6 @@ server_info::server_info()
 
 load_list::load_list(server_info serverinfo)
 {
-    //     ifstream inf(serverinfo.GetLoadName());
-    //     string image_name;
-    //     int count = 0;
-    //     while (getline(inf, image_name))
-    //     {
-    //         image_name.erase(image_name.end() - 1, image_name.end());
-    //         list.push_back(image_name);
-    //         cout << serverinfo.GetLoadPath() + "/" + image_name << endl;
-    //         count++;
-    //     }
-    //  //   cout << count << endl;
-    //     cout<<"共有"<<count<<"个文件等待处理"<<endl;
-
     int count = 0;
     string dirname;
     DIR *dp;
