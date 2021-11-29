@@ -57,11 +57,6 @@ public:
     string GetMask() const { return mask; }
     int Get_x() const { return x; }
     int Get_y() const { return y; }
-
-    const float get_tl(int i) { return server_image_dlc1::get_tl(i); }
-    const float get_tr(int i) { return server_image_dlc1::get_tr(i); }
-    const float get_br(int i) { return server_image_dlc1::get_br(i); }
-    const float get_bl(int i) { return server_image_dlc1::get_bl(i); }
 };
 
 class load_list //待处理文件总目录

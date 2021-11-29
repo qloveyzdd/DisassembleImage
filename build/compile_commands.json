@@ -1,7 +1,7 @@
 [
 {
   "directory": "/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build",
-  "command": "/bin/x86_64-linux-gnu-g++-9   -isystem /usr/local/include/opencv   -g -g   -pthread -o CMakeFiles/source.dir/main.cpp.o -c /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/main.cpp",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -isystem /usr/local/include/opencv   -g  -O0 -Wall -g -ggdb   -pthread -o CMakeFiles/source.dir/main.cpp.o -c /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/main.cpp",
   "file": "/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/main.cpp"
 },
 {
