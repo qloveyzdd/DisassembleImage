@@ -64,7 +64,8 @@ void cpu_settings::cpu_work()
             cout << "读取图片错误" << endl;
             abort();
         }
-        quad.copyTo(dstImage, get_disassembly()->get_mask_dilate());
+        // quad.copyTo(dstImage, get_disassembly()->get_mask_dilate());
+        quad.copyTo(dstImage);
         if (!dstImage.data)
         {
             cout << "mask图片错误" << endl;
