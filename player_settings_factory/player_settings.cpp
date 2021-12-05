@@ -65,6 +65,11 @@ void cpu_settings::cpu_work()
             abort();
         }
         // quad.copyTo(dstImage, get_disassembly()->get_mask_dilate());
+        if(dstImage.rows != get_disassembly()->get_mask().rows || dstImage.cols != get_disassembly()->get_mask().cols)
+        {
+            std::cout<<"拆分图片与mask不一致！！"<<endl;
+            abort();
+        }
         quad.copyTo(dstImage);
         if (!dstImage.data)
         {
