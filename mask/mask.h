@@ -21,6 +21,7 @@ public:
     disassembly(server_info *serverinfo);
     cv::Mat get_transmtx() const { return transmtx; } //获取变换矩阵
     Mat get_mask_dilate() const { return mask_dilate; } //获取膨胀mask
+    Mat get_mask() const { return mask; } //获取膨胀mask
 };
 
 void RoadImageAndSetMask(cv::Mat &src, const std::string Image, const cv::Mat &mask); //读取待处理图片并设置边缘mask
