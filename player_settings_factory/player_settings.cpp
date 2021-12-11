@@ -18,7 +18,7 @@ player_settings_factory::player_settings_factory(load_list *list_in)
     }
     case 1:
     {
-        cpu_count = sysconf(_SC_NPROCESSORS_ONLN);
+        cpu_count = sysconf(_SC_NPROCESSORS_ONLN);      
         break;
     }
     default:
@@ -65,8 +65,10 @@ void cpu_settings::cpu_work()
             abort();
         }
         // quad.copyTo(dstImage, get_disassembly()->get_mask_dilate());
-        if(dstImage.rows != get_disassembly()->get_mask().rows || dstImage.cols != get_disassembly()->get_mask().cols)
+        if(quad.rows != get_disassembly()->get_mask().rows || quad.cols != get_disassembly()->get_mask().cols)
         {
+            cout<<dstImage.rows<<"   "<<get_disassembly()->get_mask_dilate().rows<<endl;
+            cout<<dstImage.cols<<"   "<<get_disassembly()->get_mask_dilate().cols<<endl;
             std::cout<<"拆分图片与mask不一致！！"<<endl;
             abort();
         }
