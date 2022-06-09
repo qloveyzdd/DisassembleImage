@@ -1,8 +1,8 @@
-2304
-832
+2624
+960
 0
 0
-up
-up.jpg
-/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/xxx
-/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/qqq
+right
+right.jpg
+/home/qlovey/桌面/DisassembleImage/xxx
+/home/qlovey/桌面/DisassembleImage/qqq

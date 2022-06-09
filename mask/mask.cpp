@@ -64,13 +64,21 @@ void sortCorners(std::vector<cv::Point2f> &corners, const cv::Point2f &center) /
 {
     std::vector<cv::Point2f> top_temp, bot_temp, top, bot;
 
-    for (int i = 0; i < corners.size(); i++)
-    {
-        if (corners[i].y < center.y)
-            top_temp.push_back(corners[i]);
-        else
-            bot_temp.push_back(corners[i]);
-    }
+    sort(corners.begin(), corners.end(), [](cv::Point2f a, cv::Point2f b)
+         { return a.y > b.y; });
+
+    // for (int i = 0; i < corners.size(); i++)
+    // {
+    //     if (corners[i].y < center.y)
+    //         top_temp.push_back(corners[i]);
+    //     else
+    //         bot_temp.push_back(corners[i]);
+    // }
+    top_temp.push_back(corners[2]);
+    top_temp.push_back(corners[3]);
+    bot_temp.push_back(corners[0]);
+    bot_temp.push_back(corners[1]);
+    
     corners.clear();
 
     if (top.size() != 2 || bot.size() != 2)
@@ -102,10 +110,10 @@ void sortCorners(std::vector<cv::Point2f> &corners, const cv::Point2f &center) /
 
 void Mattopts(std::vector<cv::Point2f> &quad_pts, server_info *serverinfo) //设置最终图片的锚点位置
 {
-    quad_pts.push_back(cv::Point2f(serverinfo->get_tl(0)*serverinfo->Get_x(), serverinfo->get_tl(1)*serverinfo->Get_y()));
-    quad_pts.push_back(cv::Point2f(serverinfo->get_tr(0)*serverinfo->Get_x(), serverinfo->get_tr(1)*serverinfo->Get_y()));
-    quad_pts.push_back(cv::Point2f(serverinfo->get_br(0)*serverinfo->Get_x(), serverinfo->get_br(1)*serverinfo->Get_y()));
-    quad_pts.push_back(cv::Point2f(serverinfo->get_bl(0)*serverinfo->Get_x(), serverinfo->get_bl(1)*serverinfo->Get_y()));
+    quad_pts.push_back(cv::Point2f(serverinfo->get_tl(0) * serverinfo->Get_x(), serverinfo->get_tl(1) * serverinfo->Get_y()));
+    quad_pts.push_back(cv::Point2f(serverinfo->get_tr(0) * serverinfo->Get_x(), serverinfo->get_tr(1) * serverinfo->Get_y()));
+    quad_pts.push_back(cv::Point2f(serverinfo->get_br(0) * serverinfo->Get_x(), serverinfo->get_br(1) * serverinfo->Get_y()));
+    quad_pts.push_back(cv::Point2f(serverinfo->get_bl(0) * serverinfo->Get_x(), serverinfo->get_bl(1) * serverinfo->Get_y()));
 }
 
 disassembly::disassembly(server_info *serverinfo)
