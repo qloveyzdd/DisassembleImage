@@ -2,7 +2,7 @@
 960
 0
 0
-right
-right.jpg
-/home/qlovey/桌面/DisassembleImage/xxx
-/home/qlovey/桌面/DisassembleImage/qqq
+up
+up.jpg
+xxx
+qqq
