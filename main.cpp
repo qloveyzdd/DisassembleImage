@@ -32,14 +32,18 @@ pid_t r_wait(int *stat_loc)
     return revalue;
 }
 
-int main()
+int main(int argc, char *argv[]) 
 {
     welcome::welcome_string();
     regulation::regulation_string();
     server_info serverinfo;
     load_list loadlist(serverinfo);
-
     disassembly disassemblyImage(&serverinfo);
+
+    if(argc>1)
+    {
+        disassemblyImage.check_mask();
+    }
 
     player_settings_factory playerset(&loadlist);
     vector<cpu_settings *> cpus_list = playerset.create(&disassemblyImage, &serverinfo);

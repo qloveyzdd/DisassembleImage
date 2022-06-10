@@ -2,6 +2,20 @@
 #include <stdlib.h>
 #include <iostream>
 
+static Scalar randomColor(int64 seed) //随机颜色
+{
+    RNG rng(seed);
+    int icolor = unsigned(rng);
+    return Scalar(icolor & 255, (icolor >> 8) & 255, (icolor >> 16) & 255);
+}
+
+void MyFilledCircle(Mat img, Point center) //绘制圆
+{
+    int thickness = -1;
+    int lineType = 8;
+    circle(img, center, 30, randomColor(cv::getTickCount()), thickness, lineType);
+}
+
 void DilationMask(const cv::Mat &src, cv::Mat &dst) //膨胀mask
 {
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(50, 50));
@@ -66,19 +80,11 @@ void sortCorners(std::vector<cv::Point2f> &corners, const cv::Point2f &center) /
 
     sort(corners.begin(), corners.end(), [](cv::Point2f a, cv::Point2f b)
          { return a.y > b.y; });
-
-    // for (int i = 0; i < corners.size(); i++)
-    // {
-    //     if (corners[i].y < center.y)
-    //         top_temp.push_back(corners[i]);
-    //     else
-    //         bot_temp.push_back(corners[i]);
-    // }
     top_temp.push_back(corners[2]);
     top_temp.push_back(corners[3]);
     bot_temp.push_back(corners[0]);
     bot_temp.push_back(corners[1]);
-    
+
     corners.clear();
 
     if (top.size() != 2 || bot.size() != 2)
@@ -118,6 +124,7 @@ void Mattopts(std::vector<cv::Point2f> &quad_pts, server_info *serverinfo) //设
 
 disassembly::disassembly(server_info *serverinfo)
 {
+
     mask = imread(serverinfo->GetMask());
 
     if (!mask.data)
@@ -139,6 +146,18 @@ disassembly::disassembly(server_info *serverinfo)
 
     Mattopts(quad_pts, serverinfo);
     transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts); //最终矩阵
+}
+void disassembly::check_mask()
+{
+    Mat check_mask = mask;
+    for (auto temp : roi_point_approx)
+    {
+        MyFilledCircle(check_mask, temp);
+    }
+    namedWindow("check(按任意按键关闭)", WINDOW_NORMAL);
+    imshow("check(按任意按键关闭)", check_mask);
+    waitKey(0);
+    destroyAllWindows();
 }
 
 void RoadImageAndSetMask(cv::Mat &dst, const std::string Image, const cv::Mat &mask)
