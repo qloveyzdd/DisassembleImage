@@ -1,0 +1,2 @@
+/usr/bin/ar qc libwelcomeregulation.a  CMakeFiles/welcomeregulation.dir/welcome_regulation.cpp.o
+/usr/bin/ranlib libwelcomeregulation.a

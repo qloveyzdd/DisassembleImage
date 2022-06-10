@@ -1,0 +1,158 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4
+					],
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "welcome_regulation",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "welcome_regulation",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "server_info",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "server_info",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "mask",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "mask",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "player_settings_factory",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.6"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "player_settings_factory",
+					"targetIndexes" : 
+					[
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					],
+					"name" : "DISASSEMBLEIMAGE",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 3,
+					"id" : "mask::@df855f57255c3408c8be",
+					"jsonFile" : "target-mask-Debug-3de74701ddd2aa42c0a6.json",
+					"name" : "mask",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "playersettingsfactory::@e392fa16ea0855c8803a",
+					"jsonFile" : "target-playersettingsfactory-Debug-d11f9aec58bb0359881d.json",
+					"name" : "playersettingsfactory",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "serverinfo::@8b7883f9d523504f1733",
+					"jsonFile" : "target-serverinfo-Debug-93e8d44f9e6381362214.json",
+					"name" : "serverinfo",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "source::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-source-Debug-07fda421099e061cc833.json",
+					"name" : "source",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "welcomeregulation::@fac685622ce15670ebe4",
+					"jsonFile" : "target-welcomeregulation-Debug-f8253506ae91e62e91cc.json",
+					"name" : "welcomeregulation",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build",
+		"source" : "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 0
+	}
+}

@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/welcome_regulation/welcome_regulation.cpp
+welcome_regulation.h
+/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/welcome_regulation/welcome_regulation.h
+iostream
+-
+
+/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/welcome_regulation/welcome_regulation.h
+

@@ -1,21 +1,21 @@
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
-Change Dir: /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp
+Change Dir: /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_3fce9/fast && /usr/bin/make -f CMakeFiles/cmTC_3fce9.dir/build.make CMakeFiles/cmTC_3fce9.dir/build
-make[1]: 进入目录“/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp”
-Building C object CMakeFiles/cmTC_3fce9.dir/src.c.o
-/bin/x86_64-linux-gnu-gcc-9   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_3fce9.dir/src.c.o   -c /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp/src.c
-Linking C executable cmTC_3fce9
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3fce9.dir/link.txt --verbose=1
-/bin/x86_64-linux-gnu-gcc-9  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_3fce9.dir/src.c.o  -o cmTC_3fce9 
-/usr/bin/ld: CMakeFiles/cmTC_3fce9.dir/src.c.o: in function `main':
+Run Build Command(s):/usr/bin/make cmTC_f710e/fast && /usr/bin/make -f CMakeFiles/cmTC_f710e.dir/build.make CMakeFiles/cmTC_f710e.dir/build
+make[1]: 进入目录“/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles/CMakeTmp”
+Building C object CMakeFiles/cmTC_f710e.dir/src.c.o
+/usr/bin/gcc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_f710e.dir/src.c.o   -c /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_f710e
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f710e.dir/link.txt --verbose=1
+/usr/bin/gcc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_f710e.dir/src.c.o  -o cmTC_f710e 
+/usr/bin/ld: CMakeFiles/cmTC_f710e.dir/src.c.o: in function `main':
 src.c:(.text+0x46): undefined reference to `pthread_create'
 /usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
 /usr/bin/ld: src.c:(.text+0x63): undefined reference to `pthread_join'
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_3fce9.dir/build.make:87：cmTC_3fce9] 错误 1
-make[1]: 离开目录“/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/CMakeTmp”
-make: *** [Makefile:121：cmTC_3fce9/fast] 错误 2
+make[1]: *** [CMakeFiles/cmTC_f710e.dir/build.make:87：cmTC_f710e] 错误 1
+make[1]: 离开目录“/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles/CMakeTmp”
+make: *** [Makefile:121：cmTC_f710e/fast] 错误 2
 
 
 Source file was:

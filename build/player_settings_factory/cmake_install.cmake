@@ -1,4 +1,4 @@
-# Install script for directory: /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/player_settings_factory
+# Install script for directory: /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/player_settings_factory
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

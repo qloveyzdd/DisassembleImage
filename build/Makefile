@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage
+CMAKE_SOURCE_DIR = /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build
+CMAKE_BINARY_DIR = /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -122,6 +122,19 @@ source: cmake_check_build_system
 source/fast:
 	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/build
 .PHONY : source/fast
+
+#=============================================================================
+# Target rules for targets named welcomeregulation
+
+# Build rule for target.
+welcomeregulation: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 welcomeregulation
+.PHONY : welcomeregulation
+
+# fast build rule for target.
+welcomeregulation/fast:
+	$(MAKE) -f welcome_regulation/CMakeFiles/welcomeregulation.dir/build.make welcome_regulation/CMakeFiles/welcomeregulation.dir/build
+.PHONY : welcomeregulation/fast
 
 #=============================================================================
 # Target rules for targets named serverinfo
@@ -198,6 +211,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... source"
+	@echo "... welcomeregulation"
 	@echo "... serverinfo"
 	@echo "... mask"
 	@echo "... playersettingsfactory"

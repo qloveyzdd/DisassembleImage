@@ -1,2 +1,2 @@
-/bin/ar qc libserverinfo.a  CMakeFiles/serverinfo.dir/server_info.cpp.o
-/bin/ranlib libserverinfo.a
+/usr/bin/ar qc libserverinfo.a  CMakeFiles/serverinfo.dir/server_info.cpp.o
+/usr/bin/ranlib libserverinfo.a

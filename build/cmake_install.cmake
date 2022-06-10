@@ -1,4 +1,4 @@
-# Install script for directory: /mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage
+# Install script for directory: /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,9 +39,10 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/server_info/cmake_install.cmake")
-  include("/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/mask/cmake_install.cmake")
-  include("/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/player_settings_factory/cmake_install.cmake")
+  include("/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/welcome_regulation/cmake_install.cmake")
+  include("/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/server_info/cmake_install.cmake")
+  include("/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/mask/cmake_install.cmake")
+  include("/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/player_settings_factory/cmake_install.cmake")
 
 endif()
 
@@ -53,5 +54,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/mnt/54a8f0a8-ae4e-40cd-9886-14ce13e6f03d/DisassembleImage/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

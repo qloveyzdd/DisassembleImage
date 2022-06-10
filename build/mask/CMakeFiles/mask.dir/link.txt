@@ -1,2 +1,2 @@
-/bin/ar qc libmask.a  CMakeFiles/mask.dir/mask.cpp.o
-/bin/ranlib libmask.a
+/usr/bin/ar qc libmask.a  CMakeFiles/mask.dir/mask.cpp.o
+/usr/bin/ranlib libmask.a
