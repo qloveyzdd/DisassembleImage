@@ -6,6 +6,7 @@ void welcome::welcome_string()
     std::cout << "欢迎使用拆分系统！！" << std::endl;
     std::cout << "软件功能是将单一平面画面拆分成为多个画面，并根据实际空间需求进行变形" << std::endl;
     std::cout << "此系统需配置固定文件夹格式及相关配置文件，请确保总体完整" << std::endl;
+    std::cout << "启用./source true,触发检查" << std::endl;
     std::cout << "dlc1：可使用边缘不完整的四边形尺寸" << std::endl;
 }
 

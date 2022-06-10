@@ -111,7 +111,6 @@ load_list::load_list(server_info serverinfo)
             if (suffixStr.compare("jpg") == 0 || suffixStr.compare("png") == 0 || suffixStr.compare("tga") == 0)
             {
                 list.push_back(dirp->d_name);
-                // cout << serverinfo.GetLoadPath() + "/" + dirp->d_name << endl;
                 count++;
             }
         }
@@ -126,19 +125,3 @@ load_list::load_list(server_info serverinfo)
 
     closedir(dp);
 }
-
-// load_list::load_list(string load_path, string load_name)
-// {
-//     ifstream inf(load_name);
-//     string image_name;
-//     int count;
-//     while (getline(inf, image_name))
-//     {
-//         string temp = load_path + "/" + image_name;
-//         list.push_back(image_name);
-//         cout << temp << endl;
-//         count++;
-//     }
-//     //   cout << count << endl;
-//     cout << "共有" << count << "个文件等待处理" << endl;
-// }
