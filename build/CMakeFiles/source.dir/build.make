@@ -83,6 +83,7 @@ source: welcome_regulation/libwelcomeregulation.a
 source: server_info/libserverinfo.a
 source: mask/libmask.a
 source: player_settings_factory/libplayersettingsfactory.a
+source: point_uv/libpoint_uv.a
 source: server_info/libserverinfo.a
 source: mask/libmask.a
 source: /usr/local/lib/libopencv_dnn.so.3.4.16

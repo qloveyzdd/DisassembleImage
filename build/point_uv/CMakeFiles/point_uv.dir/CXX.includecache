@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/point_uv/point_uv.cpp
+point_uv.h
+/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/point_uv/point_uv.h
+iostream
+-
+fstream
+-
+sstream
+-
+
+/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/point_uv/point_uv.h
+string
+-
+vector
+-
+

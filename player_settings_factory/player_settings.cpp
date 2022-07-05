@@ -18,7 +18,7 @@ player_settings_factory::player_settings_factory(load_list *list_in)
     }
     case 1:
     {
-        cpu_count = sysconf(_SC_NPROCESSORS_ONLN);      
+        cpu_count = sysconf(_SC_NPROCESSORS_ONLN);
         break;
     }
     default:
@@ -39,7 +39,7 @@ vector<cpu_settings *> player_settings_factory::create(disassembly *disassembly,
         cpu_list->set_disassemblyIm(disassembly);
         cpu_list->set_server_info(serverinfo_in);
         // int max_file = (i + 1) * count > list->list_count() ? list->list_count() : (i + 1) * count;
-        for (int j = i; j < list->list_count(); j+=cpu_count)
+        for (int j = i; j < list->list_count(); j += cpu_count)
         {
             cpu_list->cpu_list_add(list->get_file(j));
         }
@@ -51,11 +51,11 @@ vector<cpu_settings *> player_settings_factory::create(disassembly *disassembly,
 
 void cpu_settings::cpu_work()
 {
-    // int count = 0;
+    int count = 0;
     for (auto filename : cpu_list)
     {
         Mat dstImage;
-        std::cout << "processing：" << get_server_info()->GetPrefix() << *filename << endl;
+
         string savefile = get_server_info()->GetSavePath() + "/" + get_server_info()->GetPrefix() + *filename;
         string loadfile = get_server_info()->GetLoadPath() + "/" + *filename;
         Mat quad = imread(loadfile, -1);
@@ -65,11 +65,11 @@ void cpu_settings::cpu_work()
             abort();
         }
         // quad.copyTo(dstImage, get_disassembly()->get_mask_dilate());
-        if(quad.rows != get_disassembly()->get_mask().rows || quad.cols != get_disassembly()->get_mask().cols)
+        if (quad.rows != get_disassembly()->get_mask().rows || quad.cols != get_disassembly()->get_mask().cols)
         {
-            cout<<dstImage.rows<<"   "<<get_disassembly()->get_mask_dilate().rows<<endl;
-            cout<<dstImage.cols<<"   "<<get_disassembly()->get_mask_dilate().cols<<endl;
-            std::cout<<"拆分图片与mask不一致！！"<<endl;
+            cout << quad.rows << "   " << get_disassembly()->get_mask_dilate().rows << endl;
+            cout << quad.cols << "   " << get_disassembly()->get_mask_dilate().cols << endl;
+            std::cout << "拆分图片与mask不一致！！" << endl;
             abort();
         }
         quad.copyTo(dstImage);
@@ -103,5 +103,12 @@ void cpu_settings::cpu_work()
             break;
         }
         imwrite(savefile, quad);
+        std::cout << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b"
+                  << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b";
+        // std::cout << "processing：" << get_server_info()->GetPrefix() << *filename;
+        count++;
+        sleep(1);
+        std::cout << "progress：" << count << "/" << cpu_list.size();
     }
+    std::cout<<std::endl;
 }

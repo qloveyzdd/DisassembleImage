@@ -1,0 +1,2 @@
+/usr/bin/ar qc libpoint_uv.a  CMakeFiles/point_uv.dir/point_uv.cpp.o
+/usr/bin/ranlib libpoint_uv.a

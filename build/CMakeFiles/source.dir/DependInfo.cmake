@@ -19,6 +19,7 @@ set(CMAKE_TARGET_LINKED_INFO_FILES
   "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/server_info/CMakeFiles/serverinfo.dir/DependInfo.cmake"
   "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/mask/CMakeFiles/mask.dir/DependInfo.cmake"
   "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/player_settings_factory/CMakeFiles/playersettingsfactory.dir/DependInfo.cmake"
+  "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/point_uv/CMakeFiles/point_uv.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

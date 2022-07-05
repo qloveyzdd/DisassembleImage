@@ -69,8 +69,8 @@ rebuild_cache/fast: rebuild_cache
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/usr/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -175,6 +175,19 @@ playersettingsfactory/fast:
 	$(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/build
 .PHONY : playersettingsfactory/fast
 
+#=============================================================================
+# Target rules for targets named point_uv
+
+# Build rule for target.
+point_uv: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 point_uv
+.PHONY : point_uv
+
+# fast build rule for target.
+point_uv/fast:
+	$(MAKE) -f point_uv/CMakeFiles/point_uv.dir/build.make point_uv/CMakeFiles/point_uv.dir/build
+.PHONY : point_uv/fast
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -215,6 +228,7 @@ help:
 	@echo "... serverinfo"
 	@echo "... mask"
 	@echo "... playersettingsfactory"
+	@echo "... point_uv"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

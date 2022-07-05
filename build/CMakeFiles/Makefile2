@@ -58,6 +58,7 @@ all: welcome_regulation/all
 all: server_info/all
 all: mask/all
 all: player_settings_factory/all
+all: point_uv/all
 
 .PHONY : all
 
@@ -66,6 +67,7 @@ preinstall: welcome_regulation/preinstall
 preinstall: server_info/preinstall
 preinstall: mask/preinstall
 preinstall: player_settings_factory/preinstall
+preinstall: point_uv/preinstall
 
 .PHONY : preinstall
 
@@ -75,6 +77,7 @@ clean: welcome_regulation/clean
 clean: server_info/clean
 clean: mask/clean
 clean: player_settings_factory/clean
+clean: point_uv/clean
 
 .PHONY : clean
 
@@ -113,6 +116,24 @@ player_settings_factory/preinstall:
 player_settings_factory/clean: player_settings_factory/CMakeFiles/playersettingsfactory.dir/clean
 
 .PHONY : player_settings_factory/clean
+
+#=============================================================================
+# Directory level rules for directory point_uv
+
+# Recursive "all" directory target.
+point_uv/all: point_uv/CMakeFiles/point_uv.dir/all
+
+.PHONY : point_uv/all
+
+# Recursive "preinstall" directory target.
+point_uv/preinstall:
+
+.PHONY : point_uv/preinstall
+
+# Recursive "clean" directory target.
+point_uv/clean: point_uv/CMakeFiles/point_uv.dir/clean
+
+.PHONY : point_uv/clean
 
 #=============================================================================
 # Directory level rules for directory server_info
@@ -158,14 +179,15 @@ CMakeFiles/source.dir/all: welcome_regulation/CMakeFiles/welcomeregulation.dir/a
 CMakeFiles/source.dir/all: server_info/CMakeFiles/serverinfo.dir/all
 CMakeFiles/source.dir/all: mask/CMakeFiles/mask.dir/all
 CMakeFiles/source.dir/all: player_settings_factory/CMakeFiles/playersettingsfactory.dir/all
+CMakeFiles/source.dir/all: point_uv/CMakeFiles/point_uv.dir/all
 	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/depend
 	$(MAKE) -f CMakeFiles/source.dir/build.make CMakeFiles/source.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles --progress-num=7,8 "Built target source"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles --progress-num=9,10 "Built target source"
 .PHONY : CMakeFiles/source.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/source.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles 10
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles 12
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/source.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles 0
 .PHONY : CMakeFiles/source.dir/rule
@@ -187,7 +209,7 @@ CMakeFiles/source.dir/clean:
 welcome_regulation/CMakeFiles/welcomeregulation.dir/all:
 	$(MAKE) -f welcome_regulation/CMakeFiles/welcomeregulation.dir/build.make welcome_regulation/CMakeFiles/welcomeregulation.dir/depend
 	$(MAKE) -f welcome_regulation/CMakeFiles/welcomeregulation.dir/build.make welcome_regulation/CMakeFiles/welcomeregulation.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles --progress-num=9,10 "Built target welcomeregulation"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles --progress-num=11,12 "Built target welcomeregulation"
 .PHONY : welcome_regulation/CMakeFiles/welcomeregulation.dir/all
 
 # Build rule for subdir invocation for target.
@@ -214,7 +236,7 @@ welcome_regulation/CMakeFiles/welcomeregulation.dir/clean:
 server_info/CMakeFiles/serverinfo.dir/all:
 	$(MAKE) -f server_info/CMakeFiles/serverinfo.dir/build.make server_info/CMakeFiles/serverinfo.dir/depend
 	$(MAKE) -f server_info/CMakeFiles/serverinfo.dir/build.make server_info/CMakeFiles/serverinfo.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles --progress-num=5,6 "Built target serverinfo"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles --progress-num=7,8 "Built target serverinfo"
 .PHONY : server_info/CMakeFiles/serverinfo.dir/all
 
 # Build rule for subdir invocation for target.
@@ -288,6 +310,33 @@ playersettingsfactory: player_settings_factory/CMakeFiles/playersettingsfactory.
 player_settings_factory/CMakeFiles/playersettingsfactory.dir/clean:
 	$(MAKE) -f player_settings_factory/CMakeFiles/playersettingsfactory.dir/build.make player_settings_factory/CMakeFiles/playersettingsfactory.dir/clean
 .PHONY : player_settings_factory/CMakeFiles/playersettingsfactory.dir/clean
+
+#=============================================================================
+# Target rules for target point_uv/CMakeFiles/point_uv.dir
+
+# All Build rule for target.
+point_uv/CMakeFiles/point_uv.dir/all:
+	$(MAKE) -f point_uv/CMakeFiles/point_uv.dir/build.make point_uv/CMakeFiles/point_uv.dir/depend
+	$(MAKE) -f point_uv/CMakeFiles/point_uv.dir/build.make point_uv/CMakeFiles/point_uv.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles --progress-num=5,6 "Built target point_uv"
+.PHONY : point_uv/CMakeFiles/point_uv.dir/all
+
+# Build rule for subdir invocation for target.
+point_uv/CMakeFiles/point_uv.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 point_uv/CMakeFiles/point_uv.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/CMakeFiles 0
+.PHONY : point_uv/CMakeFiles/point_uv.dir/rule
+
+# Convenience name for target.
+point_uv: point_uv/CMakeFiles/point_uv.dir/rule
+
+.PHONY : point_uv
+
+# clean rule for target.
+point_uv/CMakeFiles/point_uv.dir/clean:
+	$(MAKE) -f point_uv/CMakeFiles/point_uv.dir/build.make point_uv/CMakeFiles/point_uv.dir/clean
+.PHONY : point_uv/CMakeFiles/point_uv.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

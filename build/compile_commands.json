@@ -6,12 +6,12 @@
 },
 {
   "directory": "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/welcome_regulation",
-  "command": "/usr/bin/g++   -I/usr/local/include/opencv  -g   -o CMakeFiles/welcomeregulation.dir/welcome_regulation.cpp.o -c /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/welcome_regulation/welcome_regulation.cpp",
+  "command": "/usr/bin/g++    -g   -o CMakeFiles/welcomeregulation.dir/welcome_regulation.cpp.o -c /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/welcome_regulation/welcome_regulation.cpp",
   "file": "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/welcome_regulation/welcome_regulation.cpp"
 },
 {
   "directory": "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/server_info",
-  "command": "/usr/bin/g++   -I/usr/local/include/opencv  -g   -o CMakeFiles/serverinfo.dir/server_info.cpp.o -c /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/server_info/server_info.cpp",
+  "command": "/usr/bin/g++    -g   -o CMakeFiles/serverinfo.dir/server_info.cpp.o -c /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/server_info/server_info.cpp",
   "file": "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/server_info/server_info.cpp"
 },
 {
@@ -23,5 +23,10 @@
   "directory": "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/player_settings_factory",
   "command": "/usr/bin/g++   -isystem /usr/local/include/opencv  -g   -o CMakeFiles/playersettingsfactory.dir/player_settings.cpp.o -c /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/player_settings_factory/player_settings.cpp",
   "file": "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/player_settings_factory/player_settings.cpp"
+},
+{
+  "directory": "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/build/point_uv",
+  "command": "/usr/bin/g++    -g   -o CMakeFiles/point_uv.dir/point_uv.cpp.o -c /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/point_uv/point_uv.cpp",
+  "file": "/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/point_uv/point_uv.cpp"
 }
 ]
