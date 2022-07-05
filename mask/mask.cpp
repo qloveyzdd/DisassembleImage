@@ -22,7 +22,7 @@ void DilationMask(const cv::Mat &src, cv::Mat &dst) //膨胀mask
     cv::dilate(src, dst, element);
 }
 
-std::vector<cv::Point2f> RoiPointApprox(const cv::Mat &src) //获取mask的顶点的位置
+std::vector<cv::Point2f> RoiPointApprox(const cv::Mat &src, bool check_all = false) //获取mask的顶点的位置
 {
     cv::Mat bw;
     cv::cvtColor(src, bw, CV_BGR2GRAY);
@@ -30,6 +30,7 @@ std::vector<cv::Point2f> RoiPointApprox(const cv::Mat &src) //获取mask的顶�
     std::vector<std::vector<cv::Point>> roi_point;
     std::vector<std::vector<cv::Point>> roi_point1;
     cv::findContours(bw, roi_point1, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+
     for (int i = 0; i < roi_point1.size(); i++)
     {
         if (roi_point1[i].size() >= 5)
@@ -37,10 +38,17 @@ std::vector<cv::Point2f> RoiPointApprox(const cv::Mat &src) //获取mask的顶�
             roi_point.push_back(roi_point1[i]);
         }
     }
+
     std::vector<cv::Point2f> roi_point_approx;
     // cv::Mat roi_approx(bw.size(), CV_8UC3, cv::Scalar(0, 0, 0));
     auto i = roi_point.begin();
     approxPolyDP(*i, roi_point_approx, 7, 1);
+
+    if (check_all)//全部点检查
+    {
+        return roi_point_approx;
+    }
+
     if (roi_point_approx.size() != 4)
     {
         sort(roi_point_approx.begin(), roi_point_approx.end(), [](cv::Point2f a, cv::Point2f b)
@@ -146,6 +154,10 @@ disassembly::disassembly(server_info *serverinfo)
 
     Mattopts(quad_pts, serverinfo);
     transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts); //最终矩阵
+    namedWindow("check(按任意按键关闭)1", WINDOW_NORMAL);
+    imshow("check(按任意按键关闭)1", transmtx);
+    waitKey(0);
+    destroyAllWindows();
 }
 void disassembly::check_mask()
 {

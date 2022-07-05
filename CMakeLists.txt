@@ -6,7 +6,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(OpenCV REQUIRED) 
 find_package(Threads REQUIRED)
 
-include_directories(${OpenCV_INCLUDE_DIRS})
+# include_directories(${OpenCV_INCLUDE_DIRS})
 
 aux_source_directory(. source_list)
 
@@ -14,6 +14,7 @@ add_subdirectory(welcome_regulation)
 add_subdirectory(server_info)
 add_subdirectory(mask)
 add_subdirectory(player_settings_factory)
+add_subdirectory(point_uv)
 
 add_executable(source ${source_list})
 
@@ -23,6 +24,7 @@ target_link_libraries(source welcomeregulation)
 target_link_libraries(source serverinfo)
 target_link_libraries(source mask)
 target_link_libraries(source playersettingsfactory)
+target_link_libraries(source point_uv)
 
 # 链接opencv库
 target_link_libraries(source ${OpenCV_LIBS})
