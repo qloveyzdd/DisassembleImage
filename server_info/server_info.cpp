@@ -5,46 +5,50 @@
 #include <dirent.h>
 #include <algorithm>
 
-image_info::image_info(int x, int y, int xz, int fz) : x(x), y(y), xz(xz), fz(fz)
+output_image_info::output_image_info(vector<int[2]> prim_screen)
 {
+    for (auto i : prim_screen)
+    {
+        alone_prim.push_back(image_info(i[0], i[1]));
+    }
 }
 
-server_image_dlc1::server_image_dlc1()
-{
-    tl[0] = 0.f;
-    tl[1] = 0.f;
-    tr[0] = 1.f;
-    tr[1] = 0.f;
-    bl[0] = 0.f;
-    bl[1] = 1.f;
-    br[0] = 1.f;
-    br[1] = 1.f;
-}
+// server_image_dlc1::server_image_dlc1()
+// {
+//     tl[0] = 0.f;
+//     tl[1] = 0.f;
+//     tr[0] = 1.f;
+//     tr[1] = 0.f;
+//     bl[0] = 0.f;
+//     bl[1] = 1.f;
+//     br[0] = 1.f;
+//     br[1] = 1.f;
+// }
 
-server_image_dlc1::server_image_dlc1(server_info info_server)
-{
-    string temp = "";
-    vector<float> info;
-    temp.append(info_server.GetPrefix()).append("_scaleplate.txt");
-    ifstream inf(temp);
-    if (!inf.is_open())
-    {
-        cout << temp << "不能读取，请检查！" << endl;
-    }
-    temp.clear();
-    while (getline(inf, temp))
-    {
-        info.push_back(float(atoi(temp.c_str())) / 10000.f);
-    }
-    tl[0] = info[0];
-    tl[1] = info[1];
-    tr[0] = info[2];
-    tr[1] = info[3];
-    bl[0] = info[4];
-    bl[1] = info[5];
-    br[0] = info[6];
-    br[1] = info[7];
-}
+// server_image_dlc1::server_image_dlc1(server_info info_server)
+// {
+//     string temp = "";
+//     vector<float> info;
+//     temp.append(info_server.GetPrefix()).append("_scaleplate.txt");
+//     ifstream inf(temp);
+//     if (!inf.is_open())
+//     {
+//         cout << temp << "不能读取，请检查！" << endl;
+//     }
+//     temp.clear();
+//     while (getline(inf, temp))
+//     {
+//         info.push_back(float(atoi(temp.c_str())) / 10000.f);
+//     }
+//     tl[0] = info[0];
+//     tl[1] = info[1];
+//     tr[0] = info[2];
+//     tr[1] = info[3];
+//     bl[0] = info[4];
+//     bl[1] = info[5];
+//     br[0] = info[6];
+//     br[1] = info[7];
+// }
 
 server_info::server_info()
 {
@@ -55,7 +59,8 @@ server_info::server_info()
     ifstream inf(temp);
     if (!inf.is_open())
     {
-        cout << temp << "不能读取，请检查！" << endl;
+        cout << temp << "不能读取拆分基础文本，请检查！" << endl;
+        abort();
     }
     temp.clear();
     while (getline(inf, temp))

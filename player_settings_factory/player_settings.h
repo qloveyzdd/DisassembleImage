@@ -25,7 +25,6 @@ private:
 public:
     void cpu_list_add(string *string_temp) { cpu_list.push_back(string_temp); }
     string *cpu_list_show(int i) { return cpu_list[i]; }
-//    vector<string *>* get_vector(){return &cpu_list;}
     void cpu_work(); //单线程工作主函数
 };
 

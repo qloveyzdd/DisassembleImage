@@ -54,22 +54,14 @@ void cpu_settings::cpu_work()
     int count = 0;
     for (auto filename : cpu_list)
     {
-        Mat dstImage;
+        cv::Mat dstImage;
 
         string savefile = get_server_info()->GetSavePath() + "/" + get_server_info()->GetPrefix() + *filename;
         string loadfile = get_server_info()->GetLoadPath() + "/" + *filename;
-        Mat quad = imread(loadfile, -1);
+        cv::Mat quad = cv::imread(loadfile, -1);
         if (!quad.data)
         {
             cout << "读取图片错误" << endl;
-            abort();
-        }
-        // quad.copyTo(dstImage, get_disassembly()->get_mask_dilate());
-        if (quad.rows != get_disassembly()->get_mask().rows || quad.cols != get_disassembly()->get_mask().cols)
-        {
-            cout << quad.rows << "   " << get_disassembly()->get_mask_dilate().rows << endl;
-            cout << quad.cols << "   " << get_disassembly()->get_mask_dilate().cols << endl;
-            std::cout << "拆分图片与mask不一致！！" << endl;
             abort();
         }
         quad.copyTo(dstImage);
@@ -78,7 +70,7 @@ void cpu_settings::cpu_work()
             cout << "mask图片错误" << endl;
             abort();
         }
-        cv::warpPerspective(dstImage, quad, get_disassembly()->get_transmtx(), Size(get_server_info()->Get_x(), get_server_info()->Get_y()));
+        cv::warpPerspective(dstImage, quad, get_disassembly()->get_transmtx(), cv::Size(get_server_info()->Get_x(), get_server_info()->Get_y()));
         switch (get_server_info()->Get_xz())
         {
         case 1:
