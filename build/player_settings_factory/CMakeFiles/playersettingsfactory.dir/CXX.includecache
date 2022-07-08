@@ -11,10 +11,10 @@ opencv2/highgui/highgui.hpp
 /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/mask/opencv2/highgui/highgui.hpp
 opencv2/imgproc/imgproc.hpp
 /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/mask/opencv2/imgproc/imgproc.hpp
-string
--
 ../server_info/server_info.h
 /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/server_info/server_info.h
+../point_uv/point_uv.h
+/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/point_uv/point_uv.h
 
 /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/player_settings_factory/player_settings.cpp
 player_settings.h
@@ -31,6 +31,12 @@ math.h
 /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/mask/mask.h
 iostream
 -
+
+/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/point_uv/point_uv.h
+opencv2/highgui/highgui.hpp
+/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/point_uv/opencv2/highgui/highgui.hpp
+opencv2/imgproc/imgproc.hpp
+/mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/point_uv/opencv2/imgproc/imgproc.hpp
 
 /mnt/3f800fcd-15e8-42fa-b544-5713adb2f9bf/DisassembleImage.git/server_info/server_info.h
 string

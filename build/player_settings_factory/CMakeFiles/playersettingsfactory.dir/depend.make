@@ -4,5 +4,6 @@
 player_settings_factory/CMakeFiles/playersettingsfactory.dir/player_settings.cpp.o: ../mask/mask.h
 player_settings_factory/CMakeFiles/playersettingsfactory.dir/player_settings.cpp.o: ../player_settings_factory/player_settings.cpp
 player_settings_factory/CMakeFiles/playersettingsfactory.dir/player_settings.cpp.o: ../player_settings_factory/player_settings.h
+player_settings_factory/CMakeFiles/playersettingsfactory.dir/player_settings.cpp.o: ../point_uv/point_uv.h
 player_settings_factory/CMakeFiles/playersettingsfactory.dir/player_settings.cpp.o: ../server_info/server_info.h
 

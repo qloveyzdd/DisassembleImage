@@ -2,27 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
+#include <vector>
 
-prim_uv_factory::prim_uv_factory(std::string uv_file)
-{
-    std::ifstream inf(uv_file);
-    if (!inf.is_open())
-    {
-        std::cout << uv_file << "不能读取uv表，请检查！" << std::endl;
-    }
-    std::string temp = "";
-
-    for (int i = 0; getline(inf, temp); i++)
-    {
-        if (i % 4 == 0)
-        {
-            uv_prim.push_back(new prim_uv(i / 4));
-        }
-        uv_prim[i / 4]->add_point(temp);
-    }
-}
-
-std::vector<std::string> Stringsplit(std::string str, const char split)
+std::vector<std::string> Stringsplit(std::string str, const char split) // string拆分
 {
     std::vector<std::string> rst;
     std::istringstream iss(str);       // 输入流
@@ -34,23 +17,97 @@ std::vector<std::string> Stringsplit(std::string str, const char split)
     return rst;
 }
 
-point_uv::point_uv(std::string uv_line)
+obj_basic::obj_basic(std::string obj_address) //导入obj文件，并格式化
 {
-    std::vector<std::string> temp = Stringsplit(uv_line, '\/');
-    id = atoi(temp[0].c_str());
-    point_loc = new uv_location(atof(temp[1].c_str()) / 1000000, 1-(atof(temp[2].c_str()) / 1000000));
+    std::ifstream inf(obj_address);
+    if (!inf.is_open())
+    {
+        std::cout << obj_address << "不能读取obj文件，请检查！" << std::endl;
+    }
+    std::string temp = {};
+    for (; getline(inf, temp);)
+    {
+        if (temp[0] != '#' && temp[0] != '\t')
+        {
+            temp.pop_back();
+            std::vector<std::string> top = {};
+            if (temp.substr(0, 2) == "v ")
+            {
+                top = Stringsplit(temp, ' ');
+                point_spatial_location.push_back(new cv::Point3f(atof(top[2].c_str()), atof(top[3].c_str()), atof(top[4].c_str())));
+            }
+            else if (temp.substr(0, 2) == "vt")
+            {
+                top = Stringsplit(temp, ' ');
+                point_uv_location.push_back(new cv::Point2f(atof(top[1].c_str()), 1 - atof(top[2].c_str())));
+            }
+            else if (temp.substr(0, 2) == "f ")
+            {
+                top = Stringsplit(temp, ' ');
+                if (top.size() == 5)
+                {
+                    std::vector<int> i_point;
+                    for (int i = 1; i < top.size(); i++)
+                    {
+                        std::vector<std::string> tt_prim = Stringsplit(top[i], '/');
+                        i_point.push_back(atoi(tt_prim[1].c_str()) - 1);
+                    }
+                    prim_to_point.push_back(i_point);
+                }
+                else
+                {
+                    std::cout << "obj文件有非四边面!!!!!" << std::endl;
+                    abort();
+                }
+            }
+        }
+    }
 }
 
-uv_location prim_uv::centor()
+obj_uv_padding::obj_uv_padding(std::string obj_address) : obj_basic(obj_address) //检测是否需要扩边
 {
-    float x = 0, y = 0;
-    for (auto i : uv_point)
+    std::vector<cv::Point2f *> temp = get_uv_point_location();
+    sort(temp.begin(), temp.end(), [](cv::Point2f *a, cv::Point2f *b)
+         { return a->x < b->x; });
+    if (temp[0]->x < 0)
     {
-        x += i->get_location()->x;
-        y += i->get_location()->y;
+        left = temp[0]->x * -1;
     }
-    x /= 4;
-    y /= 4;
+    else
+    {
+        left = 0;
+    }
+    if (temp[temp.size() - 1]->x > 0)
+    {
+        right = temp[temp.size() - 1]->x - 1;
+    }
+    else
+    {
+        right = 0;
+    }
 
-    return uv_location(x,y);
+    sort(temp.begin(), temp.end(), [](cv::Point2f *a, cv::Point2f *b)
+         { return a->y < b->y; });
+    if (temp[0]->y < 0)
+    {
+        botton = temp[0]->y * -1;
+    }
+    else
+    {
+        botton = 0;
+    }
+    if (temp[temp.size() - 1]->y > 0)
+    {
+        top = temp[temp.size() - 1]->y - 1;
+    }
+    else
+    {
+        top = 0;
+    }
+
+    for (auto i : temp)
+    {
+        i->x += left;
+        i->y += right;
+    }
 }

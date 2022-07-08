@@ -4,6 +4,7 @@
 CMakeFiles/source.dir/main.cpp.o: ../main.cpp
 CMakeFiles/source.dir/main.cpp.o: ../mask/mask.h
 CMakeFiles/source.dir/main.cpp.o: ../player_settings_factory/player_settings.h
+CMakeFiles/source.dir/main.cpp.o: ../point_uv/point_uv.h
 CMakeFiles/source.dir/main.cpp.o: ../server_info/server_info.h
 CMakeFiles/source.dir/main.cpp.o: ../welcome_regulation/welcome_regulation.h
 

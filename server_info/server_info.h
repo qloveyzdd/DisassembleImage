@@ -4,63 +4,55 @@
 
 using namespace std;
 
-class server_info;
-class load_list;
-class server_image_dlc1;
+enum group_direction
+{
+    NONE, //不组合
+    X,    // X方向
+    Y     // Y方向
+};
 
 class image_info
 {
-private:
-    int x;  //屏幕横向尺寸
-    int y;  //屏幕纵向尺寸
-    int xz; //旋转
-    int fz; //翻转
 public:
-    image_info(int x,int y,int xz,int fz);
-    const int Get_x() const { return x; }
-    const int Get_y() const { return y; }
-    const int Get_xz() const { return xz; }
-    const int Get_fz() const { return fz; }
+    int x; //图片横向尺寸
+    int y; //图片纵向尺寸
+public:
+    image_info(int x, int y):x(x),y(y){};
 };
 
-class server_image_dlc1 //对于非完全画面覆盖定制覆盖面锚点
+class input_image_info:public image_info
+{
+public:
+    input_image_info(int x, int y):image_info(x,y){};
+};
+
+class output_image_info
 {
 private:
-    float tl[2]; //上左
-    float tr[2]; //上右
-    float br[2]; //下右
-    float bl[2]; //下左
+vector<image_info> alone_prim;
 public:
-    server_image_dlc1();
-    server_image_dlc1(server_info info_server);
-    const float get_tl(int i) { return tl[i]; }
-    const float get_tr(int i) { return tr[i]; }
-    const float get_br(int i) { return br[i]; }
-    const float get_bl(int i) { return bl[i]; }
+    output_image_info(vector<int[2]> prim_screen);
+    inline image_info& operator[](int i){return alone_prim[i];};
 };
 
 class server_info
 {
 private:
-    image_info *image_size;               //屏幕参数
-    server_image_dlc1 *image_screen_size; //屏幕尺寸占比
-    string Prefix;    //输出前缀
-    string mask;      // mask名称
-    string load_path; //读取文件路径
-    string save_path; //存储路径
+    input_image_info *input_image_size; //输入屏幕尺寸
+    image_info *output_image_size;      //输出屏幕尺寸数组
+    string Prefix;                      //输出前缀
+    string load_path;                   //读取文件路径
+    string save_path;                   //存储路径
+    group_direction direction;          //组合方式
 
 public:
     server_info();
-    const int Get_xz() const { return image_size->Get_xz(); }
-    const int Get_fz() const { return image_size->Get_fz(); }
-    const int Get_x() const { return image_size->Get_x(); }
-    const int Get_y() const { return image_size->Get_y(); }
-    server_image_dlc1* Get_screen_size() const {return image_screen_size;}
+    const input_image_info *Get_input() const { return input_image_size; }
+    const image_info *Get_output() const { return output_image_size; }
     const string GetLoadPath() const { return load_path; }
     const string GetSavePath() const { return save_path; }
     const string GetPrefix() const { return Prefix; }
-    const string GetMask() const { return mask; }
-    
+    const group_direction get_direction() const { return direction; }
 };
 
 class load_list //待处理文件总目录

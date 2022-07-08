@@ -1,75 +1,8 @@
 #include "mask.h"
 #include <stdlib.h>
+#include <fstream>
 #include <iostream>
-
-static Scalar randomColor(int64 seed) //随机颜色
-{
-    RNG rng(seed);
-    int icolor = unsigned(rng);
-    return Scalar(icolor & 255, (icolor >> 8) & 255, (icolor >> 16) & 255);
-}
-
-void MyFilledCircle(Mat img, Point center) //绘制圆
-{
-    int thickness = -1;
-    int lineType = 8;
-    circle(img, center, 30, randomColor(cv::getTickCount()), thickness, lineType);
-}
-
-void DilationMask(const cv::Mat &src, cv::Mat &dst) //膨胀mask
-{
-    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(50, 50));
-    cv::dilate(src, dst, element);
-}
-
-std::vector<cv::Point2f> RoiPointApprox(const cv::Mat &src, bool check_all = false) //获取mask的顶点的位置
-{
-    cv::Mat bw;
-    cv::cvtColor(src, bw, CV_BGR2GRAY);
-    cv::Canny(bw, bw, 100, 100, 3);
-    std::vector<std::vector<cv::Point>> roi_point;
-    std::vector<std::vector<cv::Point>> roi_point1;
-    cv::findContours(bw, roi_point1, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-
-    for (int i = 0; i < roi_point1.size(); i++)
-    {
-        if (roi_point1[i].size() >= 5)
-        {
-            roi_point.push_back(roi_point1[i]);
-        }
-    }
-
-    std::vector<cv::Point2f> roi_point_approx;
-    // cv::Mat roi_approx(bw.size(), CV_8UC3, cv::Scalar(0, 0, 0));
-    auto i = roi_point.begin();
-    approxPolyDP(*i, roi_point_approx, 7, 1);
-
-    if (check_all)//全部点检查
-    {
-        return roi_point_approx;
-    }
-
-    if (roi_point_approx.size() != 4)
-    {
-        sort(roi_point_approx.begin(), roi_point_approx.end(), [](cv::Point2f a, cv::Point2f b)
-             { return sqrt(pow(a.x, 2) + pow(a.y, 2)) > sqrt(pow(b.x, 2) + pow(b.y, 2)); });
-        std::vector<cv::Point2f> roi_point_approx_end;
-        for (int i = 0; i < roi_point_approx.size() - 1; i++)
-        {
-            if (abs(sqrt(pow(roi_point_approx[i].x, 2) + pow(roi_point_approx[i].y, 2)) - sqrt(pow(roi_point_approx[i + 1].x, 2) + pow(roi_point_approx[i + 1].y, 2))) > 10)
-            {
-                roi_point_approx_end.push_back(roi_point_approx[i]);
-            }
-        }
-        roi_point_approx_end.push_back(roi_point_approx.back());
-
-        return roi_point_approx_end;
-    }
-    else
-    {
-        return roi_point_approx;
-    }
-}
+#include <string>
 
 cv::Point2f GetCenter(const std::vector<cv::Point2f> &point) //获取mask的中心点
 {
@@ -122,63 +55,46 @@ void sortCorners(std::vector<cv::Point2f> &corners, const cv::Point2f &center) /
     }
 }
 
-void Mattopts(std::vector<cv::Point2f> &quad_pts, server_info *serverinfo) //设置最终图片的锚点位置
+disassembly_factory::disassembly_factory(server_info *serverinfo, obj_uv_padding *obj_input, obj_basic *obj_output)
 {
-    quad_pts.push_back(cv::Point2f(serverinfo->Get_screen_size()->get_tl(0) * serverinfo->Get_x(), serverinfo->Get_screen_size()->get_tl(1) * serverinfo->Get_y()));
-    quad_pts.push_back(cv::Point2f(serverinfo->Get_screen_size()->get_tr(0) * serverinfo->Get_x(), serverinfo->Get_screen_size()->get_tr(1) * serverinfo->Get_y()));
-    quad_pts.push_back(cv::Point2f(serverinfo->Get_screen_size()->get_br(0) * serverinfo->Get_x(), serverinfo->Get_screen_size()->get_br(1) * serverinfo->Get_y()));
-    quad_pts.push_back(cv::Point2f(serverinfo->Get_screen_size()->get_bl(0) * serverinfo->Get_x(), serverinfo->Get_screen_size()->get_bl(1) * serverinfo->Get_y()));
+    direction = serverinfo->get_direction();
+    for (int i =0;i<obj_input->get_prim_to_point().size();i++)
+    {
+        std::vector<cv::Point2f*> temp_input;
+        std::vector<std::vector<int>> prim_temp_input = obj_input->get_prim_to_point();
+        for (auto j:prim_temp_input[i])
+        {
+            temp_input.push_back(obj_input->get_uv_point_location()[j]);
+        }
+        std::vector<cv::Point2f*> temp_output;
+        std::vector<std::vector<int>> prim_temp_output = obj_output->get_prim_to_point();
+        for (auto j:prim_temp_output[i])
+        {
+            temp_output.push_back(obj_output->get_uv_point_location()[j]);
+        }
+        prim.push_back(new disassembly(temp_input,temp_output,cv::Point2f(10000,5000)));
+
+    }
+    
 }
 
-disassembly::disassembly(server_info *serverinfo)
+disassembly::disassembly(std::vector<cv::Point2f *> input_point,std::vector<cv::Point2f *> output_point, cv::Point2f input_screen,cv::Point2f output_screen)
 {
-
-    mask = imread(serverinfo->GetMask());
-
-    if (!mask.data)
+    for (auto i:input_point)
     {
-        cout << "读取文件错误！！！" << endl;
-        abort();
+        roi_point_approx.push_back(cv::Point2f((i->x*input_screen.x,i->y*input_screen.y)));
     }
 
-    DilationMask(mask, mask_dilate);
-    roi_point_approx = RoiPointApprox(mask);
     center = GetCenter(roi_point_approx);
-    sortCorners(roi_point_approx, center);
 
-    if (roi_point_approx.size() != 4)
+    for (auto i:output_point)
     {
-        cout << "锚点不为4！" << endl;
-        abort();
+        quad_pts.push_back(cv::Point2f((i->x*output_screen.x,i->y*output_screen.y)));
     }
 
-    Mattopts(quad_pts, serverinfo);
     transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts); //最终矩阵
-    namedWindow("check(按任意按键关闭)1", WINDOW_NORMAL);
-    imshow("check(按任意按键关闭)1", transmtx);
-    waitKey(0);
-    destroyAllWindows();
-}
-void disassembly::check_mask()
-{
-    Mat check_mask = mask;
-    for (auto temp : roi_point_approx)
-    {
-        MyFilledCircle(check_mask, temp);
-    }
-    namedWindow("check(按任意按键关闭)", WINDOW_NORMAL);
-    imshow("check(按任意按键关闭)", check_mask);
-    waitKey(0);
-    destroyAllWindows();
-}
-
-void RoadImageAndSetMask(cv::Mat &dst, const std::string Image, const cv::Mat &mask)
-{
-    cv::Mat temp = cv::imread(Image, -1);
-    if (!temp.data)
-    {
-        printf("读取文件错误！！！");
-        return;
-    }
-    temp.copyTo(dst, mask);
+    // cv::namedWindow("check(按任意按键关闭)1", cv::WINDOW_NORMAL);
+    // cv::imshow("check(按任意按键关闭)1", transmtx);
+    // cv::waitKey(0);
+    // cv::destroyAllWindows();
 }

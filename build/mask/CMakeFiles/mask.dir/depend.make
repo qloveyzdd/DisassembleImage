@@ -3,5 +3,6 @@
 
 mask/CMakeFiles/mask.dir/mask.cpp.o: ../mask/mask.cpp
 mask/CMakeFiles/mask.dir/mask.cpp.o: ../mask/mask.h
+mask/CMakeFiles/mask.dir/mask.cpp.o: ../point_uv/point_uv.h
 mask/CMakeFiles/mask.dir/mask.cpp.o: ../server_info/server_info.h
 
