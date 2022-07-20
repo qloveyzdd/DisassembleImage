@@ -46,13 +46,13 @@ obj_basic::obj_basic(std::string obj_address) //导入obj文件，并格式化
                 top = Stringsplit(temp, ' ');
                 if (top.size() == 5)
                 {
-                    std::vector<int> i_point;
+                    int i_point[4];
                     for (int i = 1; i < top.size(); i++)
                     {
                         std::vector<std::string> tt_prim = Stringsplit(top[i], '/');
-                        i_point.push_back(atoi(tt_prim[1].c_str()) - 1);
+                        i_point[i-1] = atoi(tt_prim[1].c_str()) - 1;
                     }
-                    prim_to_point.push_back(i_point);
+                    prim.push_back(i_point);
                 }
                 else
                 {
@@ -61,6 +61,10 @@ obj_basic::obj_basic(std::string obj_address) //导入obj文件，并格式化
                 }
             }
         }
+    }
+    for (auto i : point_uv_location)
+    {
+        i->y = 1 - i->y;
     }
 }
 

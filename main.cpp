@@ -37,12 +37,13 @@ int main(int argc, char *argv[])
     welcome::welcome_string();
     regulation::regulation_string();
 
-    obj_uv_padding obj_input("poly.obj");
-    obj_basic obj_output("poly.obj");
-
     server_info serverinfo;
+
+    obj_uv_padding obj_input("input.obj");
+    obj_basic obj_output("output.obj");
+
     load_list loadlist(serverinfo);
-    disassembly_factory disassemblyfactory(&serverinfo, &obj_input,&obj_output);
+    disassembly_factory disassemblyfactory(&obj_input, &obj_input,&obj_output);
 
     if (argc > 1)
     {

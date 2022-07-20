@@ -2,6 +2,9 @@
 #include <string>
 #include <vector>
 
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+
 using namespace std;
 
 enum group_direction
@@ -14,41 +17,41 @@ enum group_direction
 class image_info
 {
 public:
-    int x; //图片横向尺寸
-    int y; //图片纵向尺寸
+    cv::Point2f size_A; //图片横向尺寸
 public:
-    image_info(int x, int y):x(x),y(y){};
+    image_info(int x, int y) : size_A(x,y){};
 };
 
-class input_image_info:public image_info
+class input_image_info : public image_info
 {
 public:
-    input_image_info(int x, int y):image_info(x,y){};
+    input_image_info(vector<int> prim_screen) : image_info(prim_screen[0], prim_screen[1]){};
 };
 
 class output_image_info
 {
 private:
-vector<image_info> alone_prim;
+    vector<image_info> alone_prim;
+
 public:
-    output_image_info(vector<int[2]> prim_screen);
-    inline image_info& operator[](int i){return alone_prim[i];};
+    output_image_info(vector<vector<int>> prim_screen);
+    inline vector<image_info> get_prim_screen() { return alone_prim; }; //获取导出的所有面的信息
 };
 
 class server_info
 {
 private:
-    input_image_info *input_image_size; //输入屏幕尺寸
-    image_info *output_image_size;      //输出屏幕尺寸数组
-    string Prefix;                      //输出前缀
-    string load_path;                   //读取文件路径
-    string save_path;                   //存储路径
-    group_direction direction;          //组合方式
+    input_image_info *input_image;        //输入屏幕尺寸
+    output_image_info *output_image_size; //输出屏幕尺寸数组
+    string Prefix;                        //输出前缀
+    string load_path;                     //读取文件路径
+    string save_path;                     //存储路径
+    group_direction direction;            //组合方式
 
 public:
     server_info();
-    const input_image_info *Get_input() const { return input_image_size; }
-    const image_info *Get_output() const { return output_image_size; }
+    const input_image_info *Get_input() const { return input_image; }
+    output_image_info *Get_output() const { return output_image_size; }
     const string GetLoadPath() const { return load_path; }
     const string GetSavePath() const { return save_path; }
     const string GetPrefix() const { return Prefix; }
