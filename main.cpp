@@ -43,14 +43,14 @@ int main(int argc, char *argv[])
     obj_basic obj_output("output.obj");
 
     load_list loadlist(serverinfo);
-    disassembly_factory disassemblyfactory(&obj_input, &obj_input,&obj_output);
+    disassembly_factory disassemblyfactory(&obj_input, serverinfo.Get_input(),serverinfo.Get_output());
 
     if (argc > 1)
     {
         // disassemblyImage.check_mask();
     }
 
-    player_settings_factory playerset(&loadlist);
+    player_settings_factory playerset(&loadlist,&disassemblyfactory,&serverinfo);
     // vector<cpu_settings *> cpus_list = playerset.create(&disassemblyImage, &serverinfo);
 
     // for (int i = 0; i < playerset.get_cpu_count(); i++)

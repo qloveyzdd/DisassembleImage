@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <math.h>
 
-player_settings_factory::player_settings_factory(load_list *list_in)
+player_settings_factory::player_settings_factory(load_list *list_in, disassembly_factory *disassembly, server_info *serverinfo_in)
 {
     list = list_in;
     string temp = "";
@@ -25,19 +25,13 @@ player_settings_factory::player_settings_factory(load_list *list_in)
         break;
     }
     cout << "处理核心数量为" << cpu_count << "个" << endl;
-}
 
-vector<cpu_settings *> player_settings_factory::create(disassembly *disassembly, server_info *serverinfo_in)
-{
-    int count = ceil(float(list->list_count()) / float(cpu_count));
+    count = ceil(float(list->list_count()) / float(cpu_count));
     cout << "单核心处理" << count << "个文件" << endl;
 
-    vector<cpu_settings *> cpus;
     for (int i = 0; i < cpu_count; i++)
     {
-        cpu_settings *cpu_list = new cpu_settings;
-        cpu_list->set_disassemblyIm(disassembly);
-        cpu_list->set_server_info(serverinfo_in);
+        cpu_settings *cpu_list = new cpu_settings(disassembly, serverinfo_in);
         // int max_file = (i + 1) * count > list->list_count() ? list->list_count() : (i + 1) * count;
         for (int j = i; j < list->list_count(); j += cpu_count)
         {
@@ -45,18 +39,14 @@ vector<cpu_settings *> player_settings_factory::create(disassembly *disassembly,
         }
         cpus.push_back(cpu_list);
     }
-
-    return cpus;
 }
 
 void cpu_settings::cpu_work()
 {
-    int count = 0;
     for (auto filename : cpu_list)
     {
         cv::Mat dstImage;
 
-        string savefile = get_server_info()->GetSavePath() + "/" + get_server_info()->GetPrefix() + *filename;
         string loadfile = get_server_info()->GetLoadPath() + "/" + *filename;
         cv::Mat quad = cv::imread(loadfile, -1);
         if (!quad.data)
@@ -65,42 +55,14 @@ void cpu_settings::cpu_work()
             abort();
         }
         quad.copyTo(dstImage);
-        if (!dstImage.data)
+        for (auto i : get_disassembly()->get_prim())
         {
-            cout << "mask图片错误" << endl;
-            abort();
+            cv::warpPerspective(dstImage, quad, i->get_transmtx(), cv::Size(i->get_quad_pts()[3]));
+
+            string savefile = get_server_info()->GetSavePath() + "/" + get_server_info()->GetPrefix() + *filename;
+            imwrite(savefile, quad);
+            std::cout << "processing：" << get_server_info()->GetPrefix() << *filename;
         }
-        cv::warpPerspective(dstImage, quad, get_disassembly()->get_transmtx(), cv::Size(get_server_info()->Get_x(), get_server_info()->Get_y()));
-        switch (get_server_info()->Get_xz())
-        {
-        case 1:
-            transpose(quad, quad);
-            flip(quad, quad, 0);
-            break;
-        default:
-            break;
-        }
-        switch (get_server_info()->Get_fz())
-        {
-        case 1:
-            flip(quad, quad, 1);
-            break;
-        case 2:
-            flip(quad, quad, 0);
-            break;
-        case 3:
-            flip(quad, quad, -1);
-            break;
-        default:
-            break;
-        }
-        imwrite(savefile, quad);
-        std::cout << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b"
-                  << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b";
-        // std::cout << "processing：" << get_server_info()->GetPrefix() << *filename;
-        count++;
-        sleep(1);
-        std::cout << "progress：" << count << "/" << cpu_list.size();
     }
-    std::cout<<std::endl;
+    std::cout << std::endl;
 }

@@ -50,7 +50,7 @@ private:
 
 public:
     server_info();
-    const input_image_info *Get_input() const { return input_image; }
+    input_image_info *Get_input() const { return input_image; }
     output_image_info *Get_output() const { return output_image_size; }
     const string GetLoadPath() const { return load_path; }
     const string GetSavePath() const { return save_path; }
