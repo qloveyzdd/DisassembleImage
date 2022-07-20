@@ -4,20 +4,20 @@
 #include <iostream>
 #include <string>
 
-cv::Point2f GetCenter(const std::vector<cv::Point2f*> &point) //获取mask的中心点
+cv::Point2f GetCenter(const std::vector<cv::Point2f> &point) //获取mask的中心点
 {
     cv::Point2f center(0, 0);
 
     for (int i = 0; i < point.size(); i++)
-        center += *point[i];
+        center += point[i];
     center *= (1. / point.size());
 
     return center;
 }
 
-void sortCorners(std::vector<cv::Point2f*> &corners, const cv::Point2f &center) //对四个点的顺序进行校对
+void sortCorners(std::vector<cv::Point2f> &corners, const cv::Point2f &center) //对四个点的顺序进行校对
 {
-    std::vector<cv::Point2f*> top_temp, bot_temp, top, bot;
+    std::vector<cv::Point2f> top_temp, bot_temp, top, bot;
 
     sort(corners.begin(), corners.end(), [](cv::Point2f a, cv::Point2f b)
          { return a.y > b.y; });
@@ -43,10 +43,10 @@ void sortCorners(std::vector<cv::Point2f*> &corners, const cv::Point2f &center) 
 
     if (top.size() == 2 && bot.size() == 2)
     {
-        cv::Point2f* tl = top[0]->x > top[1]->x ? top[1] : top[0];
-        cv::Point2f* tr = top[0]->x > top[1]->x ? top[0] : top[1];
-        cv::Point2f* bl = bot[0]->x > bot[1]->x ? bot[1] : bot[0];
-        cv::Point2f* br = bot[0]->x > bot[1]->x ? bot[0] : bot[1];
+        cv::Point2f tl = top[0].x > top[1].x ? top[1] : top[0];
+        cv::Point2f tr = top[0].x > top[1].x ? top[0] : top[1];
+        cv::Point2f bl = bot[0].x > bot[1].x ? bot[1] : bot[0];
+        cv::Point2f br = bot[0].x > bot[1].x ? bot[0] : bot[1];
 
         corners.push_back(tl);
         corners.push_back(tr);
@@ -55,33 +55,33 @@ void sortCorners(std::vector<cv::Point2f*> &corners, const cv::Point2f &center) 
     }
 }
 
-cv::Point2f point_mul_screen(cv::Point2f a,cv::Point2f b)   //将uv点坐标转化为图片的像素坐标
+cv::Point2f* point_mul_screen(cv::Point2f a,cv::Point2f b)   //将uv点坐标转化为图片的像素坐标
 {
-    return cv::Point2f(a.x*b.x,a.y*b.y);
+    return new cv::Point2f(a.x*b.x,a.y*b.y);
 }
 
-disassembly_factory::disassembly_factory(obj_uv_padding *obj_input, obj_basic *obj_output, input_image_info *input_message, output_image_info *output_message)
-{
-    for (int i = 0; i < obj_input->get_prim().size(); i++)
-    {
-        std::vector<cv::Point2f *> temp_input;
-        std::vector<int[2]> prim_temp_input = obj_input->get_prim();
-        for (auto j : prim_temp_input[i])
-        {
-            cv::Point2f temp = {obj_input->get_uv_point_location()[j]->x * input_message->size_A[0], obj_input->get_uv_point_location()[j]->y * input_message->size_A[1]};
-            temp_input.push_back(obj_input->get_uv_point_location()[j]);
-        }
-        std::vector<cv::Point2f *> temp_output;
-        std::vector<std::vector<int>> prim_temp_output = obj_output->get_prim();
-        for (auto j : prim_temp_output[i])
-        {
-            cv::Point2f temp = {obj_input->get_uv_point_location()[j]->x * output_message->size_A[0], obj_input->get_uv_point_location()[j]->y * output_message->size_A[1]};
-            temp_output.push_back(&temp);
-        }
+// disassembly_factory::disassembly_factory(obj_uv_padding *obj_input, obj_basic *obj_output, input_image_info *input_message, output_image_info *output_message)
+// {
+//     for (int i = 0; i < obj_input->get_prim().size(); i++)
+//     {
+//         std::vector<cv::Point2f *> temp_input;
+//         std::vector<int[2]> prim_temp_input = obj_input->get_prim();
+//         for (auto j : prim_temp_input[i])
+//         {
+//             cv::Point2f temp = {obj_input->get_uv_point_location()[j]->x * input_message->size_A[0], obj_input->get_uv_point_location()[j]->y * input_message->size_A[1]};
+//             temp_input.push_back(obj_input->get_uv_point_location()[j]);
+//         }
+//         std::vector<cv::Point2f *> temp_output;
+//         std::vector<std::vector<int>> prim_temp_output = obj_output->get_prim();
+//         for (auto j : prim_temp_output[i])
+//         {
+//             cv::Point2f temp = {obj_input->get_uv_point_location()[j]->x * output_message->size_A[0], obj_input->get_uv_point_location()[j]->y * output_message->size_A[1]};
+//             temp_output.push_back(&temp);
+//         }
 
-        prim.push_back(new disassembly(temp_input, temp_output, input_message->size_A, output_message->get_prim_screen()[i].size_A));
-    }
-}
+//         prim.push_back(new disassembly(temp_input, temp_output, input_message->size_A, output_message->get_prim_screen()[i].size_A));
+//     }
+// }
 
 disassembly_factory::disassembly_factory(obj_uv_padding *obj_input, input_image_info *input_message, output_image_info *output_message)
 {
@@ -91,10 +91,10 @@ disassembly_factory::disassembly_factory(obj_uv_padding *obj_input, input_image_
         {
             std::vector<cv::Point2f *> temp_input;
             // std::vector<std::vector<int>> prim_temp_input = obj_input->get_prim();
-            for (auto j : obj_input->get_prim()[i])
+            for (int j = 0; j<4; j++)
             {
                 // cv::Point2f temp = {obj_input->get_uv_point_location()[j]->x * input_message->size_A[0], obj_input->get_uv_point_location()[j]->y * input_message->size_A[1]};
-                temp_input.push_back(&point_mul_screen(*(obj_input->get_uv_point_location()[j]),input_message->size_A));
+                temp_input.push_back(point_mul_screen(*(obj_input->get_uv_point_location()[j]),input_message->size_A));
             }
 
             prim.push_back(new disassembly(temp_input,&(output_message->get_prim_screen()[i].size_A)));
@@ -109,11 +109,10 @@ disassembly_factory::disassembly_factory(obj_uv_padding *obj_input, input_image_
 
 disassembly::disassembly(std::vector<cv::Point2f *> input_point, cv::Point2f *output_point)
 {
-    roi_point_approx = input_point;
-    // for (auto i : input_point)
-    // {
-    //     roi_point_approx.push_back(cv::Point2f((i->x * input_screen[0], i->y * input_screen[1])));
-    // }
+    for (auto i : input_point)
+    {
+        roi_point_approx.push_back(*i);
+    }
 
     center = GetCenter(roi_point_approx);
     sortCorners(roi_point_approx, center);

@@ -17,7 +17,7 @@ output_image_info::output_image_info(vector<vector<int>> prim_screen)
 }
 
 template <class T>
-std::vector<T> Stringsplit(std::string str, const char split, int type = 1) // string拆分
+std::vector<T> Stringsplit(std::string str, const char split) // string拆分
 {
     std::vector<T> rst;
 
@@ -25,17 +25,21 @@ std::vector<T> Stringsplit(std::string str, const char split, int type = 1) // s
     std::string token;                 // 接收缓冲区
     while (getline(iss, token, split)) // 以split为分隔符
     {
-        switch (type)
-        {
-        case 0:
-            rst.push_back(atoi(token.c_str()));
-            break;
-        case 1:
-            rst.push_back(token);
-            break;
-        default:
-            break;
-        }
+        rst.push_back(atoi(token.c_str()));
+    }
+    return rst;
+}
+
+template <class T>
+std::vector<T> Stringsplit_string(std::string str, const char split) // string拆分
+{
+    std::vector<T> rst;
+
+    std::istringstream iss(str);       // 输入流
+    std::string token;                 // 接收缓冲区
+    while (getline(iss, token, split)) // 以split为分隔符
+    {
+        rst.push_back(token);
     }
     return rst;
 }
@@ -59,17 +63,19 @@ server_info::server_info()
     }
     inf.close();
 
+    //读入第一行数据，为待拆分图片尺寸
     {
         std::vector<int> temp = Stringsplit<int>(info[0], '*');
         input_image = new input_image_info({temp[0], temp[1]});
     }
 
+    //读入第二行数据，为结果图片尺寸，应要求不同有一个或多个
     {
         vector<vector<int>> input;
-        std::vector<string> temp = Stringsplit<string>(info[1], ' ',1);
+        std::vector<string> temp = Stringsplit_string<string>(info[1], ' ');
         for (auto i : temp)
         {
-            std::vector<int> temp_A = Stringsplit<int>(i, '*',0);
+            std::vector<int> temp_A = Stringsplit<int>(i, '*');
             input.push_back(temp_A);
         }
         output_image_size = new output_image_info(input);
@@ -111,7 +117,7 @@ load_list::load_list(server_info serverinfo)
         {
             string sFilename(dirp->d_name);
             string suffixStr = sFilename.substr(sFilename.find_last_of('.') + 1);
-            if (suffixStr.compare("jpg") == 0 || suffixStr.compare("png") == 0 || suffixStr.compare("tga") == 0)
+            if (suffixStr.compare("jpg") == 0 || suffixStr.compare("jpeg") == 0 || suffixStr.compare("png") == 0 || suffixStr.compare("tga") == 0)
             {
                 list.push_back(dirp->d_name);
                 count++;
