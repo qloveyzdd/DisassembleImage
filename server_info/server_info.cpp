@@ -4,8 +4,11 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <typeinfo>
 
-output_image_info::output_image_info(vector<int[2]> prim_screen)
+output_image_info::output_image_info(vector<vector<int>> prim_screen)
 {
     for (auto i : prim_screen)
     {
@@ -13,42 +16,29 @@ output_image_info::output_image_info(vector<int[2]> prim_screen)
     }
 }
 
-// server_image_dlc1::server_image_dlc1()
-// {
-//     tl[0] = 0.f;
-//     tl[1] = 0.f;
-//     tr[0] = 1.f;
-//     tr[1] = 0.f;
-//     bl[0] = 0.f;
-//     bl[1] = 1.f;
-//     br[0] = 1.f;
-//     br[1] = 1.f;
-// }
+template <class T>
+std::vector<T> Stringsplit(std::string str, const char split, int type = 1) // string拆分
+{
+    std::vector<T> rst;
 
-// server_image_dlc1::server_image_dlc1(server_info info_server)
-// {
-//     string temp = "";
-//     vector<float> info;
-//     temp.append(info_server.GetPrefix()).append("_scaleplate.txt");
-//     ifstream inf(temp);
-//     if (!inf.is_open())
-//     {
-//         cout << temp << "不能读取，请检查！" << endl;
-//     }
-//     temp.clear();
-//     while (getline(inf, temp))
-//     {
-//         info.push_back(float(atoi(temp.c_str())) / 10000.f);
-//     }
-//     tl[0] = info[0];
-//     tl[1] = info[1];
-//     tr[0] = info[2];
-//     tr[1] = info[3];
-//     bl[0] = info[4];
-//     bl[1] = info[5];
-//     br[0] = info[6];
-//     br[1] = info[7];
-// }
+    std::istringstream iss(str);       // 输入流
+    std::string token;                 // 接收缓冲区
+    while (getline(iss, token, split)) // 以split为分隔符
+    {
+        switch (type)
+        {
+        case 0:
+            rst.push_back(atoi(token.c_str()));
+            break;
+        case 1:
+            rst.push_back(token);
+            break;
+        default:
+            break;
+        }
+    }
+    return rst;
+}
 
 server_info::server_info()
 {
@@ -67,31 +57,39 @@ server_info::server_info()
     {
         info.push_back(temp);
     }
-    image_size = new image_info(atoi(info[0].c_str()), atoi(info[1].c_str()), atoi(info[2].c_str()), atoi(info[3].c_str()));
-    Prefix = info[4];
-    mask = info[5];
-    load_path = info[6];
-    save_path = info[7];
-    temp.clear();
-    cout << "此拆分是否占用整个平面（1.是 2.否）" << endl;
-    cin >> temp;
-    int system = atoi(temp.c_str());
-    temp = "";
-    switch (system)
-    {
-    case 1:
-    {
+    inf.close();
 
-        image_screen_size = new server_image_dlc1();
-        break;
-    }
-    case 2:
     {
-        image_screen_size = new server_image_dlc1(*this);
-        break;
+        std::vector<int> temp = Stringsplit<int>(info[0], '*');
+        input_image = new input_image_info({temp[0], temp[1]});
     }
-    default:
-        break;
+
+    {
+        vector<vector<int>> input;
+        std::vector<string> temp = Stringsplit<string>(info[1], ' ',1);
+        for (auto i : temp)
+        {
+            std::vector<int> temp_A = Stringsplit<int>(i, '*',0);
+            input.push_back(temp_A);
+        }
+        output_image_size = new output_image_info(input);
+    }
+
+    Prefix = info[2];
+    load_path = info[3];
+    save_path = info[4];
+
+    if (info[5] == "NONE")
+    {
+        direction = group_direction::NONE;
+    }
+    else if (info[5] == "X")
+    {
+        direction = group_direction::X;
+    }
+    else if (info[5] == "Y")
+    {
+        direction = group_direction::Y;
     }
 }
 
