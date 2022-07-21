@@ -45,22 +45,56 @@ void cpu_settings::cpu_work()
 {
     for (auto filename : cpu_list)
     {
-        cv::Mat dstImage;
+        cv::Mat quad;
 
         string loadfile = get_server_info()->GetLoadPath() + "/" + *filename;
-        cv::Mat quad = cv::imread(loadfile, -1);
-        if (!quad.data)
+        cv::Mat dstImage = cv::imread(loadfile, -1);
+        if (!dstImage.data)
         {
             cout << "读取图片错误" << endl;
             abort();
         }
-        quad.copyTo(dstImage);
-        for (auto i = 0; i < get_disassembly()->get_prim().size(); i++)
-        {
-            cv::warpPerspective(dstImage, quad, get_disassembly()->get_prim()[i]->get_transmtx(), cv::Size(get_disassembly()->get_prim()[i]->get_quad_pts()[2]));
+        // quad.copyTo(dstImage);
 
-            string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[i] + "/" + get_server_info()->GetPrefix()[i] + *filename;
-            imwrite(savefile, quad);
+        if (get_server_info()->get_direction() == group_direction::NONE)
+        {
+            for (auto i = 0; i < get_disassembly()->get_prim().size(); i++)
+            {
+                cv::warpPerspective(dstImage, quad, get_disassembly()->get_prim()[i]->get_transmtx(), cv::Size(get_disassembly()->get_prim()[i]->get_quad_pts()[2]));
+
+                string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[i] + "/" + get_server_info()->GetPrefix()[i] + *filename;
+                imwrite(savefile, quad);
+                std::cout << "processing：" << savefile << std::endl;
+            }
+        }
+        else if (get_server_info()->get_direction() == group_direction::X)
+        {
+            std::vector<cv::Mat> dstImage;
+            for (auto i = 0; i < get_disassembly()->get_prim().size(); i++)
+            {
+                cv::warpPerspective(dstImage, quad, get_disassembly()->get_prim()[i]->get_transmtx(), cv::Size(get_disassembly()->get_prim()[i]->get_quad_pts()[2]));
+
+                dstImage.push_back(quad);
+            }
+            cv::Mat temp;
+            cv::hconcat(dstImage, temp);
+            string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + *filename;
+            imwrite(savefile, temp);
+            std::cout << "processing：" << savefile << std::endl;
+        }
+        else if (get_server_info()->get_direction() == group_direction::Y)
+        {
+            std::vector<cv::Mat> dstImage;
+            for (auto i = 0; i < get_disassembly()->get_prim().size(); i++)
+            {
+                cv::warpPerspective(dstImage, quad, get_disassembly()->get_prim()[i]->get_transmtx(), cv::Size(get_disassembly()->get_prim()[i]->get_quad_pts()[2]));
+
+                dstImage.push_back(quad);
+            }
+            cv::Mat temp;
+            cv::vconcat(dstImage, temp);
+            string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + *filename;
+            imwrite(savefile, temp);
             std::cout << "processing：" << savefile << std::endl;
         }
     }
