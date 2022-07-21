@@ -55,9 +55,9 @@ void sortCorners(std::vector<cv::Point2f> &corners, const cv::Point2f &center) /
     }
 }
 
-cv::Point2f* point_mul_screen(cv::Point2f a,cv::Point2f b)   //将uv点坐标转化为图片的像素坐标
+cv::Point2f *point_mul_screen(cv::Point2f a, cv::Point2f b) //将uv点坐标转化为图片的像素坐标
 {
-    return new cv::Point2f(a.x*b.x,a.y*b.y);
+    return new cv::Point2f(a.x * b.x, a.y * b.y);
 }
 
 // disassembly_factory::disassembly_factory(obj_uv_padding *obj_input, obj_basic *obj_output, input_image_info *input_message, output_image_info *output_message)
@@ -91,18 +91,18 @@ disassembly_factory::disassembly_factory(obj_uv_padding *obj_input, input_image_
         {
             std::vector<cv::Point2f *> temp_input;
             // std::vector<std::vector<int>> prim_temp_input = obj_input->get_prim();
-            for (int j = 0; j<4; j++)
+            for (int j = 0; j < 4; j++)
             {
                 // cv::Point2f temp = {obj_input->get_uv_point_location()[j]->x * input_message->size_A[0], obj_input->get_uv_point_location()[j]->y * input_message->size_A[1]};
-                temp_input.push_back(point_mul_screen(*(obj_input->get_uv_point_location()[j]),input_message->size_A));
+                temp_input.push_back(point_mul_screen(*(obj_input->get_uv_point_location()[j]), input_message->size_A));
             }
 
-            prim.push_back(new disassembly(temp_input,&(output_message->get_prim_screen()[i].size_A)));
+            prim.push_back(new disassembly(temp_input, &(output_message->get_prim_screen()[i].size_A)));
         }
     }
     else
     {
-        std::cout<<"输出尺寸数量与obj模型面数不一致，请检查！！！"<<std::endl;
+        std::cout << "输出尺寸数量与obj模型面数不一致，请检查！！！" << std::endl;
         abort();
     }
 }
@@ -122,10 +122,10 @@ disassembly::disassembly(std::vector<cv::Point2f *> input_point, cv::Point2f *ou
     //     quad_pts.push_back(cv::Point2f((i->x * output_screen[0], i->y * output_screen[1])));
     // }
 
-    quad_pts.push_back(cv::Point2f(0,0));
-    quad_pts.push_back(cv::Point2f(output_point->x,0));
-    quad_pts.push_back(cv::Point2f(0,output_point->y));
+    quad_pts.push_back(cv::Point2f(0, 0));
+    quad_pts.push_back(cv::Point2f(output_point->x, 0));
     quad_pts.push_back(*output_point);
+    quad_pts.push_back(cv::Point2f(0, output_point->y));
 
     transmtx = cv::getPerspectiveTransform(roi_point_approx, quad_pts); //最终矩阵
     // cv::namedWindow("check(按任意按键关闭)1", cv::WINDOW_NORMAL);

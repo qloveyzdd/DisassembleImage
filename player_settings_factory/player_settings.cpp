@@ -55,14 +55,13 @@ void cpu_settings::cpu_work()
             abort();
         }
         quad.copyTo(dstImage);
-        for (auto i : get_disassembly()->get_prim())
+        for (auto i = 0; i < get_disassembly()->get_prim().size(); i++)
         {
-            cv::warpPerspective(dstImage, quad, i->get_transmtx(), cv::Size(i->get_quad_pts()[3]));
+            cv::warpPerspective(dstImage, quad, get_disassembly()->get_prim()[i]->get_transmtx(), cv::Size(get_disassembly()->get_prim()[i]->get_quad_pts()[2]));
 
-            string savefile = get_server_info()->GetSavePath() + "/" + get_server_info()->GetPrefix() + *filename;
+            string savefile = get_server_info()->GetPrefix()[i] + "/" + get_server_info()->GetPrefix()[i] + *filename;
             imwrite(savefile, quad);
-            std::cout << "processing：" << get_server_info()->GetPrefix() << *filename;
+            std::cout << "processing：" << savefile << std::endl;
         }
     }
-    std::cout << std::endl;
 }

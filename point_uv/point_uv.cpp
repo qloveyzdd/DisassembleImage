@@ -82,7 +82,7 @@ obj_uv_padding::obj_uv_padding(std::string obj_address) : obj_basic(obj_address)
     {
         left = 0;
     }
-    if (temp[temp.size() - 1]->x > 0)
+    if (temp[temp.size() - 1]->x > 1)
     {
         right = temp[temp.size() - 1]->x - 1;
     }
@@ -101,7 +101,7 @@ obj_uv_padding::obj_uv_padding(std::string obj_address) : obj_basic(obj_address)
     {
         botton = 0;
     }
-    if (temp[temp.size() - 1]->y > 0)
+    if (temp[temp.size() - 1]->y > 1)
     {
         top = temp[temp.size() - 1]->y - 1;
     }
