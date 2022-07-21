@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
 
     server_info serverinfo;
 
-    obj_uv_padding obj_input("output.obj");
-    obj_basic obj_output("input.obj");
+    obj_uv_padding obj_input("input.obj");
+    // obj_basic obj_output("input.obj");
 
     load_list loadlist(serverinfo);
     disassembly_factory disassemblyfactory(&obj_input, serverinfo.Get_input(),serverinfo.Get_output());
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     //     }
     //     else
     //     {
-    //         cpus_list[i]->cpu_work();
+    //         playerset.get_cpus()[i]->cpu_work();
     //         break;
     //     }
     // }

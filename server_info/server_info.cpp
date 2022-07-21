@@ -87,6 +87,7 @@ server_info::server_info()
     }
 
     load_path = info[3];
+    save_path = info[4];
 
     if (info[5] == "NONE")
     {

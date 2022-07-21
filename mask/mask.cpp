@@ -94,7 +94,7 @@ disassembly_factory::disassembly_factory(obj_uv_padding *obj_input, input_image_
             for (int j = 0; j < 4; j++)
             {
                 // cv::Point2f temp = {obj_input->get_uv_point_location()[j]->x * input_message->size_A[0], obj_input->get_uv_point_location()[j]->y * input_message->size_A[1]};
-                temp_input.push_back(point_mul_screen(*(obj_input->get_uv_point_location()[j]), input_message->size_A));
+                temp_input.push_back(point_mul_screen(*(obj_input->get_uv_point_location()[obj_input->get_prim()[i][j]]), input_message->size_A));
             }
 
             prim.push_back(new disassembly(temp_input, &(output_message->get_prim_screen()[i].size_A)));

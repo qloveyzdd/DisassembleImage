@@ -63,10 +63,10 @@ obj_basic::obj_basic(std::string obj_address) //导入obj文件，并格式化
             }
         }
     }
-    for (auto i : point_uv_location)
-    {
-        i->y = 1 - i->y;
-    }
+    // for (auto i : point_uv_location)
+    // {
+    //     i->y = 1 - i->y;
+    // }
 }
 
 obj_uv_padding::obj_uv_padding(std::string obj_address) : obj_basic(obj_address) //检测是否需要扩边

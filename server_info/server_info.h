@@ -19,7 +19,7 @@ class image_info
 public:
     cv::Point2f size_A; //图片横向尺寸
 public:
-    image_info(int x, int y) : size_A(x,y){};
+    image_info(int x, int y) : size_A(x, y){};
 };
 
 class input_image_info : public image_info
@@ -43,8 +43,9 @@ class server_info
 private:
     input_image_info *input_image;        //输入屏幕尺寸
     output_image_info *output_image_size; //输出屏幕尺寸数组
-    vector<string> Prefix;                        //输出前缀
+    vector<string> Prefix;                //输出前缀
     string load_path;                     //读取文件路径
+    string save_path;                     //存储文件路径
     group_direction direction;            //组合方式
 
 public:
@@ -52,6 +53,7 @@ public:
     input_image_info *Get_input() const { return input_image; }
     output_image_info *Get_output() const { return output_image_size; }
     const string GetLoadPath() const { return load_path; }
+    const string GetSavePath() const { return save_path; }
     vector<string> GetPrefix() const { return Prefix; }
     const group_direction get_direction() const { return direction; }
 };
