@@ -59,7 +59,7 @@ void cpu_settings::cpu_work()
         {
             cv::warpPerspective(dstImage, quad, get_disassembly()->get_prim()[i]->get_transmtx(), cv::Size(get_disassembly()->get_prim()[i]->get_quad_pts()[2]));
 
-            string savefile = get_server_info()->GetPrefix()[i] + "/" + get_server_info()->GetPrefix()[i] + *filename;
+            string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[i] + "/" + get_server_info()->GetPrefix()[i] + *filename;
             imwrite(savefile, quad);
             std::cout << "processing：" << savefile << std::endl;
         }

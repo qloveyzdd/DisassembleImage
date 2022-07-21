@@ -1,5 +1,6 @@
 993*993
-1280*1080
-output
+1280*1080 980*1080 500*600 700*450
+down right up left
 input
+
 NONE
