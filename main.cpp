@@ -38,40 +38,65 @@ int main(int argc, char *argv[])
     regulation::regulation_string();
 
     server_info serverinfo;
-
-    obj_uv_padding obj_input("input.obj");
-    // obj_basic obj_output("input.obj");
-
     load_list loadlist(serverinfo);
-    disassembly_factory disassemblyfactory(&obj_input, serverinfo.Get_input(),serverinfo.Get_output());
+
+    if (serverinfo.get_direction() == group_direction::NONE)
+    {
+        obj_uv_padding obj_input("input.obj");
+        // obj_basic obj_output("input.obj");
+
+        disassembly_factory disassemblyfactory(&obj_input, serverinfo.Get_input(), serverinfo.Get_output());
+
+        player_settings_factory playerset(&loadlist, &disassemblyfactory, &serverinfo);
+
+        for (int i = 0; i < playerset.get_cpu_count(); i++)
+        {
+            if (fork() > 0)
+            {
+            }
+            else
+            {
+                playerset.get_cpus()[i]->cpu_work();
+                break;
+            }
+        }
+
+        // for (int i = 0; i < playerset.get_cpu_count(); i++)
+        // {
+        //     playerset.get_cpus()[i]->cpu_work();
+        // }
+    }
+    else if (serverinfo.get_direction() == group_direction::X || serverinfo.get_direction() == group_direction::Y)
+    {
+        obj_uv_padding obj_input("input.obj");
+        obj_basic obj_output("output.obj");
+
+        disassembly_factory disassemblyfactory(&obj_input, &obj_output, serverinfo.Get_input(), serverinfo.Get_output(),serverinfo.get_direction());
+
+        player_settings_factory playerset(&loadlist, &disassemblyfactory, &serverinfo);
+
+        // for (int i = 0; i < playerset.get_cpu_count(); i++)
+        // {
+        //     if (fork() > 0)
+        //     {
+        //     }
+        //     else
+        //     {
+        //         playerset.get_cpus()[i]->cpu_work();
+        //         break;
+        //     }
+        // }
+
+        for (int i = 0; i < playerset.get_cpu_count(); i++)
+        {
+            playerset.get_cpus()[i]->cpu_work();
+        }
+    }
 
     if (argc > 1)
     {
         // disassemblyImage.check_mask();
     }
-
-    player_settings_factory playerset(&loadlist,&disassemblyfactory,&serverinfo);
-    // vector<cpu_settings *> cpus_list = playerset.create(&disassemblyImage, &serverinfo);
-
-    // for (int i = 0; i < playerset.get_cpu_count(); i++)
-    // {
-    //     if (fork() > 0)
-    //     {
-    //     }
-    //     else
-    //     {
-    //         playerset.get_cpus()[i]->cpu_work();
-    //         break;
-    //     }
-    // }
-
-        for (int i = 0; i < playerset.get_cpu_count(); i++)
-    {
-        playerset.get_cpus()[i]->cpu_work();
-    }
-
-    // while (r_wait(NULL) > 0)
-    //     ; // wait for all the subprocess.
 
     return 0;
 }
