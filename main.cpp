@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
 
     server_info serverinfo;
 
-    obj_uv_padding obj_input("input.obj");
-    obj_basic obj_output("output.obj");
+    obj_uv_padding obj_input("output.obj");
+    obj_basic obj_output("input.obj");
 
     load_list loadlist(serverinfo);
     disassembly_factory disassemblyfactory(&obj_input, serverinfo.Get_input(),serverinfo.Get_output());
@@ -64,6 +64,11 @@ int main(int argc, char *argv[])
     //         break;
     //     }
     // }
+
+        for (int i = 0; i < playerset.get_cpu_count(); i++)
+    {
+        playerset.get_cpus()[i]->cpu_work();
+    }
 
     // while (r_wait(NULL) > 0)
     //     ; // wait for all the subprocess.

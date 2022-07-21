@@ -81,9 +81,12 @@ server_info::server_info()
         output_image_size = new output_image_info(input);
     }
 
-    Prefix = info[2];
+    //读入第三行数据，为结果文件前缀名，应要求不同有一个或多个
+    {
+        Prefix = Stringsplit_string<string>(info[2], ' ');
+    }
+
     load_path = info[3];
-    save_path = info[4];
 
     if (info[5] == "NONE")
     {
