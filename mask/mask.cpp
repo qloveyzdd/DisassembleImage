@@ -82,18 +82,18 @@ disassembly_factory::disassembly_factory(obj_uv_padding *obj_input, obj_basic *o
                 temp_output.push_back(point_mul_screen(*(obj_output->get_uv_point_location()[obj_output->get_prim()[i][j]]), output_message->get_prim_screen()[0].size_A));
             }
 
-            cv::Point2f *output_sceen_temp;
+            cv::Point2f output_sceen_temp;
             cv::Point2f max;
             sort(temp_output.begin(), temp_output.end(), [](cv::Point2f *a, cv::Point2f *b)
                  { return a->x < b->x; });
             max.x = temp_output[temp_output.size() - 1]->x;
-            output_sceen_temp->x = temp_output[temp_output.size() - 1]->x - temp_output[0]->x;
+            output_sceen_temp.x = temp_output[temp_output.size() - 1]->x - temp_output[0]->x;
             sort(temp_output.begin(), temp_output.end(), [](cv::Point2f *a, cv::Point2f *b)
                  { return a->y < b->y; });
             max.y = temp_output[temp_output.size() - 1]->y;
-            output_sceen_temp->y = temp_output[temp_output.size() - 1]->y - temp_output[0]->y;
+            output_sceen_temp.y = temp_output[temp_output.size() - 1]->y - temp_output[0]->y;
 
-            prim.push_back(new disassembly(temp_input, output_sceen_temp, max));
+            prim.push_back(new disassembly(temp_input, &output_sceen_temp, max));
         }
     }
     else

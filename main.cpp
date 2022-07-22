@@ -71,32 +71,35 @@ int main(int argc, char *argv[])
         obj_uv_padding obj_input("input.obj");
         obj_basic obj_output("output.obj");
 
-        disassembly_factory disassemblyfactory(&obj_input, &obj_output, serverinfo.Get_input(), serverinfo.Get_output(),serverinfo.get_direction());
+        disassembly_factory disassemblyfactory(&obj_input, &obj_output, serverinfo.Get_input(), serverinfo.Get_output(), serverinfo.get_direction());
 
         player_settings_factory playerset(&loadlist, &disassemblyfactory, &serverinfo);
 
-        // for (int i = 0; i < playerset.get_cpu_count(); i++)
-        // {
-        //     if (fork() > 0)
-        //     {
-        //     }
-        //     else
-        //     {
-        //         playerset.get_cpus()[i]->cpu_work();
-        //         break;
-        //     }
-        // }
-
         for (int i = 0; i < playerset.get_cpu_count(); i++)
         {
-            playerset.get_cpus()[i]->cpu_work();
+            if (fork() > 0)
+            {
+            }
+            else
+            {
+                playerset.get_cpus()[i]->cpu_work();
+                break;
+            }
         }
+
+        // for (int i = 0; i < playerset.get_cpu_count(); i++)
+        // {
+        //     playerset.get_cpus()[i]->cpu_work();
+        // }
     }
 
-    if (argc > 1)
-    {
-        // disassemblyImage.check_mask();
-    }
+    while (r_wait(NULL) > 0)
+        ; // wait for all the subprocess.
+
+    // if (argc > 1)
+    // {
+    //     // disassemblyImage.check_mask();
+    // }
 
     return 0;
 }

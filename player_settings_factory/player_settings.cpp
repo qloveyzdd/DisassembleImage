@@ -69,30 +69,30 @@ void cpu_settings::cpu_work()
         }
         else if (get_server_info()->get_direction() == group_direction::X)
         {
-            std::vector<cv::Mat> dstImage;
+            std::vector<cv::Mat> dstImage_cc;
             for (auto i = 0; i < get_disassembly()->get_prim().size(); i++)
             {
                 cv::warpPerspective(dstImage, quad, get_disassembly()->get_prim()[i]->get_transmtx(), cv::Size(get_disassembly()->get_prim()[i]->get_quad_pts()[2]));
 
-                dstImage.push_back(quad);
+                dstImage_cc.push_back(quad);
             }
             cv::Mat temp;
-            cv::hconcat(dstImage, temp);
+            cv::hconcat(dstImage_cc, temp);
             string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + *filename;
             imwrite(savefile, temp);
             std::cout << "processing：" << savefile << std::endl;
         }
         else if (get_server_info()->get_direction() == group_direction::Y)
         {
-            std::vector<cv::Mat> dstImage;
+            std::vector<cv::Mat> dstImage_cc;
             for (auto i = 0; i < get_disassembly()->get_prim().size(); i++)
             {
                 cv::warpPerspective(dstImage, quad, get_disassembly()->get_prim()[i]->get_transmtx(), cv::Size(get_disassembly()->get_prim()[i]->get_quad_pts()[2]));
 
-                dstImage.push_back(quad);
+                dstImage_cc.push_back(quad);
             }
             cv::Mat temp;
-            cv::vconcat(dstImage, temp);
+            cv::vconcat(dstImage_cc, temp);
             string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + *filename;
             imwrite(savefile, temp);
             std::cout << "processing：" << savefile << std::endl;
