@@ -110,9 +110,9 @@ obj_uv_padding::obj_uv_padding(std::string obj_address) : obj_basic(obj_address)
         top = 0;
     }
 
-    for (auto i : temp)
-    {
-        i->x += left;
-        i->y += right;
-    }
+    // for (auto i : temp)
+    // {
+    //     i->x += left;
+    //     i->y += right;
+    // }
 }
