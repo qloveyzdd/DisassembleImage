@@ -70,14 +70,21 @@ void cpu_settings::cpu_work()
         else if (get_server_info()->get_direction() == group_direction::X)
         {
             std::vector<cv::Mat> dstImage_cc;
-            for (auto i = 0; i < get_disassembly()->get_prim().size(); i++)
+            for (int i = 0; i < get_disassembly()->get_prim().size(); i++)
             {
                 cv::warpPerspective(dstImage, quad, get_disassembly()->get_prim()[i]->get_transmtx(), cv::Size(get_disassembly()->get_prim()[i]->get_quad_pts()[2]));
 
-                dstImage_cc.push_back(quad);
+                // char s[2] = {};
+                // sprintf(s, "%d", i);
+                // string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + s + *filename;
+                // imwrite(savefile, quad);
+
+                // cv::resize(quad,quad,cv::Size(246,6720));
+                dstImage_cc.push_back(quad.clone());
             }
             cv::Mat temp;
             cv::hconcat(dstImage_cc, temp);
+            // imshow("AAA",temp);
             string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + *filename;
             imwrite(savefile, temp);
             std::cout << "processing：" << savefile << std::endl;
@@ -89,7 +96,7 @@ void cpu_settings::cpu_work()
             {
                 cv::warpPerspective(dstImage, quad, get_disassembly()->get_prim()[i]->get_transmtx(), cv::Size(get_disassembly()->get_prim()[i]->get_quad_pts()[2]));
 
-                dstImage_cc.push_back(quad);
+                dstImage_cc.push_back(quad.clone());
             }
             cv::Mat temp;
             cv::vconcat(dstImage_cc, temp);
