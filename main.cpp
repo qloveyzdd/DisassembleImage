@@ -72,15 +72,15 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < playerset.get_cpu_count(); i++)
         {
-            // if (fork() > 0)
-            // {
-            // }
-            // else
-            // {
-            //     playerset.get_cpus()[i]->cpu_work();
-            //     break;
-            // }
-            playerset.get_cpus()[i]->cpu_work();
+            if (fork() > 0)
+            {
+            }
+            else
+            {
+                playerset.get_cpus()[i]->cpu_work();
+                break;
+            }
+            // playerset.get_cpus()[i]->cpu_work();
         }
 
     }
