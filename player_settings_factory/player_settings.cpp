@@ -85,6 +85,7 @@ void cpu_settings::cpu_work()
             cv::Mat temp;
             cv::hconcat(dstImage_cc, temp);
             // imshow("AAA",temp);
+            cv::resize(temp,temp,cv::Size(get_server_info()->Get_output()->get_prim_screen()[0].size_A.x,get_server_info()->Get_output()->get_prim_screen()[0].size_A.y));
             string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + *filename;
             imwrite(savefile, temp);
             std::cout << "processing：" << savefile << std::endl;
@@ -100,6 +101,7 @@ void cpu_settings::cpu_work()
             }
             cv::Mat temp;
             cv::vconcat(dstImage_cc, temp);
+            cv::resize(temp,temp,cv::Size(get_server_info()->Get_output()->get_prim_screen()[0].size_A.x,get_server_info()->Get_output()->get_prim_screen()[0].size_A.y));
             string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + *filename;
             imwrite(savefile, temp);
             std::cout << "processing：" << savefile << std::endl;
