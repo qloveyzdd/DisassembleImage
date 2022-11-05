@@ -17,7 +17,7 @@ enum group_direction
 class image_info
 {
 public:
-    cv::Point2f size_A; //图片横向尺寸
+    cv::Point2f size_A; //图片尺寸
 public:
     image_info(int x, int y) : size_A(x, y){};
 };

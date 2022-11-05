@@ -27,33 +27,33 @@ obj_basic::obj_basic(std::string obj_address) //导入obj文件，并格式化
     std::string temp = {};
     for (; getline(inf, temp);)
     {
-        if (temp[0] != '#' && temp[0] != '\t')
+        if (temp[0] != '#' && temp[0] != '\t')  //不判断#备注及空白行
         {
             temp.pop_back();
             std::vector<std::string> top = {};
-            if (temp.substr(0, 2) == "v ")
+            if (temp.substr(0, 2) == "v ")  //保留3d位置信息
             {
                 top = Stringsplit(temp, ' ');
                 point_spatial_location.push_back(new cv::Point3f(atof(top[2].c_str()), atof(top[3].c_str()), atof(top[4].c_str())));
             }
-            else if (temp.substr(0, 2) == "vt")
+            else if (temp.substr(0, 2) == "vt") //保留uv信息
             {
                 top = Stringsplit(temp, ' ');
                 point_uv_location.push_back(new cv::Point2f(atof(top[1].c_str()), 1 - atof(top[2].c_str())));
             }
-            else if (temp.substr(0, 2) == "f ")
+            else if (temp.substr(0, 2) == "f ") //保留面组成信息
             {
                 top = Stringsplit(temp, ' ');
-                if (top.size() == 5)
+                if (top.size() == 5)    //判断组成面是否为四边面
                 {
-
-                    int *i_point = new int[4];
+                    prim.push_back(new int[4]());
                     for (int i = 1; i < top.size(); i++)
                     {
                         std::vector<std::string> tt_prim = Stringsplit(top[i], '/');
-                        i_point[i - 1] = atoi(tt_prim[1].c_str()) - 1;
+                        int i_point = atoi(tt_prim[1].c_str()) - 1;
+                        prim.back()[i-1] = i_point; //将面的点组成保留成组
+                        // std::cout<<prim.back()[i]<<std::endl;
                     }
-                    prim.push_back(i_point);
                 }
                 else
                 {
@@ -63,10 +63,6 @@ obj_basic::obj_basic(std::string obj_address) //导入obj文件，并格式化
             }
         }
     }
-    // for (auto i : point_uv_location)
-    // {
-    //     i->y = 1 - i->y;
-    // }
 }
 
 obj_uv_padding::obj_uv_padding(std::string obj_address) : obj_basic(obj_address) //检测是否需要扩边
@@ -110,9 +106,4 @@ obj_uv_padding::obj_uv_padding(std::string obj_address) : obj_basic(obj_address)
         top = 0;
     }
 
-    // for (auto i : temp)
-    // {
-    //     i->x += left;
-    //     i->y += right;
-    // }
 }

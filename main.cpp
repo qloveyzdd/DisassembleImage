@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
     if (serverinfo.get_direction() == group_direction::NONE)
     {
         obj_uv_padding obj_input("input.obj");
-        // obj_basic obj_output("input.obj");
 
         disassembly_factory disassemblyfactory(&obj_input, serverinfo.Get_input(), serverinfo.Get_output());
 
@@ -61,10 +60,6 @@ int main(int argc, char *argv[])
             }
         }
 
-        // for (int i = 0; i < playerset.get_cpu_count(); i++)
-        // {
-        //     playerset.get_cpus()[i]->cpu_work();
-        // }
     }
     else if (serverinfo.get_direction() == group_direction::X || serverinfo.get_direction() == group_direction::Y)
     {
@@ -77,20 +72,17 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < playerset.get_cpu_count(); i++)
         {
-            if (fork() > 0)
-            {
-            }
-            else
-            {
-                playerset.get_cpus()[i]->cpu_work();
-                break;
-            }
+            // if (fork() > 0)
+            // {
+            // }
+            // else
+            // {
+            //     playerset.get_cpus()[i]->cpu_work();
+            //     break;
+            // }
+            playerset.get_cpus()[i]->cpu_work();
         }
 
-        // for (int i = 0; i < playerset.get_cpu_count(); i++)
-        // {
-        //     playerset.get_cpus()[i]->cpu_work();
-        // }
     }
 
     while (r_wait(NULL) > 0)
