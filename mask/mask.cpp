@@ -22,13 +22,13 @@ void sortCorners(std::vector<cv::Point2f> &corners, const cv::Point2f &center) /
     sort(corners.begin(), corners.end(), [](cv::Point2f a, cv::Point2f b)
          { return a.y < b.y; });
 
-    if (corners[0].x>corners[1].x)
+    if (corners[0].x > corners[1].x)
     {
-        swap(corners[0],corners[1]);
+        swap(corners[0], corners[1]);
     }
-    if (corners[3].x>corners[2].x)
+    if (corners[3].x > corners[2].x)
     {
-        swap(corners[3],corners[2]);
+        swap(corners[3], corners[2]);
     }
 
     // top_temp.push_back(corners[2]);
@@ -76,32 +76,53 @@ disassembly_factory::disassembly_factory(obj_uv_padding *obj_input, obj_basic *o
     {
         for (int i = 0; i < obj_input->get_prim().size(); i++)
         {
+            std::vector<std::vector<cv::Point2f *>> temp_input_And_output(4);
             std::vector<cv::Point2f *> temp_input;
+            // std::vector<cv::Point2f *> temp_output;
             // std::vector<std::vector<int>> prim_temp_input = obj_input->get_prim();
-            for (int j = 0; j < 4; j++) //将输入对应点从0-1映射成实际像素
+            for (int j = 0; j < 4; j++) //将输入输出对应点从0-1映射成实际像素
             {
                 // cv::Point2f temp = {obj_input->get_uv_point_location()[j]->x * input_message->size_A[0], obj_input->get_uv_point_location()[j]->y * input_message->size_A[1]};
-                temp_input.push_back(point_mul_screen(*(obj_input->get_uv_point_location()[obj_input->get_prim()[i][j]]), input_message->size_A));
+                temp_input_And_output[j].push_back(point_mul_screen(*(obj_input->get_uv_point_location()[obj_input->get_prim()[i][j]]), input_message->size_A));
+                temp_input_And_output[j].push_back(point_mul_screen(*(obj_output->get_uv_point_location()[obj_output->get_prim()[i][j]]), output_message->get_prim_screen()[0].size_A));
+                // temp_input_And_output[j].push_back(new cv::Point2f(output_message->get_prim_screen()[0].size_A.x/63,output_message->get_prim_screen()[0].size_A.y));
             }
 
-            std::vector<cv::Point2f *> temp_output;
             // std::vector<std::vector<int>> prim_temp_input = obj_input->get_prim();
-            for (int j = 0; j < 4; j++) //将输出对应点从0-1映射成实际像素
-            {
-                // cv::Point2f temp = {obj_input->get_uv_point_location()[j]->x * input_message->size_A[0], obj_input->get_uv_point_location()[j]->y * input_message->size_A[1]};
-                temp_output.push_back(point_mul_screen(*(obj_output->get_uv_point_location()[obj_output->get_prim()[i][j]]), output_message->get_prim_screen()[0].size_A));
-            }
+            // for (int j = 0; j < 4; j++) //将输出对应点从0-1映射成实际像素
+            // {
+            //     // cv::Point2f temp = {obj_input->get_uv_point_location()[j]->x * input_message->size_A[0], obj_input->get_uv_point_location()[j]->y * input_message->size_A[1]};
+
+            // }
 
             cv::Point2f output_sceen_temp; //判断排列的长宽
             cv::Point2f max;               //排列顺序的参考值
-            sort(temp_output.begin(), temp_output.end(), [](cv::Point2f *a, cv::Point2f *b)
-                 { return a->x < b->x; });
-            max.x = temp_output[temp_output.size() - 1]->x;
-            output_sceen_temp.x = temp_output[temp_output.size() - 1]->x - temp_output[0]->x;
-            sort(temp_output.begin(), temp_output.end(), [](cv::Point2f *a, cv::Point2f *b)
-                 { return a->y < b->y; });
-            max.y = temp_output[temp_output.size() - 1]->y;
-            output_sceen_temp.y = temp_output[temp_output.size() - 1]->y - temp_output[0]->y;
+            sort(temp_input_And_output.begin(), temp_input_And_output.end(), [](vector<cv::Point2f *> a, vector<cv::Point2f *> b)
+                 { return a[1]->x < b[1]->x; });
+            max.x = temp_input_And_output.back().back()->x;
+            output_sceen_temp.x = max.x - temp_input_And_output.front().back()->x;
+
+            sort(temp_input_And_output.begin(), temp_input_And_output.end(), [](vector<cv::Point2f *> a, vector<cv::Point2f *> b)
+                 { return a[1]->y < b[1]->y; });
+            max.y = temp_input_And_output.back().back()->y;
+            output_sceen_temp.y = max.y - temp_input_And_output.front().back()->y;
+
+            // if (temp_input_And_output[2][0]->x < temp_input_And_output[3][0]->x)
+            // {
+            //     swap(temp_input_And_output[2], temp_input_And_output[3]);
+            // }
+
+            // if (temp_input_And_output[1][0]->x < temp_input_And_output[0][0]->x)
+            // {
+            //     swap(temp_input_And_output[0], temp_input_And_output[1]);
+            // }
+
+            for (int i = 0; i < 4; i++)
+            {
+                temp_input.push_back(temp_input_And_output[i][0]);
+            }
+
+            // output_sceen_temp = cv::Point2f(97.5238, 6720);
 
             prim.push_back(new disassembly(temp_input, &output_sceen_temp, max));
         }

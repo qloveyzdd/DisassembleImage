@@ -34,7 +34,7 @@ obj_basic::obj_basic(std::string obj_address) //导入obj文件，并格式化
             if (temp.substr(0, 2) == "v ")  //保留3d位置信息
             {
                 top = Stringsplit(temp, ' ');
-                point_spatial_location.push_back(new cv::Point3f(atof(top[2].c_str()), atof(top[3].c_str()), atof(top[4].c_str())));
+                point_spatial_location.push_back(new cv::Point3f(atof(top[1].c_str()), atof(top[2].c_str()), atof(top[3].c_str())));
             }
             else if (temp.substr(0, 2) == "vt") //保留uv信息
             {
@@ -65,7 +65,7 @@ obj_basic::obj_basic(std::string obj_address) //导入obj文件，并格式化
     }
 }
 
-obj_uv_padding::obj_uv_padding(std::string obj_address) : obj_basic(obj_address) //检测是否需要扩边
+obj_uv_padding::obj_uv_padding(std::string obj_address) : obj_basic(obj_address)
 {
     std::vector<cv::Point2f *> temp = get_uv_point_location();
     sort(temp.begin(), temp.end(), [](cv::Point2f *a, cv::Point2f *b)
