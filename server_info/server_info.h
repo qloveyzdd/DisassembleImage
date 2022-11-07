@@ -31,7 +31,7 @@ public:
 class output_image_info
 {
 private:
-    vector<image_info> alone_prim;
+    vector<image_info> alone_prim;//输出图片尺寸集合
 
 public:
     output_image_info(vector<vector<int>> prim_screen);
@@ -50,8 +50,8 @@ private:
 
 public:
     server_info();
-    input_image_info *Get_input() const { return input_image; }
-    output_image_info *Get_output() const { return output_image_size; }
+    input_image_info *Get_input() const { return input_image; } //输入屏幕尺寸
+    output_image_info *Get_output() const { return output_image_size; } //输出屏幕尺寸数组
     const string GetLoadPath() const { return load_path; }
     const string GetSavePath() const { return save_path; }
     vector<string> GetPrefix() const { return Prefix; }

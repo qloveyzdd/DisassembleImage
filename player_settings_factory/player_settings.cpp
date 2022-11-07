@@ -54,7 +54,6 @@ void cpu_settings::cpu_work()
             cout << "读取图片错误" << endl;
             abort();
         }
-        // quad.copyTo(dstImage);
 
         if (get_server_info()->get_direction() == group_direction::NONE)
         {
@@ -79,13 +78,12 @@ void cpu_settings::cpu_work()
                 // string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + s + *filename;
                 // imwrite(savefile, quad);
 
-                // cv::resize(quad,quad,cv::Size(246,6720));
                 dstImage_cc.push_back(quad.clone());
             }
             cv::Mat temp;
             cv::hconcat(dstImage_cc, temp);
-            // imshow("AAA",temp);
-            cv::resize(temp,temp,cv::Size(get_server_info()->Get_output()->get_prim_screen()[0].size_A.x,get_server_info()->Get_output()->get_prim_screen()[0].size_A.y));
+            // cv::imshow("AAA",temp);
+            cv::resize(temp, temp, cv::Size(get_server_info()->Get_output()->get_prim_screen()[0].size_A.x, get_server_info()->Get_output()->get_prim_screen()[0].size_A.y));
             string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + *filename;
             imwrite(savefile, temp);
             std::cout << "processing：" << savefile << std::endl;
@@ -101,7 +99,7 @@ void cpu_settings::cpu_work()
             }
             cv::Mat temp;
             cv::vconcat(dstImage_cc, temp);
-            cv::resize(temp,temp,cv::Size(get_server_info()->Get_output()->get_prim_screen()[0].size_A.x,get_server_info()->Get_output()->get_prim_screen()[0].size_A.y));
+            cv::resize(temp, temp, cv::Size(get_server_info()->Get_output()->get_prim_screen()[0].size_A.x, get_server_info()->Get_output()->get_prim_screen()[0].size_A.y));
             string savefile = get_server_info()->GetSavePath() + get_server_info()->GetPrefix()[0] + "/" + get_server_info()->GetPrefix()[0] + *filename;
             imwrite(savefile, temp);
             std::cout << "processing：" << savefile << std::endl;
