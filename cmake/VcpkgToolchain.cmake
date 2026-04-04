@@ -1,0 +1,5 @@
+﻿if(DEFINED ENV{VCPKG_ROOT} AND EXISTS "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+    include("$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+else()
+    message(STATUS "VCPKG_ROOT not set or vcpkg toolchain missing. Falling back to system packages.")
+endif()

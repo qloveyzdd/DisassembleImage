@@ -1,12 +1,13 @@
-#include "server_info.h"
-#include <iostream>
-#include <fstream>
-#include <unistd.h>
-#include <dirent.h>
+﻿#include "server_info.h"
+
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <typeinfo>
+
+namespace fs = std::filesystem;
 
 output_image_info::output_image_info(vector<vector<int>> prim_screen)
 {
@@ -17,13 +18,12 @@ output_image_info::output_image_info(vector<vector<int>> prim_screen)
 }
 
 template <class T>
-std::vector<T> Stringsplit(std::string str, const char split) // string拆分
+std::vector<T> Stringsplit(std::string str, const char split)
 {
     std::vector<T> rst;
-
-    std::istringstream iss(str);       // 输入流
-    std::string token;                 // 接收缓冲区
-    while (getline(iss, token, split)) // 以split为分隔符
+    std::istringstream iss(str);
+    std::string token;
+    while (getline(iss, token, split))
     {
         rst.push_back(atoi(token.c_str()));
     }
@@ -31,13 +31,12 @@ std::vector<T> Stringsplit(std::string str, const char split) // string拆分
 }
 
 template <class T>
-std::vector<T> Stringsplit_string(std::string str, const char split) // string拆分
+std::vector<T> Stringsplit_string(std::string str, const char split)
 {
     std::vector<T> rst;
-
-    std::istringstream iss(str);       // 输入流
-    std::string token;                 // 接收缓冲区
-    while (getline(iss, token, split)) // 以split为分隔符
+    std::istringstream iss(str);
+    std::string token;
+    while (getline(iss, token, split))
     {
         rst.push_back(token);
     }
@@ -63,25 +62,22 @@ server_info::server_info()
     }
     inf.close();
 
-    //读入第一行数据，为待拆分图片尺寸
     {
-        std::vector<int> temp = Stringsplit<int>(info[0], '*');
-        input_image = new input_image_info({temp[0], temp[1]});
+        std::vector<int> tempSize = Stringsplit<int>(info[0], '*');
+        input_image = new input_image_info({tempSize[0], tempSize[1]});
     }
 
-    //读入第二行数据，为结果图片尺寸，应要求不同有一个或多个
     {
         vector<vector<int>> input;
-        std::vector<string> temp = Stringsplit_string<string>(info[1], ' ');
-        for (auto i : temp)
+        std::vector<string> tempSizes = Stringsplit_string<string>(info[1], ' ');
+        for (auto i : tempSizes)
         {
-            std::vector<int> temp_A = Stringsplit<int>(i, '*');
-            input.push_back(temp_A);
+            std::vector<int> tempA = Stringsplit<int>(i, '*');
+            input.push_back(tempA);
         }
         output_image_size = new output_image_info(input);
     }
 
-    //读入第三行数据，为结果文件前缀名，应要求不同有一个或多个
     {
         Prefix = Stringsplit_string<string>(info[2], ' ');
     }
@@ -106,35 +102,53 @@ server_info::server_info()
 load_list::load_list(server_info serverinfo)
 {
     int count = 0;
-    string dirname;
-    DIR *dp;
-    struct dirent *dirp;
-    dirname = serverinfo.GetLoadPath();
-    if ((dp = opendir(dirname.c_str())) == NULL)
+    const fs::path inputDir(serverinfo.GetLoadPath());
+    if (!fs::exists(inputDir) || !fs::is_directory(inputDir))
     {
-        cout << "Can't open " << dirname << endl;
+        cout << "Can't open " << inputDir.string() << endl;
         abort();
     }
-    while ((dirp = readdir(dp)) != NULL)
+
+    for (const auto &entry : fs::directory_iterator(inputDir))
     {
-        if (dirp->d_type == 8)
+        if (!entry.is_regular_file())
         {
-            string sFilename(dirp->d_name);
-            string suffixStr = sFilename.substr(sFilename.find_last_of('.') + 1);
-            if (suffixStr.compare("jpg") == 0 || suffixStr.compare("jpeg") == 0 || suffixStr.compare("png") == 0 || suffixStr.compare("tga") == 0)
-            {
-                list.push_back(dirp->d_name);
-                count++;
-            }
+            continue;
+        }
+
+        string suffixStr = entry.path().extension().string();
+        transform(suffixStr.begin(), suffixStr.end(), suffixStr.begin(), [](unsigned char ch) {
+            return static_cast<char>(tolower(ch));
+        });
+        if (suffixStr == ".jpg" || suffixStr == ".jpeg" || suffixStr == ".png" || suffixStr == ".tga")
+        {
+            list.push_back(entry.path().filename().string());
+            count++;
         }
     }
+
     sort(list.begin(), list.end(), [](string a, string b)
          { return a < b; });
     for (auto i : list)
     {
-        cout << serverinfo.GetLoadPath() + "/" + i << endl;
+        cout << (inputDir / i).string() << endl;
     }
     cout << "共有" << count << "个文件等待处理" << endl;
+}
 
-    closedir(dp);
+load_list::load_list(string load_path, string load_name)
+{
+    const fs::path inputDir(load_path);
+    for (const auto &entry : fs::directory_iterator(inputDir))
+    {
+        if (!entry.is_regular_file())
+        {
+            continue;
+        }
+        if (entry.path().filename().string() == load_name)
+        {
+            list.push_back(load_name);
+            return;
+        }
+    }
 }

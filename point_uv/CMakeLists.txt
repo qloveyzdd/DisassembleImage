@@ -1,5 +1,6 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+﻿add_library(point_uv STATIC point_uv.cpp)
 
-aux_source_directory(. point_uv)
-
-add_library(point_uv ${point_uv})
+target_include_directories(point_uv
+    PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}"
+)

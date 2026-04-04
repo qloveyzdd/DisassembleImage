@@ -1,7 +1,12 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+﻿add_library(mask STATIC mask.cpp)
 
-aux_source_directory(. mask)
+target_include_directories(mask
+    PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}"
+)
 
-add_library(mask ${mask})
-
-target_link_libraries(mask ${OpenCV_LIBS})
+target_link_libraries(mask
+    PUBLIC
+        ${OpenCV_LIBS}
+        point_uv
+)

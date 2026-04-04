@@ -1,7 +1,11 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+﻿add_library(serverinfo STATIC server_info.cpp)
 
-aux_source_directory(. server_info)
+target_include_directories(serverinfo
+    PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}"
+)
 
-add_library(serverinfo ${server_info})
-
-target_link_libraries(serverinfo ${OpenCV_LIBS})
+target_link_libraries(serverinfo
+    PUBLIC
+        ${OpenCV_LIBS}
+)

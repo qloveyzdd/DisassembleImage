@@ -1,5 +1,6 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+﻿add_library(welcomeregulation STATIC welcome_regulation.cpp)
 
-aux_source_directory(. welcome_regulation)
-
-add_library(welcomeregulation ${welcome_regulation})
+target_include_directories(welcomeregulation
+    PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}"
+)

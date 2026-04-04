@@ -1,0 +1,24 @@
+﻿#pragma once
+
+#include <string>
+#include <vector>
+
+namespace disassemble::core {
+
+struct RunFailure {
+    std::string inputPath;
+    std::string reason;
+};
+
+struct RunResult {
+    int successCount = 0;
+    int failedCount = 0;
+    std::vector<std::string> outputFiles;
+    std::vector<std::string> logs;
+    std::vector<RunFailure> failures;
+
+    bool ok() const;
+    void addLog(std::string message);
+};
+
+} // namespace disassemble::core

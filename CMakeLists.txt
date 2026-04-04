@@ -1,38 +1,39 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-project(DISASSEMBLEIMAGE)
+﻿cmake_minimum_required(VERSION 3.26)
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-# 找opencv package----------记得添加这个
-find_package(OpenCV REQUIRED) 
+project(DisassembleImage LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+option(DISASSEMBLEIMAGE_BUILD_DESKTOP "Build the Qt desktop shell" ON)
+option(DISASSEMBLEIMAGE_BUILD_TESTS "Build smoke tests" ON)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+include(CTest)
+
+find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
 
-# include_directories(${OpenCV_INCLUDE_DIRS})
+if(DISASSEMBLEIMAGE_BUILD_DESKTOP)
+    find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+endif()
 
-aux_source_directory(. source_list)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(WindowsDeploy)
 
 add_subdirectory(welcome_regulation)
-add_subdirectory(server_info)
-add_subdirectory(mask)
-add_subdirectory(player_settings_factory)
 add_subdirectory(point_uv)
+add_subdirectory(mask)
+add_subdirectory(server_info)
+add_subdirectory(core)
+add_subdirectory(app/windows)
+add_subdirectory(legacy/cli)
 
-add_executable(source ${source_list})
+if(DISASSEMBLEIMAGE_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
 
-link_directories(${OpenCV_LIBRARY_DIRS})
-
-target_link_libraries(source welcomeregulation)
-target_link_libraries(source serverinfo)
-target_link_libraries(source mask)
-target_link_libraries(source playersettingsfactory)
-target_link_libraries(source point_uv)
-
-# 链接opencv库
-target_link_libraries(source ${OpenCV_LIBS})
-target_link_libraries(source Threads::Threads)
-
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-# set(CMAKE_BUILD_TYPE DEBUG)
-# set(CMAKE_BUILD_TYPE release)
-SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb")
-# SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O2 -Wall")
-
+include(CPack)
