@@ -26,6 +26,11 @@
 
 namespace {
 
+QString utf8Text(const std::string &text)
+{
+    return QString::fromUtf8(text.data(), static_cast<int>(text.size()));
+}
+
 int directionIndex(disassemble::core::ProcessingDirection direction)
 {
     switch (direction) {
@@ -264,12 +269,12 @@ void MainWindow::refreshEnvironmentStatus()
 
     QStringList lines;
     for (const auto &message : environmentStatus_.messages) {
-        lines << QString::fromStdString(message);
+        lines << utf8Text(message);
     }
     environmentLabel_->setText(lines.join(QStringLiteral("\n")));
 
     const auto validation = TaskFormValidator::validate(formState_, environmentStatus_);
-    validationLabel_->setText(QString::fromStdString(validation.summaryText()));
+    validationLabel_->setText(utf8Text(validation.summaryText()));
     validationLabel_->setStyleSheet(validation.ok
         ? QStringLiteral("color: #067647;")
         : QStringLiteral("color: #b42318;"));
@@ -278,7 +283,7 @@ void MainWindow::refreshEnvironmentStatus()
     try {
         presetStore_.saveLastSession(formState_);
     } catch (const std::exception &error) {
-        appendLog(QStringLiteral("保存上次配置失败: %1").arg(QString::fromUtf8(error.what())));
+        appendLog(QStringLiteral("保存上次配置失败: %1").arg(utf8Text(error.what())));
     }
 }
 
@@ -417,7 +422,7 @@ void MainWindow::savePreset()
         presetStore_.saveNamedPreset(name.toStdString(), formState_);
         appendLog(QStringLiteral("已保存预设: %1").arg(name));
     } catch (const std::exception &error) {
-        appendLog(QStringLiteral("保存预设失败: %1").arg(QString::fromUtf8(error.what())));
+        appendLog(QStringLiteral("保存预设失败: %1").arg(utf8Text(error.what())));
     }
 }
 
@@ -465,7 +470,7 @@ void MainWindow::loadPreset()
         appendLog(QStringLiteral("已加载预设: %1").arg(selected));
         refreshEnvironmentStatus();
     } catch (const std::exception &error) {
-        appendLog(QStringLiteral("加载预设失败: %1").arg(QString::fromUtf8(error.what())));
+        appendLog(QStringLiteral("加载预设失败: %1").arg(utf8Text(error.what())));
     }
 }
 
@@ -491,15 +496,15 @@ void MainWindow::runConfiguredTask()
 
     try {
         appendLog(formState_.usesSingleImageInput()
-            ? QStringLiteral("开始处理图片: %1").arg(QString::fromStdString(formState_.inputImagePath.string()))
-            : QStringLiteral("开始处理目录: %1").arg(QString::fromStdString(formState_.inputDirectory.string())));
+            ? QStringLiteral("开始处理图片: %1").arg(utf8Text(formState_.inputImagePath.string()))
+            : QStringLiteral("开始处理目录: %1").arg(utf8Text(formState_.inputDirectory.string())));
         const auto result = RunController::runTask(formState_, environmentStatus_);
         for (const auto &message : result.logs) {
-            appendLog(QString::fromStdString(message));
+            appendLog(utf8Text(message));
         }
         appendLog(QStringLiteral("成功 %1 个，失败 %2 个。").arg(result.successCount).arg(result.failedCount));
     } catch (const std::exception &error) {
-        appendLog(QStringLiteral("处理失败: %1").arg(QString::fromUtf8(error.what())));
+        appendLog(QStringLiteral("处理失败: %1").arg(utf8Text(error.what())));
     }
 }
 

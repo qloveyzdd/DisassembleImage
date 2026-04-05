@@ -23,3 +23,23 @@ execute_process(
 if(NOT deploy_result EQUAL 0)
     message(FATAL_ERROR "windeployqt failed with exit code ${deploy_result}.")
 endif()
+
+file(GET_RUNTIME_DEPENDENCIES
+    EXECUTABLES "${TARGET_FILE}"
+    RESOLVED_DEPENDENCIES_VAR resolved_dependencies
+    UNRESOLVED_DEPENDENCIES_VAR unresolved_dependencies
+)
+
+foreach(runtime_dependency IN LISTS resolved_dependencies)
+    get_filename_component(runtime_name "${runtime_dependency}" NAME)
+    if(runtime_name MATCHES "^api-ms-" OR runtime_name MATCHES "^ext-ms-")
+        continue()
+    endif()
+
+    file(COPY "${runtime_dependency}" DESTINATION "${DEPLOY_DIR}")
+endforeach()
+
+if(unresolved_dependencies)
+    list(JOIN unresolved_dependencies ", " unresolved_text)
+    message(WARNING "Unresolved runtime dependencies: ${unresolved_text}")
+endif()

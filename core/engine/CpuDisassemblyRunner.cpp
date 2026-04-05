@@ -55,7 +55,7 @@ fs::path resolveOutputPath(const fs::path &preferredPath, disassemble::core::Out
     }
 
     if (policy == disassemble::core::OutputConflictPolicy::ForbidOverwrite) {
-        throw std::runtime_error("输出文件已存在: " + preferredPath.string());
+        throw std::runtime_error(std::string(u8"输出文件已存在: ") + preferredPath.string());
     }
 
     const auto stem = preferredPath.stem().string();
@@ -67,7 +67,7 @@ fs::path resolveOutputPath(const fs::path &preferredPath, disassemble::core::Out
         }
     }
 
-    throw std::runtime_error("无法为输出文件生成新的名称: " + preferredPath.string());
+    throw std::runtime_error(std::string(u8"无法为输出文件生成新的名称: ") + preferredPath.string());
 }
 
 void ensureOutputDirectories(const disassemble::core::ProcessingTask &task)
@@ -80,25 +80,25 @@ void ensureOutputDirectories(const disassemble::core::ProcessingTask &task)
 void validateTask(const disassemble::core::ProcessingTask &task)
 {
     if (task.outputRoot.empty()) {
-        throw std::runtime_error("未设置输出目录");
+        throw std::runtime_error(u8"未设置输出目录");
     }
     if (task.inputObjPath.empty() || !fs::exists(task.inputObjPath)) {
-        throw std::runtime_error("input.obj 不存在");
+        throw std::runtime_error(u8"input.obj 不存在");
     }
     if (task.usesGroupedOutput()) {
         if (task.outputObjPath.empty() || !fs::exists(task.outputObjPath)) {
-            throw std::runtime_error("分组模式需要 output.obj");
+            throw std::runtime_error(u8"分组模式需要 output.obj");
         }
         if (task.outputSizes.empty()) {
-            throw std::runtime_error("分组模式至少需要一个输出尺寸");
+            throw std::runtime_error(u8"分组模式至少需要一个输出尺寸");
         }
         if (task.prefixes.empty()) {
-            throw std::runtime_error("分组模式至少需要一个输出前缀");
+            throw std::runtime_error(u8"分组模式至少需要一个输出前缀");
         }
         return;
     }
     if (task.outputSizes.empty() || task.prefixes.empty()) {
-        throw std::runtime_error("一对一模式需要输出尺寸和输出前缀");
+        throw std::runtime_error(u8"一对一模式需要输出尺寸和输出前缀");
     }
 }
 
@@ -109,7 +109,7 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
 {
     cv::Mat inputImage = cv::imread(inputPath.string(), cv::IMREAD_UNCHANGED);
     if (inputImage.empty()) {
-        throw std::runtime_error("读取图片失败: " + inputPath.string());
+        throw std::runtime_error(std::string(u8"读取图片失败: ") + inputPath.string());
     }
 
     input_image_info inputInfo({inputImage.cols, inputImage.rows});
@@ -118,10 +118,10 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
 
     if (!task.usesGroupedOutput()) {
         if (task.outputSizes.size() != inputObj.get_prim().size()) {
-            throw std::runtime_error("一对一模式下输出尺寸数量必须与 input.obj 面数一致");
+            throw std::runtime_error(u8"一对一模式下输出尺寸数量必须与 input.obj 面数一致");
         }
         if (task.prefixes.size() != inputObj.get_prim().size()) {
-            throw std::runtime_error("一对一模式下输出前缀数量必须与 input.obj 面数一致");
+            throw std::runtime_error(u8"一对一模式下输出前缀数量必须与 input.obj 面数一致");
         }
     }
 
@@ -145,7 +145,7 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
             const fs::path outputDir = fs::path(task.outputRoot) / task.prefixes[index];
             const fs::path outputPath = resolveOutputPath(outputDir / prefixedFileName(task.prefixes[index], inputPath), task.outputConflictPolicy);
             if (!cv::imwrite(outputPath.string(), quad)) {
-                throw std::runtime_error("写出图片失败: " + outputPath.string());
+                throw std::runtime_error(std::string(u8"写出图片失败: ") + outputPath.string());
             }
             generatedFiles.push_back(outputPath.string());
         }
@@ -169,14 +169,14 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
         const fs::path outputDir = fs::path(task.outputRoot) / task.prefixes.front();
         const fs::path outputPath = resolveOutputPath(outputDir / prefixedFileName(task.prefixes.front(), inputPath), task.outputConflictPolicy);
         if (!cv::imwrite(outputPath.string(), merged)) {
-            throw std::runtime_error("写出图片失败: " + outputPath.string());
+                throw std::runtime_error(std::string(u8"写出图片失败: ") + outputPath.string());
         }
         generatedFiles.push_back(outputPath.string());
     }
 
     std::lock_guard<std::mutex> lock(resultMutex);
     ++result.successCount;
-    result.logs.push_back("处理完成: " + inputPath.string());
+    result.logs.push_back(std::string(u8"处理完成: ") + inputPath.string());
     result.outputFiles.insert(result.outputFiles.end(), generatedFiles.begin(), generatedFiles.end());
 }
 
@@ -216,11 +216,11 @@ RunResult CpuDisassemblyRunner::run(const ProcessingTask &task) const
 
     auto inputs = ImageCatalog::collect(task);
     if (inputs.empty()) {
-        throw std::runtime_error("没有找到可处理的输入图片");
+        throw std::runtime_error(u8"没有找到可处理的输入图片");
     }
 
     RunResult result;
-    result.logs.push_back("开始处理 " + std::to_string(inputs.size()) + " 个输入文件");
+    result.logs.push_back(std::string(u8"开始处理 ") + std::to_string(inputs.size()) + u8" 个输入文件");
 
     std::mutex resultMutex;
     std::atomic_size_t cursor{0};
@@ -241,7 +241,7 @@ RunResult CpuDisassemblyRunner::run(const ProcessingTask &task) const
                 std::lock_guard<std::mutex> lock(resultMutex);
                 ++result.failedCount;
                 result.failures.push_back({inputs[index].string(), error.what()});
-                result.logs.push_back("处理失败: " + inputs[index].string() + " - " + error.what());
+                result.logs.push_back(std::string(u8"处理失败: ") + inputs[index].string() + " - " + error.what());
             }
         }
     };
@@ -256,7 +256,7 @@ RunResult CpuDisassemblyRunner::run(const ProcessingTask &task) const
         thread.join();
     }
 
-    result.logs.push_back("处理结束，成功 " + std::to_string(result.successCount) + "，失败 " + std::to_string(result.failedCount));
+    result.logs.push_back(std::string(u8"处理结束，成功 ") + std::to_string(result.successCount) + u8"，失败 " + std::to_string(result.failedCount));
     return result;
 }
 

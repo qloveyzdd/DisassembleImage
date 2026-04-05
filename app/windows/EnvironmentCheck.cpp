@@ -56,7 +56,7 @@ EnvironmentStatus EnvironmentCheck::inspect(const fs::path &appDir, const fs::pa
 {
     EnvironmentStatus status;
     const auto roots = candidateRoots(appDir);
-    status.messages.push_back("OpenCV 可用，版本: " CV_VERSION);
+    status.messages.push_back(std::string(u8"OpenCV 可用，版本: ") + CV_VERSION);
 
     status.detectedInputObjPath = findFirstFile(roots, "input.obj");
     status.detectedOutputObjPath = findFirstFile(roots, "output.obj");
@@ -64,25 +64,25 @@ EnvironmentStatus EnvironmentCheck::inspect(const fs::path &appDir, const fs::pa
     if (!status.detectedInputObjPath.empty() && !status.detectedOutputObjPath.empty()
         && status.detectedInputObjPath.parent_path() == status.detectedOutputObjPath.parent_path()) {
         status.modelRoot = status.detectedInputObjPath.parent_path();
-        status.messages.push_back("已自动找到模型资源目录: " + status.modelRoot.string());
+        status.messages.push_back(std::string(u8"已自动找到模型资源目录: ") + status.modelRoot.string());
     }
 
     if (status.detectedInputObjPath.empty()) {
-        status.messages.push_back("未自动找到 input.obj。");
+        status.messages.push_back(u8"未自动找到 input.obj。");
     }
     if (status.detectedOutputObjPath.empty()) {
-        status.messages.push_back("未自动找到 output.obj。");
+        status.messages.push_back(u8"未自动找到 output.obj。");
     }
 
     if (!outputRoot.empty()) {
         status.outputDirectoryWritable = isWritableDirectory(outputRoot);
         if (status.outputDirectoryWritable) {
-            status.messages.push_back("输出目录可写: " + outputRoot.string());
+            status.messages.push_back(std::string(u8"输出目录可写: ") + outputRoot.string());
         } else {
-            status.messages.push_back("输出目录不可写: " + outputRoot.string());
+            status.messages.push_back(std::string(u8"输出目录不可写: ") + outputRoot.string());
         }
     } else {
-        status.messages.push_back("尚未选择输出目录。");
+        status.messages.push_back(u8"尚未选择输出目录。");
     }
 
     status.ok = !status.detectedInputObjPath.empty()
