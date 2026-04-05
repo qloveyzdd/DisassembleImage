@@ -121,7 +121,7 @@ disassemble::core::ProcessingBackend fromJsonProcessingBackend(const QString &ba
 QJsonObject toJsonObject(const disassemble::desktop::TaskFormState &state, const QString &name)
 {
     QJsonObject object;
-    object[QStringLiteral("version")] = 1;
+    object[QStringLiteral("version")] = 2;
     object[QStringLiteral("name")] = name;
     object[QStringLiteral("inputMode")] = toJsonMode(state.inputMode);
     object[QStringLiteral("inputImagePath")] = QString::fromStdString(state.inputImagePath.string());
@@ -143,6 +143,7 @@ QJsonObject toJsonObject(const disassemble::desktop::TaskFormState &state, const
 disassemble::desktop::TaskFormState fromJsonObject(const QJsonObject &object)
 {
     disassemble::desktop::TaskFormState state;
+    const int version = object.value(QStringLiteral("version")).toInt(1);
     state.inputMode = fromJsonMode(object.value(QStringLiteral("inputMode")).toString());
     state.inputImagePath = object.value(QStringLiteral("inputImagePath")).toString().toStdString();
     state.inputDirectory = object.value(QStringLiteral("inputDirectory")).toString().toStdString();
@@ -157,6 +158,9 @@ disassemble::desktop::TaskFormState fromJsonObject(const QJsonObject &object)
     state.processingBackend = fromJsonProcessingBackend(object.value(QStringLiteral("processingBackend")).toString());
     state.enableParallel = object.value(QStringLiteral("enableParallel")).toBool(false);
     state.maxWorkers = static_cast<unsigned int>(std::max(1, object.value(QStringLiteral("maxWorkers")).toInt(1)));
+    if (version < 2) {
+        state.migrateLegacyParallelDefaults();
+    }
     return state;
 }
 

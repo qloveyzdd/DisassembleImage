@@ -8,6 +8,7 @@
 #include <mutex>
 #include <stdexcept>
 #include <thread>
+#include <unordered_map>
 #include <utility>
 
 #include <opencv2/core/ocl.hpp>
@@ -67,6 +68,24 @@ struct SingleImageMetrics {
     double gpuHotPathMs = 0.0;
 };
 
+struct ProcessingContextKey {
+    int width = 0;
+    int height = 0;
+
+    bool operator==(const ProcessingContextKey &other) const
+    {
+        return width == other.width && height == other.height;
+    }
+};
+
+struct ProcessingContextKeyHash {
+    size_t operator()(const ProcessingContextKey &key) const
+    {
+        return (static_cast<size_t>(static_cast<unsigned int>(key.width)) << 32)
+            ^ static_cast<size_t>(static_cast<unsigned int>(key.height));
+    }
+};
+
 group_direction toLegacyDirection(ProcessingDirection direction)
 {
     switch (direction) {
@@ -89,6 +108,111 @@ std::vector<std::vector<int>> toLegacySizes(const std::vector<ImageSize> &sizes)
     }
     return converted;
 }
+
+struct RemapCacheEntry {
+    cv::Mat mapX;
+    cv::Mat mapY;
+    cv::Size outputSize;
+};
+
+RemapCacheEntry buildRemapCacheEntry(const disassembly *prim)
+{
+    const auto quadPoint = prim->get_quad_pts()[2];
+    RemapCacheEntry entry;
+    entry.outputSize = cv::Size(static_cast<int>(quadPoint.x), static_cast<int>(quadPoint.y));
+    entry.mapX = cv::Mat(entry.outputSize, CV_32FC1);
+    entry.mapY = cv::Mat(entry.outputSize, CV_32FC1);
+
+    cv::Mat inverseTransform;
+    prim->get_transmtx().convertTo(inverseTransform, CV_64F);
+    inverseTransform = inverseTransform.inv();
+
+    for (int y = 0; y < entry.outputSize.height; ++y) {
+        float *mapXRow = entry.mapX.ptr<float>(y);
+        float *mapYRow = entry.mapY.ptr<float>(y);
+        for (int x = 0; x < entry.outputSize.width; ++x) {
+            const double homogeneous = inverseTransform.at<double>(2, 0) * x
+                + inverseTransform.at<double>(2, 1) * y
+                + inverseTransform.at<double>(2, 2);
+            mapXRow[x] = static_cast<float>((inverseTransform.at<double>(0, 0) * x
+                + inverseTransform.at<double>(0, 1) * y
+                + inverseTransform.at<double>(0, 2)) / homogeneous);
+            mapYRow[x] = static_cast<float>((inverseTransform.at<double>(1, 0) * x
+                + inverseTransform.at<double>(1, 1) * y
+                + inverseTransform.at<double>(1, 2)) / homogeneous);
+        }
+    }
+
+    return entry;
+}
+
+struct CachedProcessingContext {
+    explicit CachedProcessingContext(const ProcessingTask &task,
+                                     int inputWidth,
+                                     int inputHeight)
+        : inputInfo(std::vector<int>{inputWidth, inputHeight}),
+          outputInfo(toLegacySizes(task.outputSizes))
+    {
+        inputObj = std::make_unique<obj_uv_padding>(task.inputObjPath);
+
+        if (task.usesGroupedOutput()) {
+            outputObj = std::make_unique<obj_basic>(task.outputObjPath);
+            factory = std::make_unique<disassembly_factory>(inputObj.get(),
+                                                            outputObj.get(),
+                                                            &inputInfo,
+                                                            &outputInfo,
+                                                            toLegacyDirection(task.direction));
+            prefixes = task.prefixes;
+        } else {
+            factory = std::make_unique<disassembly_factory>(inputObj.get(), &inputInfo, &outputInfo);
+            prefixes = disassemble::core::buildFacePositionPrefixes(task.inputObjPath);
+        }
+
+        prims = factory->get_prim();
+        remapEntries.reserve(prims.size());
+        for (const auto *prim : prims) {
+            remapEntries.push_back(buildRemapCacheEntry(prim));
+        }
+    }
+
+    input_image_info inputInfo;
+    output_image_info outputInfo;
+    std::unique_ptr<obj_uv_padding> inputObj;
+    std::unique_ptr<obj_basic> outputObj;
+    std::unique_ptr<disassembly_factory> factory;
+    std::vector<disassembly *> prims;
+    std::vector<std::string> prefixes;
+    std::vector<RemapCacheEntry> remapEntries;
+};
+
+class ProcessingContextCache {
+public:
+    explicit ProcessingContextCache(const ProcessingTask &task)
+        : task_(task)
+    {
+    }
+
+    std::shared_ptr<const CachedProcessingContext> get(int inputWidth, int inputHeight)
+    {
+        const ProcessingContextKey key{inputWidth, inputHeight};
+        std::lock_guard<std::mutex> lock(mutex_);
+        const auto it = contexts_.find(key);
+        if (it != contexts_.end()) {
+            return it->second;
+        }
+
+        auto context = std::make_shared<CachedProcessingContext>(task_, inputWidth, inputHeight);
+        contexts_.emplace(key, context);
+        return context;
+    }
+
+private:
+    ProcessingTask task_;
+    std::mutex mutex_;
+    std::unordered_map<ProcessingContextKey,
+                       std::shared_ptr<const CachedProcessingContext>,
+                       ProcessingContextKeyHash> contexts_;
+};
 
 std::string prefixedFileName(const std::string &prefix, const fs::path &inputPath)
 {
@@ -178,6 +302,7 @@ ExecutionMode buildExecutionMode(const ProcessingTask &task, const GpuBackendInf
 
 cv::Mat warpPiece(const cv::Mat &inputImage,
                   const disassembly *prim,
+                  const RemapCacheEntry *remapEntry,
                   bool useGpu,
                   double &gpuHotPathMs)
 {
@@ -186,7 +311,16 @@ cv::Mat warpPiece(const cv::Mat &inputImage,
 
     if (!useGpu) {
         cv::Mat output;
-        cv::warpPerspective(inputImage, output, prim->get_transmtx(), outputSize);
+        if (remapEntry != nullptr) {
+            cv::remap(inputImage,
+                      output,
+                      remapEntry->mapX,
+                      remapEntry->mapY,
+                      cv::INTER_LINEAR,
+                      cv::BORDER_CONSTANT);
+        } else {
+            cv::warpPerspective(inputImage, output, prim->get_transmtx(), outputSize);
+        }
         return output;
     }
 
@@ -239,6 +373,7 @@ void appendFailure(RunResult &result, const fs::path &inputPath, const std::exce
 void runSingleImage(const ProcessingTask &task,
                     const fs::path &inputPath,
                     bool useGpu,
+                    ProcessingContextCache &contextCache,
                     RunResult &result,
                     std::mutex &resultMutex)
 {
@@ -248,41 +383,28 @@ void runSingleImage(const ProcessingTask &task,
         throw std::runtime_error(std::string(u8"读取图片失败: ") + inputPath.string());
     }
 
-    input_image_info inputInfo({inputImage.cols, inputImage.rows});
-    output_image_info outputInfo(toLegacySizes(task.outputSizes));
-    obj_uv_padding inputObj(task.inputObjPath);
+    const auto context = contextCache.get(inputImage.cols, inputImage.rows);
 
-    if (!task.usesGroupedOutput() && task.outputSizes.size() != inputObj.get_prim().size()) {
+    if (!task.usesGroupedOutput() && task.outputSizes.size() != context->prims.size()) {
         throw std::runtime_error(u8"一对一模式下输出尺寸数量必须与 input.obj 面数一致");
-    }
-
-    std::unique_ptr<obj_basic> outputObj;
-    std::unique_ptr<disassembly_factory> factory;
-    if (task.usesGroupedOutput()) {
-        outputObj = std::make_unique<obj_basic>(task.outputObjPath);
-        factory = std::make_unique<disassembly_factory>(&inputObj,
-                                                        outputObj.get(),
-                                                        &inputInfo,
-                                                        &outputInfo,
-                                                        toLegacyDirection(task.direction));
-    } else {
-        factory = std::make_unique<disassembly_factory>(&inputObj, &inputInfo, &outputInfo);
     }
 
     std::vector<std::string> generatedFiles;
     std::vector<disassemble::core::PreviewGalleryItem> generatedPreviewItems;
 
     if (!task.usesGroupedOutput()) {
-        const auto prefixes = disassemble::core::buildFacePositionPrefixes(task.inputObjPath);
-        if (prefixes.size() != inputObj.get_prim().size()) {
+        if (context->prefixes.size() != context->prims.size()) {
             throw std::runtime_error(u8"一对一模式下无法根据面位置生成完整前缀");
         }
 
-        const auto prims = factory->get_prim();
-        for (size_t index = 0; index < prims.size(); ++index) {
-            cv::Mat quad = warpPiece(inputImage, prims[index], useGpu, metrics.gpuHotPathMs);
-            const fs::path outputDir = fs::path(task.outputRoot) / prefixes[index];
-            const fs::path outputPath = resolveOutputPath(outputDir / prefixedFileName(prefixes[index], inputPath),
+        for (size_t index = 0; index < context->prims.size(); ++index) {
+            cv::Mat quad = warpPiece(inputImage,
+                                     context->prims[index],
+                                     &context->remapEntries[index],
+                                     useGpu,
+                                     metrics.gpuHotPathMs);
+            const fs::path outputDir = fs::path(task.outputRoot) / context->prefixes[index];
+            const fs::path outputPath = resolveOutputPath(outputDir / prefixedFileName(context->prefixes[index], inputPath),
                                                           task.outputConflictPolicy);
             if (!cv::imwrite(outputPath.string(), quad)) {
                 throw std::runtime_error(std::string(u8"写出图片失败: ") + outputPath.string());
@@ -298,9 +420,12 @@ void runSingleImage(const ProcessingTask &task,
         }
     } else {
         std::vector<cv::Mat> pieces;
-        const auto prims = factory->get_prim();
-        for (const auto *prim : prims) {
-            pieces.push_back(warpPiece(inputImage, prim, useGpu, metrics.gpuHotPathMs));
+        for (size_t index = 0; index < context->prims.size(); ++index) {
+            pieces.push_back(warpPiece(inputImage,
+                                       context->prims[index],
+                                       &context->remapEntries[index],
+                                       useGpu,
+                                       metrics.gpuHotPathMs));
         }
 
         cv::Mat merged;
@@ -423,6 +548,7 @@ RunResult CpuDisassemblyRunner::run(const ProcessingTask &task,
     }
 
     std::mutex resultMutex;
+    ProcessingContextCache contextCache(task);
     std::atomic_size_t cursor{0};
     std::atomic_bool stopRequested{false};
     const unsigned int workerCount = mode.useGpu()
@@ -433,6 +559,8 @@ RunResult CpuDisassemblyRunner::run(const ProcessingTask &task,
 
     if (mode.useGpu()) {
         result.logs.push_back(u8"GPU 路径当前使用单线程执行，以保证稳定回退到 CPU。");
+    } else {
+        result.logs.push_back(std::string(u8"CPU 路径并行线程数: ") + std::to_string(workerCount));
     }
 
     emitProgress(RunStage::Processing, static_cast<int>(inputs.size()), 0, 0, 0, false);
@@ -467,7 +595,7 @@ RunResult CpuDisassemblyRunner::run(const ProcessingTask &task,
                          inputs[index].string());
 
             try {
-                runSingleImage(task, inputs[index], mode.useGpu(), result, resultMutex);
+                runSingleImage(task, inputs[index], mode.useGpu(), contextCache, result, resultMutex);
             } catch (const std::exception &gpuError) {
                 if (mode.useGpu()) {
                     mode.activeBackend = ProcessingBackend::Cpu;
@@ -480,7 +608,7 @@ RunResult CpuDisassemblyRunner::run(const ProcessingTask &task,
                     }
 
                     try {
-                        runSingleImage(task, inputs[index], false, result, resultMutex);
+                        runSingleImage(task, inputs[index], false, contextCache, result, resultMutex);
                     } catch (const std::exception &cpuError) {
                         std::lock_guard<std::mutex> lock(resultMutex);
                         appendFailure(result, inputs[index], cpuError);

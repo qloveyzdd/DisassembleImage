@@ -27,15 +27,17 @@ struct TaskFormState {
     std::string prefixesText = "radian";
     disassemble::core::OutputConflictPolicy outputConflictPolicy = disassemble::core::OutputConflictPolicy::ForbidOverwrite;
     disassemble::core::ProcessingBackend processingBackend = disassemble::core::ProcessingBackend::Auto;
-    bool enableParallel = false;
-    unsigned int maxWorkers = 1;
+    bool enableParallel = true;
+    unsigned int maxWorkers = defaultWorkerCount();
 
     bool usesSingleImageInput() const;
     bool usesDirectoryInput() const;
     bool usesGroupedOutput() const;
     std::filesystem::path resolvedInputObjPath(const std::filesystem::path &detectedPath) const;
     std::filesystem::path resolvedOutputObjPath(const std::filesystem::path &detectedPath) const;
+    void migrateLegacyParallelDefaults();
 
+    static unsigned int defaultWorkerCount();
     static std::vector<disassemble::core::ImageSize> parseOutputSizes(const std::string &text);
     static std::vector<std::string> parsePrefixes(const std::string &text);
     static std::string formatOutputSizes(const std::vector<disassemble::core::ImageSize> &sizes);

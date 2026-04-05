@@ -25,6 +25,15 @@ using disassemble::core::RunResult;
 
 namespace {
 
+unsigned int resolvedWorkerCount(const TaskFormState &state)
+{
+    if (!state.enableParallel) {
+        return 1;
+    }
+
+    return state.maxWorkers == 0 ? TaskFormState::defaultWorkerCount() : state.maxWorkers;
+}
+
 std::string timestampLabel()
 {
     return QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss").toStdString();
@@ -133,7 +142,7 @@ ProcessingTask RunController::buildTask(const TaskFormState &state,
     task.outputConflictPolicy = state.outputConflictPolicy;
     task.processingBackend = state.processingBackend;
     task.enableParallel = state.enableParallel;
-    task.maxWorkers = state.maxWorkers;
+    task.maxWorkers = resolvedWorkerCount(state);
     return task;
 }
 
@@ -170,8 +179,8 @@ ProcessingTask RunController::buildSmokeTask(const fs::path &inputImage,
     state.prefixesText = "radian";
     state.outputConflictPolicy = OutputConflictPolicy::OverwriteExisting;
     state.processingBackend = ProcessingBackend::Cpu;
-    state.enableParallel = false;
-    state.maxWorkers = 1;
+    state.enableParallel = true;
+    state.maxWorkers = TaskFormState::defaultWorkerCount();
 
     EnvironmentStatus environment;
     environment.detectedInputObjPath = state.inputObjPath;

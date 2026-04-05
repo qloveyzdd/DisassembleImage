@@ -4,6 +4,7 @@
 #include <cctype>
 #include <sstream>
 #include <stdexcept>
+#include <thread>
 
 namespace {
 
@@ -34,6 +35,12 @@ std::vector<std::string> splitTokens(const std::string &text)
 
 namespace disassemble::desktop {
 
+unsigned int TaskFormState::defaultWorkerCount()
+{
+    const unsigned int detected = std::thread::hardware_concurrency();
+    return detected == 0 ? 4U : detected;
+}
+
 bool TaskFormState::usesSingleImageInput() const
 {
     return inputMode == InputMode::SingleImage;
@@ -57,6 +64,19 @@ std::filesystem::path TaskFormState::resolvedInputObjPath(const std::filesystem:
 std::filesystem::path TaskFormState::resolvedOutputObjPath(const std::filesystem::path &detectedPath) const
 {
     return autoDetectModels ? detectedPath : outputObjPath;
+}
+
+void TaskFormState::migrateLegacyParallelDefaults()
+{
+    if (!enableParallel && maxWorkers <= 1) {
+        enableParallel = true;
+        maxWorkers = defaultWorkerCount();
+        return;
+    }
+
+    if (maxWorkers == 0) {
+        maxWorkers = defaultWorkerCount();
+    }
 }
 
 std::vector<disassemble::core::ImageSize> TaskFormState::parseOutputSizes(const std::string &text)
