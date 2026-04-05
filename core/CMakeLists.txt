@@ -1,4 +1,6 @@
 ﻿add_library(disassemble_core STATIC
+    model/FacePositionPrefix.cpp
+    model/FacePositionPrefix.h
     model/ProcessingTask.h
     model/ProcessingTypes.h
     model/RunResult.h

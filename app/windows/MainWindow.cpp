@@ -167,7 +167,7 @@ MainWindow::MainWindow()
     directionCombo_->addItems({QStringLiteral("逐面输出"), QStringLiteral("横向拼接"), QStringLiteral("纵向拼接")});
     outputPolicyCombo_->addItems({QStringLiteral("禁止覆盖"), QStringLiteral("覆盖同名"), QStringLiteral("自动重命名")});
     sizeEdit_->setPlaceholderText(QStringLiteral("例如: 6144*6720，多个用空格或逗号分隔"));
-    prefixEdit_->setPlaceholderText(QStringLiteral("例如: radian，多个用空格或逗号分隔"));
+    prefixEdit_->setPlaceholderText(QStringLiteral("逐面输出会自动按位置命名；拼接模式填写一个前缀"));
     parameterLayout->addRow(QStringLiteral("输出尺寸"), sizeEdit_);
     parameterLayout->addRow(QStringLiteral("输出前缀"), prefixEdit_);
     parameterLayout->addRow(QStringLiteral("拼接方式"), directionCombo_);

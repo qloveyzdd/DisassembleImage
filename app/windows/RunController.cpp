@@ -48,7 +48,9 @@ ProcessingTask RunController::buildTask(const TaskFormState &state,
     task.outputObjPath = outputObjPath.empty() ? std::string() : fs::absolute(outputObjPath).string();
     task.direction = state.direction;
     task.outputSizes = TaskFormState::parseOutputSizes(state.outputSizesText);
-    task.prefixes = TaskFormState::parsePrefixes(state.prefixesText);
+    if (state.usesGroupedOutput()) {
+        task.prefixes = TaskFormState::parsePrefixes(state.prefixesText);
+    }
     task.outputConflictPolicy = state.outputConflictPolicy;
     task.enableParallel = state.enableParallel;
     task.maxWorkers = state.maxWorkers;

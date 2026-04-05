@@ -15,6 +15,7 @@
 #include "../../mask/mask.h"
 #include "../../server_info/server_info.h"
 #include "../io/ImageCatalog.h"
+#include "../model/FacePositionPrefix.h"
 
 namespace fs = std::filesystem;
 
@@ -72,7 +73,10 @@ fs::path resolveOutputPath(const fs::path &preferredPath, disassemble::core::Out
 
 void ensureOutputDirectories(const disassemble::core::ProcessingTask &task)
 {
-    for (const auto &prefix : task.prefixes) {
+    const auto prefixes = task.usesGroupedOutput()
+        ? task.prefixes
+        : disassemble::core::buildFacePositionPrefixes(task.inputObjPath);
+    for (const auto &prefix : prefixes) {
         fs::create_directories(fs::path(task.outputRoot) / prefix);
     }
 }
@@ -97,8 +101,8 @@ void validateTask(const disassemble::core::ProcessingTask &task)
         }
         return;
     }
-    if (task.outputSizes.empty() || task.prefixes.empty()) {
-        throw std::runtime_error(u8"一对一模式需要输出尺寸和输出前缀");
+    if (task.outputSizes.empty()) {
+        throw std::runtime_error(u8"一对一模式需要输出尺寸");
     }
 }
 
@@ -120,9 +124,6 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
         if (task.outputSizes.size() != inputObj.get_prim().size()) {
             throw std::runtime_error(u8"一对一模式下输出尺寸数量必须与 input.obj 面数一致");
         }
-        if (task.prefixes.size() != inputObj.get_prim().size()) {
-            throw std::runtime_error(u8"一对一模式下输出前缀数量必须与 input.obj 面数一致");
-        }
     }
 
     std::unique_ptr<obj_basic> outputObj;
@@ -138,12 +139,16 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
     cv::Mat quad;
 
     if (!task.usesGroupedOutput()) {
+        const auto prefixes = disassemble::core::buildFacePositionPrefixes(task.inputObjPath);
+        if (prefixes.size() != inputObj.get_prim().size()) {
+            throw std::runtime_error(u8"一对一模式下无法根据面位置生成完整前缀");
+        }
         const auto prims = factory->get_prim();
         for (size_t index = 0; index < prims.size(); ++index) {
             const auto quadPoint = prims[index]->get_quad_pts()[2];
             cv::warpPerspective(inputImage, quad, prims[index]->get_transmtx(), cv::Size(static_cast<int>(quadPoint.x), static_cast<int>(quadPoint.y)));
-            const fs::path outputDir = fs::path(task.outputRoot) / task.prefixes[index];
-            const fs::path outputPath = resolveOutputPath(outputDir / prefixedFileName(task.prefixes[index], inputPath), task.outputConflictPolicy);
+            const fs::path outputDir = fs::path(task.outputRoot) / prefixes[index];
+            const fs::path outputPath = resolveOutputPath(outputDir / prefixedFileName(prefixes[index], inputPath), task.outputConflictPolicy);
             if (!cv::imwrite(outputPath.string(), quad)) {
                 throw std::runtime_error(std::string(u8"写出图片失败: ") + outputPath.string());
             }

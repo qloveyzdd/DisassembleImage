@@ -8,6 +8,7 @@
 #include "../../app/windows/TaskFormState.h"
 #include "../../app/windows/TaskFormValidator.h"
 #include "../../app/windows/TaskPresetStore.h"
+#include "../../core/model/FacePositionPrefix.h"
 
 namespace fs = std::filesystem;
 
@@ -62,16 +63,22 @@ int main(int argc, char *argv[])
         return 4;
     }
 
+    const auto facePrefixes = disassemble::core::buildFacePositionPrefixes((sourceRoot / "input.obj").string());
+    if (facePrefixes.size() != 63 || facePrefixes.front().find('_') == std::string::npos) {
+        std::cerr << "自动位置前缀生成失败" << std::endl;
+        return 5;
+    }
+
     const auto result = disassemble::desktop::RunController::runTask(state, environment);
     if (!result.ok() || result.outputFiles.empty()) {
         std::cerr << "Phase 2 smoke 未生成输出" << std::endl;
-        return 5;
+        return 6;
     }
 
     for (const auto &output : result.outputFiles) {
         if (!fs::exists(output)) {
             std::cerr << "输出文件不存在: " << output << std::endl;
-            return 6;
+            return 7;
         }
     }
 

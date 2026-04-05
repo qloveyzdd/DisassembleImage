@@ -4,12 +4,14 @@
 #include <sstream>
 
 #include "../../core/io/ImageCatalog.h"
+#include "../../core/model/FacePositionPrefix.h"
 
 namespace fs = std::filesystem;
 
 namespace {
 
-std::vector<fs::path> previewOutputs(const disassemble::desktop::TaskFormState &state)
+std::vector<fs::path> previewOutputs(const disassemble::desktop::TaskFormState &state,
+                                     const disassemble::desktop::EnvironmentStatus &environment)
 {
     disassemble::core::ProcessingTask inputOnlyTask;
     if (state.usesSingleImageInput()) {
@@ -19,15 +21,17 @@ std::vector<fs::path> previewOutputs(const disassemble::desktop::TaskFormState &
     }
 
     const auto inputs = disassemble::core::ImageCatalog::collect(inputOnlyTask);
-    const auto prefixes = disassemble::desktop::TaskFormState::parsePrefixes(state.prefixesText);
 
     std::vector<fs::path> outputs;
     for (const auto &input : inputs) {
         if (state.usesGroupedOutput()) {
+            const auto prefixes = disassemble::desktop::TaskFormState::parsePrefixes(state.prefixesText);
             outputs.push_back(state.outputRoot / prefixes.front() / (prefixes.front() + input.filename().string()));
             continue;
         }
 
+        const auto inputObjPath = state.resolvedInputObjPath(environment.detectedInputObjPath);
+        const auto prefixes = disassemble::core::buildFacePositionPrefixes(inputObjPath.string());
         for (const auto &prefix : prefixes) {
             outputs.push_back(state.outputRoot / prefix / (prefix + input.filename().string()));
         }
@@ -111,14 +115,14 @@ ValidationResult TaskFormValidator::validate(const TaskFormState &state, const E
 
     try {
         prefixes = TaskFormState::parsePrefixes(state.prefixesText);
-        if (prefixes.empty()) {
+        if (state.usesGroupedOutput() && prefixes.empty()) {
             result.errors.push_back(u8"请至少填写一个输出前缀。");
         }
     } catch (const std::exception &error) {
         result.errors.push_back(error.what());
     }
 
-    if (!sizes.empty() && !prefixes.empty()) {
+    if (!sizes.empty()) {
         if (state.usesGroupedOutput()) {
             if (sizes.size() != 1) {
                 result.errors.push_back(u8"横向或纵向拼接时只支持一个输出尺寸。");
@@ -126,8 +130,8 @@ ValidationResult TaskFormValidator::validate(const TaskFormState &state, const E
             if (prefixes.size() != 1) {
                 result.errors.push_back(u8"横向或纵向拼接时只支持一个输出前缀。");
             }
-        } else if (sizes.size() != prefixes.size()) {
-            result.errors.push_back(u8"逐面输出时，输出尺寸数量必须和前缀数量一致。");
+        } else {
+            result.warnings.push_back(u8"逐面输出时会按面的位置自动命名，例如 top_left。");
         }
     }
 
@@ -137,7 +141,7 @@ ValidationResult TaskFormValidator::validate(const TaskFormState &state, const E
 
     if (result.errors.empty() && state.outputConflictPolicy == disassemble::core::OutputConflictPolicy::ForbidOverwrite) {
         try {
-            for (const auto &path : previewOutputs(state)) {
+            for (const auto &path : previewOutputs(state, environment)) {
                 if (fs::exists(path)) {
                     result.errors.push_back(std::string(u8"发现已有输出文件，当前策略禁止覆盖: ") + path.string());
                     break;
