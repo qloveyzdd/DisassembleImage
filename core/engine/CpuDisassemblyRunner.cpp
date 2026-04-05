@@ -48,6 +48,28 @@ std::string prefixedFileName(const std::string &prefix, const fs::path &inputPat
     return prefix + inputPath.filename().string();
 }
 
+fs::path resolveOutputPath(const fs::path &preferredPath, disassemble::core::OutputConflictPolicy policy)
+{
+    if (policy == disassemble::core::OutputConflictPolicy::OverwriteExisting || !fs::exists(preferredPath)) {
+        return preferredPath;
+    }
+
+    if (policy == disassemble::core::OutputConflictPolicy::ForbidOverwrite) {
+        throw std::runtime_error("输出文件已存在: " + preferredPath.string());
+    }
+
+    const auto stem = preferredPath.stem().string();
+    const auto extension = preferredPath.extension().string();
+    for (int index = 1; index <= 9999; ++index) {
+        const auto candidate = preferredPath.parent_path() / (stem + "_" + std::to_string(index) + extension);
+        if (!fs::exists(candidate)) {
+            return candidate;
+        }
+    }
+
+    throw std::runtime_error("无法为输出文件生成新的名称: " + preferredPath.string());
+}
+
 void ensureOutputDirectories(const disassemble::core::ProcessingTask &task)
 {
     for (const auto &prefix : task.prefixes) {
@@ -121,8 +143,10 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
             const auto quadPoint = prims[index]->get_quad_pts()[2];
             cv::warpPerspective(inputImage, quad, prims[index]->get_transmtx(), cv::Size(static_cast<int>(quadPoint.x), static_cast<int>(quadPoint.y)));
             const fs::path outputDir = fs::path(task.outputRoot) / task.prefixes[index];
-            const fs::path outputPath = outputDir / prefixedFileName(task.prefixes[index], inputPath);
-            cv::imwrite(outputPath.string(), quad);
+            const fs::path outputPath = resolveOutputPath(outputDir / prefixedFileName(task.prefixes[index], inputPath), task.outputConflictPolicy);
+            if (!cv::imwrite(outputPath.string(), quad)) {
+                throw std::runtime_error("写出图片失败: " + outputPath.string());
+            }
             generatedFiles.push_back(outputPath.string());
         }
     } else {
@@ -143,8 +167,10 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
         cv::resize(merged, merged, cv::Size(task.outputSizes.front().width, task.outputSizes.front().height));
 
         const fs::path outputDir = fs::path(task.outputRoot) / task.prefixes.front();
-        const fs::path outputPath = outputDir / prefixedFileName(task.prefixes.front(), inputPath);
-        cv::imwrite(outputPath.string(), merged);
+        const fs::path outputPath = resolveOutputPath(outputDir / prefixedFileName(task.prefixes.front(), inputPath), task.outputConflictPolicy);
+        if (!cv::imwrite(outputPath.string(), merged)) {
+            throw std::runtime_error("写出图片失败: " + outputPath.string());
+        }
         generatedFiles.push_back(outputPath.string());
     }
 

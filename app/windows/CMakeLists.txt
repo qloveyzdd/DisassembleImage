@@ -7,10 +7,16 @@ qt_standard_project_setup()
 add_library(desktop_runtime STATIC
     EnvironmentCheck.cpp
     EnvironmentCheck.h
-    RunController.cpp
-    RunController.h
     MainWindow.cpp
     MainWindow.h
+    RunController.cpp
+    RunController.h
+    TaskFormState.cpp
+    TaskFormState.h
+    TaskFormValidator.cpp
+    TaskFormValidator.h
+    TaskPresetStore.cpp
+    TaskPresetStore.h
 )
 
 target_link_libraries(desktop_runtime

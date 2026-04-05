@@ -7,6 +7,12 @@
 
 namespace disassemble::core {
 
+enum class OutputConflictPolicy {
+    ForbidOverwrite,
+    OverwriteExisting,
+    AutoRename
+};
+
 struct ProcessingTask {
     std::string inputImagePath;
     std::string inputDirectory;
@@ -16,6 +22,7 @@ struct ProcessingTask {
     ProcessingDirection direction = ProcessingDirection::None;
     std::vector<ImageSize> outputSizes;
     std::vector<std::string> prefixes;
+    OutputConflictPolicy outputConflictPolicy = OutputConflictPolicy::ForbidOverwrite;
     bool enableParallel = false;
     unsigned int maxWorkers = 1;
 
