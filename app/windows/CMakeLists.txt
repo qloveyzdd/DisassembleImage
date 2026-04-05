@@ -9,6 +9,12 @@ add_library(desktop_runtime STATIC
     EnvironmentCheck.h
     MainWindow.cpp
     MainWindow.h
+    Preview3DWidget.cpp
+    Preview3DWidget.h
+    PreviewGalleryWidget.cpp
+    PreviewGalleryWidget.h
+    PreviewImagePane.cpp
+    PreviewImagePane.h
     RunController.cpp
     RunController.h
     TaskRunSession.cpp
@@ -25,6 +31,8 @@ target_link_libraries(desktop_runtime
     PUBLIC
         disassemble_core
         Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::OpenGL
+        Qt${QT_VERSION_MAJOR}::OpenGLWidgets
         ${OpenCV_LIBS}
         Threads::Threads
 )

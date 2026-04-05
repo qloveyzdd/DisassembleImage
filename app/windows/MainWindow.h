@@ -9,9 +9,14 @@
 #include <vector>
 
 #include "EnvironmentCheck.h"
+#include "Preview3DWidget.h"
+#include "PreviewGalleryWidget.h"
+#include "PreviewImagePane.h"
 #include "TaskFormState.h"
 #include "TaskPresetStore.h"
 #include "TaskRunSession.h"
+#include "../../core/model/PreviewGalleryItem.h"
+#include "../../core/model/ProcessingTask.h"
 #include "../../core/model/RunProgress.h"
 #include "../../core/model/RunResult.h"
 
@@ -59,6 +64,7 @@ private:
     void applyRunState(bool running);
     void resetRunFeedback();
     void renderResult(const disassemble::core::RunResult &result);
+    void handlePreviewSelectionChanged();
     void appendSummaryLog(const QString &message);
     void appendTechnicalLog(const QString &message);
     std::filesystem::path applicationDir() const;
@@ -67,7 +73,9 @@ private:
     TaskPresetStore presetStore_;
     EnvironmentStatus environmentStatus_;
     std::unique_ptr<TaskRunSession> runSession_;
+    std::optional<disassemble::core::ProcessingTask> lastRunTask_;
     std::optional<disassemble::core::RunResult> lastRunResult_;
+    std::vector<disassemble::core::PreviewGalleryItem> previewItems_;
     std::vector<std::string> summaryLogLines_;
     disassemble::core::RunStage lastLoggedStage_ = disassemble::core::RunStage::Validating;
     bool taskRunning_ = false;
@@ -112,6 +120,11 @@ private:
     QPushButton *openOutputButton_;
     QPushButton *exportSummaryButton_;
     QPushButton *exportZipButton_;
+    PreviewImagePane *sourcePreviewPane_;
+    PreviewGalleryWidget *previewGalleryWidget_;
+    PreviewImagePane *outputPreviewPane_;
+    Preview3DWidget *preview3dWidget_;
+    QPushButton *reset3dViewButton_;
 };
 
 } // namespace disassemble::desktop

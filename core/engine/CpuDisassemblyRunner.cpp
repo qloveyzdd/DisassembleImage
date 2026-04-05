@@ -16,6 +16,7 @@
 #include "../../server_info/server_info.h"
 #include "../io/ImageCatalog.h"
 #include "../model/FacePositionPrefix.h"
+#include "../model/PreviewGalleryItem.h"
 
 namespace fs = std::filesystem;
 
@@ -47,6 +48,11 @@ std::vector<std::vector<int>> toLegacySizes(const std::vector<disassemble::core:
 std::string prefixedFileName(const std::string &prefix, const fs::path &inputPath)
 {
     return prefix + inputPath.filename().string();
+}
+
+std::string displayNameFor(const fs::path &outputPath)
+{
+    return outputPath.stem().string();
 }
 
 fs::path resolveOutputPath(const fs::path &preferredPath, disassemble::core::OutputConflictPolicy policy)
@@ -136,6 +142,7 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
     }
 
     std::vector<std::string> generatedFiles;
+    std::vector<disassemble::core::PreviewGalleryItem> generatedPreviewItems;
     cv::Mat quad;
 
     if (!task.usesGroupedOutput()) {
@@ -153,6 +160,12 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
                 throw std::runtime_error(std::string(u8"写出图片失败: ") + outputPath.string());
             }
             generatedFiles.push_back(outputPath.string());
+            disassemble::core::PreviewGalleryItem item;
+            item.inputImagePath = inputPath.string();
+            item.outputImagePath = outputPath.string();
+            item.displayName = displayNameFor(outputPath);
+            item.faceIndex = static_cast<int>(index);
+            generatedPreviewItems.push_back(item);
         }
     } else {
         std::vector<cv::Mat> pieces;
@@ -177,12 +190,18 @@ void runSingleImage(const disassemble::core::ProcessingTask &task,
                 throw std::runtime_error(std::string(u8"写出图片失败: ") + outputPath.string());
         }
         generatedFiles.push_back(outputPath.string());
+        disassemble::core::PreviewGalleryItem item;
+        item.inputImagePath = inputPath.string();
+        item.outputImagePath = outputPath.string();
+        item.displayName = displayNameFor(outputPath);
+        generatedPreviewItems.push_back(item);
     }
 
     std::lock_guard<std::mutex> lock(resultMutex);
     ++result.successCount;
     result.logs.push_back(std::string(u8"处理完成: ") + inputPath.string());
     result.outputFiles.insert(result.outputFiles.end(), generatedFiles.begin(), generatedFiles.end());
+    result.previewItems.insert(result.previewItems.end(), generatedPreviewItems.begin(), generatedPreviewItems.end());
 }
 
 } // namespace

@@ -17,8 +17,8 @@ find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
 
 if(DISASSEMBLEIMAGE_BUILD_DESKTOP)
-    find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
-    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+    find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets OpenGL OpenGLWidgets)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGL OpenGLWidgets)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")

@@ -1,65 +1,79 @@
-#include "point_uv.h"
-#include <iostream>
+﻿#include "point_uv.h"
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-std::vector<std::string> Stringsplit(std::string str, const char split) // string拆分
+std::vector<std::string> Stringsplit(std::string str, const char split)
 {
     std::vector<std::string> rst;
-    std::istringstream iss(str);       // 输入流
-    std::string token;                 // 接收缓冲区
-    while (getline(iss, token, split)) // 以split为分隔符
+    std::istringstream iss(str);
+    std::string token;
+    while (getline(iss, token, split))
     {
-        rst.push_back(token); // 输出
+        rst.push_back(token);
     }
     return rst;
 }
 
-obj_basic::obj_basic(std::string obj_address) //导入obj文件，并格式化
+obj_basic::obj_basic(std::string obj_address)
 {
     std::ifstream inf(obj_address);
     if (!inf.is_open())
     {
-        std::cout << obj_address << "不能读取obj文件，请检查！" << std::endl;
+        std::cout << obj_address << "不能读取 obj 文件，请检查！" << std::endl;
     }
+
     std::string temp = {};
     for (; getline(inf, temp);)
     {
-        if (temp[0] != '#' && temp[0] != '\t')  //不判断#备注及空白行
+        if (temp.empty())
+        {
+            continue;
+        }
+
+        if (temp.back() == '\r')
         {
             temp.pop_back();
-            std::vector<std::string> top = {};
-            if (temp.substr(0, 2) == "v ")  //保留3d位置信息
+        }
+
+        if (temp.empty() || temp[0] == '#' || temp[0] == '\t')
+        {
+            continue;
+        }
+
+        std::vector<std::string> top = {};
+        if (temp.substr(0, 2) == "v ")
+        {
+            top = Stringsplit(temp, ' ');
+            point_spatial_location.push_back(new cv::Point3f(atof(top[1].c_str()), atof(top[2].c_str()), atof(top[3].c_str())));
+        }
+        else if (temp.substr(0, 2) == "vt")
+        {
+            top = Stringsplit(temp, ' ');
+            point_uv_location.push_back(new cv::Point2f(atof(top[1].c_str()), 1 - atof(top[2].c_str())));
+        }
+        else if (temp.substr(0, 2) == "f ")
+        {
+            top = Stringsplit(temp, ' ');
+            if (top.size() == 5)
             {
-                top = Stringsplit(temp, ' ');
-                point_spatial_location.push_back(new cv::Point3f(atof(top[1].c_str()), atof(top[2].c_str()), atof(top[3].c_str())));
-            }
-            else if (temp.substr(0, 2) == "vt") //保留uv信息
-            {
-                top = Stringsplit(temp, ' ');
-                point_uv_location.push_back(new cv::Point2f(atof(top[1].c_str()), 1 - atof(top[2].c_str())));
-            }
-            else if (temp.substr(0, 2) == "f ") //保留面组成信息
-            {
-                top = Stringsplit(temp, ' ');
-                if (top.size() == 5)    //判断组成面是否为四边面
+                prim.push_back(new int[4]());
+                prim_spatial.push_back(new int[4]());
+                for (int i = 1; i < static_cast<int>(top.size()); i++)
                 {
-                    prim.push_back(new int[4]());
-                    for (int i = 1; i < top.size(); i++)
-                    {
-                        std::vector<std::string> tt_prim = Stringsplit(top[i], '/');
-                        int i_point = atoi(tt_prim[1].c_str()) - 1;
-                        prim.back()[i-1] = i_point; //将面的点组成保留成组
-                        // std::cout<<prim.back()[i]<<std::endl;
-                    }
+                    std::vector<std::string> tt_prim = Stringsplit(top[i], '/');
+                    int spatial_point = atoi(tt_prim[0].c_str()) - 1;
+                    int uv_point = atoi(tt_prim[1].c_str()) - 1;
+                    prim.back()[i - 1] = uv_point;
+                    prim_spatial.back()[i - 1] = spatial_point;
                 }
-                else
-                {
-                    std::cout << "obj文件有非四边面!!!!!" << std::endl;
-                    abort();
-                }
+            }
+            else
+            {
+                std::cout << "obj 文件存在非四边面!!!!" << std::endl;
+                abort();
             }
         }
     }
@@ -105,5 +119,4 @@ obj_uv_padding::obj_uv_padding(std::string obj_address) : obj_basic(obj_address)
     {
         top = 0;
     }
-
 }

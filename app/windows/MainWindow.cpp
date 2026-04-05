@@ -159,7 +159,12 @@ MainWindow::MainWindow()
       resultOutputLabel_(new QLabel(this)),
       openOutputButton_(new QPushButton(QStringLiteral("打开结果目录"), this)),
       exportSummaryButton_(new QPushButton(QStringLiteral("导出日志摘要"), this)),
-      exportZipButton_(new QPushButton(QStringLiteral("导出 zip"), this))
+      exportZipButton_(new QPushButton(QStringLiteral("导出 zip"), this)),
+      sourcePreviewPane_(new PreviewImagePane(QStringLiteral("原图"), this)),
+      previewGalleryWidget_(new PreviewGalleryWidget(this)),
+      outputPreviewPane_(new PreviewImagePane(QStringLiteral("切片预览"), this)),
+      preview3dWidget_(new Preview3DWidget(this)),
+      reset3dViewButton_(new QPushButton(QStringLiteral("重置 3D 视角"), this))
 {
     auto *central = new QWidget(this);
     auto *mainLayout = new QVBoxLayout(central);
@@ -264,14 +269,33 @@ MainWindow::MainWindow()
     resultOutputLabel_->setWordWrap(true);
     auto *resultLayout = new QVBoxLayout(resultWidget_);
     auto *resultButtonsLayout = new QHBoxLayout();
+    auto *previewLayout = new QHBoxLayout();
+    auto *galleryPane = new QWidget(this);
+    auto *galleryLayout = new QVBoxLayout(galleryPane);
+    auto *galleryTitle = new QLabel(QStringLiteral("切片缩略图"), this);
+    auto *preview3dPane = new QWidget(this);
+    auto *preview3dLayout = new QVBoxLayout(preview3dPane);
+    auto *preview3dTitle = new QLabel(QStringLiteral("3D 对照"), this);
     resultButtonsLayout->addWidget(openOutputButton_);
     resultButtonsLayout->addWidget(exportSummaryButton_);
     resultButtonsLayout->addWidget(exportZipButton_);
     resultButtonsLayout->addStretch();
+    galleryLayout->setContentsMargins(0, 0, 0, 0);
+    galleryLayout->addWidget(galleryTitle);
+    galleryLayout->addWidget(previewGalleryWidget_);
+    galleryLayout->addWidget(outputPreviewPane_);
+    preview3dLayout->setContentsMargins(0, 0, 0, 0);
+    preview3dLayout->addWidget(preview3dTitle);
+    preview3dLayout->addWidget(reset3dViewButton_);
+    preview3dLayout->addWidget(preview3dWidget_, 1);
+    previewLayout->addWidget(sourcePreviewPane_, 1);
+    previewLayout->addWidget(galleryPane, 1);
+    previewLayout->addWidget(preview3dPane, 1);
     resultLayout->addWidget(resultSummaryLabel_);
     resultLayout->addWidget(resultFailuresLabel_);
     resultLayout->addWidget(resultOutputLabel_);
     resultLayout->addLayout(resultButtonsLayout);
+    resultLayout->addLayout(previewLayout, 1);
     resultWidget_->setVisible(false);
 
     environmentLabel_->setWordWrap(true);
@@ -314,6 +338,8 @@ MainWindow::MainWindow()
     connect(openOutputButton_, &QPushButton::clicked, this, &MainWindow::openResultDirectory);
     connect(exportSummaryButton_, &QPushButton::clicked, this, &MainWindow::exportSummaryLog);
     connect(exportZipButton_, &QPushButton::clicked, this, &MainWindow::exportResultBundle);
+    connect(previewGalleryWidget_, &PreviewGalleryWidget::currentItemChanged, this, &MainWindow::handlePreviewSelectionChanged);
+    connect(reset3dViewButton_, &QPushButton::clicked, preview3dWidget_, &Preview3DWidget::resetCamera);
     connect(singleModeButton_, &QRadioButton::toggled, this, &MainWindow::handleFormEdited);
     connect(directoryModeButton_, &QRadioButton::toggled, this, &MainWindow::handleFormEdited);
     connect(autoDetectModelsCheck_, &QCheckBox::toggled, this, &MainWindow::handleFormEdited);
@@ -605,6 +631,7 @@ void MainWindow::runConfiguredTask()
 
     try {
         const auto task = RunController::buildTask(formState_, environmentStatus_);
+        lastRunTask_ = task;
         resetRunFeedback();
         applyRunState(true);
         appendSummaryLog(formState_.usesSingleImageInput()
@@ -730,6 +757,7 @@ void MainWindow::applyRunState(bool running)
 void MainWindow::resetRunFeedback()
 {
     lastRunResult_.reset();
+    previewItems_.clear();
     summaryLogLines_.clear();
     lastLoggedStage_ = disassemble::core::RunStage::Validating;
     logOutput_->clear();
@@ -739,6 +767,11 @@ void MainWindow::resetRunFeedback()
     progressStatsLabel_->setText(QStringLiteral("成功 0，失败 0"));
     progressBar_->setMaximum(1);
     progressBar_->setValue(0);
+    previewGalleryWidget_->setItems({});
+    sourcePreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的原图。"));
+    outputPreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的切片。"));
+    preview3dWidget_->setMesh({});
+    reset3dViewButton_->setEnabled(false);
     resultWidget_->setVisible(false);
 }
 
@@ -762,7 +795,52 @@ void MainWindow::renderResult(const disassemble::core::RunResult &result)
     }
 
     resultOutputLabel_->setText(QStringLiteral("结果目录: %1").arg(QString::fromStdString(result.outputRoot)));
+    previewItems_ = disassemble::core::buildPreviewGalleryItems(result);
+    if (!previewItems_.empty()) {
+        for (auto &item : previewItems_) {
+            item.selected = false;
+        }
+        previewItems_.front().selected = true;
+    }
+    previewGalleryWidget_->setItems(previewItems_);
+    if (previewItems_.empty()) {
+        sourcePreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的原图。"));
+        outputPreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的切片。"));
+        preview3dWidget_->setMesh({});
+        reset3dViewButton_->setEnabled(false);
+    }
     resultWidget_->setVisible(true);
+}
+
+void MainWindow::handlePreviewSelectionChanged()
+{
+    const auto currentItem = previewGalleryWidget_->currentItem();
+    if (!currentItem || !currentItem->isValid()) {
+        sourcePreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的原图。"));
+        outputPreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的切片。"));
+        preview3dWidget_->setMesh({});
+        reset3dViewButton_->setEnabled(false);
+        return;
+    }
+
+    sourcePreviewPane_->setImagePath(currentItem->inputImagePath);
+    outputPreviewPane_->setImagePath(currentItem->outputImagePath);
+    reset3dViewButton_->setEnabled(true);
+
+    if (!lastRunTask_) {
+        preview3dWidget_->setMesh({});
+        return;
+    }
+
+    try {
+        const auto itemsForInput = disassemble::core::filterPreviewGalleryItemsByInput(previewGalleryWidget_->items(),
+                                                                                       currentItem->inputImagePath);
+        preview3dWidget_->setMesh(disassemble::core::buildPreviewMesh(*lastRunTask_, itemsForInput));
+    } catch (const std::exception &error) {
+        preview3dWidget_->setMesh({});
+        reset3dViewButton_->setEnabled(false);
+        appendTechnicalLog(QStringLiteral("3D 预览构建失败: %1").arg(utf8Text(error.what())));
+    }
 }
 
 void MainWindow::appendSummaryLog(const QString &message)

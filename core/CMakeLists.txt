@@ -1,6 +1,9 @@
 ﻿add_library(disassemble_core STATIC
     model/FacePositionPrefix.cpp
     model/FacePositionPrefix.h
+    model/PreviewGalleryItem.h
+    model/PreviewMesh.h
+    model/PreviewMesh.cpp
     model/ProcessingTask.h
     model/ProcessingTypes.h
     model/RunProgress.h

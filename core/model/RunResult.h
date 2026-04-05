@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "PreviewGalleryItem.h"
+
 namespace disassemble::core {
 
 struct RunFailure {
@@ -16,6 +18,7 @@ struct RunResult {
     bool cancelled = false;
     std::string outputRoot;
     std::vector<std::string> outputFiles;
+    std::vector<PreviewGalleryItem> previewItems;
     std::vector<std::string> logs;
     std::vector<RunFailure> failures;
 
