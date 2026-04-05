@@ -11,6 +11,8 @@ add_library(desktop_runtime STATIC
     MainWindow.h
     RunController.cpp
     RunController.h
+    TaskRunSession.cpp
+    TaskRunSession.h
     TaskFormState.cpp
     TaskFormState.h
     TaskFormValidator.cpp

@@ -3,6 +3,7 @@
     model/FacePositionPrefix.h
     model/ProcessingTask.h
     model/ProcessingTypes.h
+    model/RunProgress.h
     model/RunResult.h
     io/ImageCatalog.cpp
     io/ImageCatalog.h

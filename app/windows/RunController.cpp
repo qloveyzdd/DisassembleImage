@@ -2,6 +2,12 @@
 
 #include <stdexcept>
 
+#include <QDateTime>
+#include <QProcess>
+#include <QSaveFile>
+#include <QStandardPaths>
+#include <QStringList>
+
 #include "../../core/engine/CpuDisassemblyRunner.h"
 
 namespace fs = std::filesystem;
@@ -14,6 +20,61 @@ using disassemble::core::OutputConflictPolicy;
 using disassemble::core::ProcessingDirection;
 using disassemble::core::ProcessingTask;
 using disassemble::core::RunResult;
+
+namespace {
+
+std::string timestampLabel()
+{
+    return QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss").toStdString();
+}
+
+std::string buildSummaryText(const RunResult &result, const std::vector<std::string> &summaryLogs)
+{
+    std::string text;
+    text += u8"DisassembleImage 运行摘要\n";
+    text += std::string(u8"输出目录: ") + result.outputRoot + "\n";
+    text += std::string(u8"状态: ") + (result.cancelled ? u8"已取消" : u8"已完成") + "\n";
+    text += std::string(u8"成功数量: ") + std::to_string(result.successCount) + "\n";
+    text += std::string(u8"失败数量: ") + std::to_string(result.failedCount) + "\n";
+    if (!result.failures.empty()) {
+        text += u8"失败摘要:\n";
+        for (const auto &failure : result.failures) {
+            text += " - " + failure.inputPath + " : " + failure.reason + "\n";
+        }
+    }
+    if (!summaryLogs.empty()) {
+        text += u8"\n摘要日志:\n";
+        for (const auto &line : summaryLogs) {
+            text += " - " + line + "\n";
+        }
+    }
+    return text;
+}
+
+std::filesystem::path writeSummaryFile(const RunResult &result, const std::vector<std::string> &summaryLogs)
+{
+    if (result.outputRoot.empty()) {
+        throw std::runtime_error(u8"当前结果没有输出目录，无法导出摘要");
+    }
+
+    const auto outputRoot = fs::path(result.outputRoot);
+    fs::create_directories(outputRoot);
+    const auto summaryPath = outputRoot / ("run-summary-" + timestampLabel() + ".txt");
+
+    QSaveFile file(QString::fromStdString(summaryPath.string()));
+    if (!file.open(QIODevice::WriteOnly)) {
+        throw std::runtime_error(std::string(u8"无法写入日志摘要: ") + summaryPath.string());
+    }
+
+    file.write(QByteArray::fromStdString(buildSummaryText(result, summaryLogs)));
+    if (!file.commit()) {
+        throw std::runtime_error(std::string(u8"提交日志摘要文件失败: ") + summaryPath.string());
+    }
+
+    return summaryPath;
+}
+
+} // namespace
 
 ProcessingTask RunController::buildTask(const TaskFormState &state,
                                         const EnvironmentStatus &environment)
@@ -58,10 +119,19 @@ ProcessingTask RunController::buildTask(const TaskFormState &state,
 }
 
 RunResult RunController::runTask(const TaskFormState &state,
-                                 const EnvironmentStatus &environment)
+                                 const EnvironmentStatus &environment,
+                                 const ProgressCallback &onProgress,
+                                 const CancelCheck &isCancelRequested)
+{
+    return runTask(buildTask(state, environment), onProgress, isCancelRequested);
+}
+
+RunResult RunController::runTask(const ProcessingTask &task,
+                                 const ProgressCallback &onProgress,
+                                 const CancelCheck &isCancelRequested)
 {
     CpuDisassemblyRunner runner;
-    return runner.run(buildTask(state, environment));
+    return runner.run(task, onProgress, isCancelRequested);
 }
 
 ProcessingTask RunController::buildSmokeTask(const fs::path &inputImage,
@@ -95,6 +165,49 @@ RunResult RunController::runSmokeTask(const fs::path &inputImage,
 {
     CpuDisassemblyRunner runner;
     return runner.run(buildSmokeTask(inputImage, outputRoot, modelRoot));
+}
+
+std::filesystem::path RunController::exportLogSummary(const RunResult &result,
+                                                      const std::vector<std::string> &summaryLogs)
+{
+    return writeSummaryFile(result, summaryLogs);
+}
+
+std::filesystem::path RunController::exportResultBundle(const RunResult &result,
+                                                        const std::vector<std::string> &summaryLogs)
+{
+    if (result.outputRoot.empty()) {
+        throw std::runtime_error(u8"当前结果没有输出目录，无法导出 zip");
+    }
+
+    const auto outputRoot = fs::path(result.outputRoot);
+    fs::create_directories(outputRoot);
+    const auto summaryPath = writeSummaryFile(result, summaryLogs);
+    const auto bundlePath = outputRoot / ("result-bundle-" + timestampLabel() + ".zip");
+
+    QString tarExecutable = QStandardPaths::findExecutable(QStringLiteral("tar"));
+    if (tarExecutable.isEmpty()) {
+        tarExecutable = QStringLiteral("tar");
+    }
+
+    QStringList arguments;
+    arguments << QStringLiteral("-a")
+              << QStringLiteral("-cf")
+              << QString::fromStdString(bundlePath.string());
+    for (const auto &outputFile : result.outputFiles) {
+        const auto relativePath = fs::relative(fs::path(outputFile), outputRoot);
+        arguments << QString::fromStdString(relativePath.generic_string());
+    }
+    arguments << QString::fromStdString(fs::relative(summaryPath, outputRoot).generic_string());
+
+    QProcess process;
+    process.setWorkingDirectory(QString::fromStdString(outputRoot.string()));
+    process.start(tarExecutable, arguments);
+    if (!process.waitForFinished(-1) || process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
+        throw std::runtime_error(std::string(u8"导出 zip 失败: ") + process.readAllStandardError().toStdString());
+    }
+
+    return bundlePath;
 }
 
 } // namespace disassemble::desktop

@@ -3,6 +3,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGroupBox>
@@ -12,16 +13,19 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPlainTextEdit>
+#include <QProgressBar>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSignalBlocker>
 #include <QSpinBox>
 #include <QStringList>
 #include <QToolButton>
+#include <QUrl>
 #include <QVBoxLayout>
 #include <QWidget>
 
 #include "RunController.h"
+#include "TaskRunSession.h"
 #include "TaskFormValidator.h"
 
 namespace {
@@ -81,12 +85,42 @@ disassemble::core::OutputConflictPolicy outputPolicyFromIndex(int index)
     }
 }
 
+QString stageText(disassemble::core::RunStage stage)
+{
+    switch (stage) {
+    case disassemble::core::RunStage::Validating:
+        return QStringLiteral("正在校验任务配置");
+    case disassemble::core::RunStage::PreparingOutput:
+        return QStringLiteral("正在准备输出目录");
+    case disassemble::core::RunStage::CollectingInputs:
+        return QStringLiteral("正在扫描输入文件");
+    case disassemble::core::RunStage::Processing:
+        return QStringLiteral("正在处理图片");
+    case disassemble::core::RunStage::Finished:
+        return QStringLiteral("处理完成");
+    case disassemble::core::RunStage::Cancelled:
+        return QStringLiteral("已安全取消");
+    }
+    return QStringLiteral("处理中");
+}
+
+QString fileNameText(const std::string &path)
+{
+    if (path.empty()) {
+        return QStringLiteral("当前文件: 暂无");
+    }
+    return QStringLiteral("当前文件: %1")
+        .arg(QString::fromStdString(std::filesystem::path(path).filename().string()));
+}
+
 } // namespace
 
 namespace disassemble::desktop {
 
 MainWindow::MainWindow()
     : presetStore_(),
+      runSession_(std::make_unique<TaskRunSession>(this)),
+      formSectionWidget_(new QWidget(this)),
       environmentLabel_(new QLabel(this)),
       validationLabel_(new QLabel(this)),
       singleModeButton_(new QRadioButton(QStringLiteral("单张图片"), this)),
@@ -110,10 +144,26 @@ MainWindow::MainWindow()
       parallelCheck_(new QCheckBox(QStringLiteral("启用并行"), this)),
       workerSpin_(new QSpinBox(this)),
       runButton_(new QPushButton(QStringLiteral("开始处理"), this)),
-      logOutput_(new QPlainTextEdit(this))
+      cancelButton_(new QPushButton(QStringLiteral("安全取消"), this)),
+      progressStageLabel_(new QLabel(QStringLiteral("阶段: 待开始"), this)),
+      progressFileLabel_(new QLabel(QStringLiteral("当前文件: 暂无"), this)),
+      progressStatsLabel_(new QLabel(QStringLiteral("成功 0，失败 0"), this)),
+      progressBar_(new QProgressBar(this)),
+      logOutput_(new QPlainTextEdit(this)),
+      technicalLogToggleButton_(new QToolButton(this)),
+      technicalLogOutput_(new QPlainTextEdit(this)),
+      technicalLogWidget_(new QWidget(this)),
+      resultWidget_(new QGroupBox(QStringLiteral("本次结果"), this)),
+      resultSummaryLabel_(new QLabel(this)),
+      resultFailuresLabel_(new QLabel(this)),
+      resultOutputLabel_(new QLabel(this)),
+      openOutputButton_(new QPushButton(QStringLiteral("打开结果目录"), this)),
+      exportSummaryButton_(new QPushButton(QStringLiteral("导出日志摘要"), this)),
+      exportZipButton_(new QPushButton(QStringLiteral("导出 zip"), this))
 {
     auto *central = new QWidget(this);
     auto *mainLayout = new QVBoxLayout(central);
+    auto *formLayout = new QVBoxLayout(formSectionWidget_);
 
     auto *presetLayout = new QHBoxLayout();
     auto *savePresetButton = new QPushButton(QStringLiteral("保存预设"), this);
@@ -186,23 +236,64 @@ MainWindow::MainWindow()
     auto *refreshButton = new QPushButton(QStringLiteral("刷新校验"), this);
     actionLayout->addWidget(refreshButton);
     actionLayout->addWidget(runButton_);
+    actionLayout->addWidget(cancelButton_);
     actionLayout->addStretch();
 
+    auto *progressGroup = new QGroupBox(QStringLiteral("运行状态"), this);
+    auto *progressLayout = new QVBoxLayout(progressGroup);
+    progressBar_->setMinimum(0);
+    progressBar_->setMaximum(1);
+    progressBar_->setValue(0);
+    progressLayout->addWidget(progressStageLabel_);
+    progressLayout->addWidget(progressFileLabel_);
+    progressLayout->addWidget(progressStatsLabel_);
+    progressLayout->addWidget(progressBar_);
+
     logOutput_->setReadOnly(true);
+    logOutput_->setPlaceholderText(QStringLiteral("这里显示面向普通同事的摘要日志。"));
+    technicalLogToggleButton_->setText(QStringLiteral("技术日志"));
+    technicalLogToggleButton_->setCheckable(true);
+    technicalLogOutput_->setReadOnly(true);
+    technicalLogWidget_->setVisible(false);
+    auto *technicalLayout = new QVBoxLayout(technicalLogWidget_);
+    technicalLayout->setContentsMargins(0, 0, 0, 0);
+    technicalLayout->addWidget(technicalLogOutput_);
+
+    resultSummaryLabel_->setWordWrap(true);
+    resultFailuresLabel_->setWordWrap(true);
+    resultOutputLabel_->setWordWrap(true);
+    auto *resultLayout = new QVBoxLayout(resultWidget_);
+    auto *resultButtonsLayout = new QHBoxLayout();
+    resultButtonsLayout->addWidget(openOutputButton_);
+    resultButtonsLayout->addWidget(exportSummaryButton_);
+    resultButtonsLayout->addWidget(exportZipButton_);
+    resultButtonsLayout->addStretch();
+    resultLayout->addWidget(resultSummaryLabel_);
+    resultLayout->addWidget(resultFailuresLabel_);
+    resultLayout->addWidget(resultOutputLabel_);
+    resultLayout->addLayout(resultButtonsLayout);
+    resultWidget_->setVisible(false);
+
     environmentLabel_->setWordWrap(true);
     validationLabel_->setWordWrap(true);
     validationLabel_->setStyleSheet(QStringLiteral("color: #b42318;"));
 
-    mainLayout->addLayout(presetLayout);
-    mainLayout->addWidget(environmentLabel_);
-    mainLayout->addWidget(validationLabel_);
-    mainLayout->addWidget(inputModeGroup);
-    mainLayout->addWidget(resourceGroup);
-    mainLayout->addWidget(parameterGroup);
-    mainLayout->addWidget(advancedToggleButton_);
-    mainLayout->addWidget(advancedWidget_);
+    formLayout->addLayout(presetLayout);
+    formLayout->addWidget(environmentLabel_);
+    formLayout->addWidget(validationLabel_);
+    formLayout->addWidget(inputModeGroup);
+    formLayout->addWidget(resourceGroup);
+    formLayout->addWidget(parameterGroup);
+    formLayout->addWidget(advancedToggleButton_);
+    formLayout->addWidget(advancedWidget_);
+
+    mainLayout->addWidget(formSectionWidget_);
     mainLayout->addLayout(actionLayout);
+    mainLayout->addWidget(progressGroup);
     mainLayout->addWidget(logOutput_);
+    mainLayout->addWidget(technicalLogToggleButton_);
+    mainLayout->addWidget(technicalLogWidget_);
+    mainLayout->addWidget(resultWidget_);
 
     setCentralWidget(central);
     setWindowTitle(QStringLiteral("DisassembleImage"));
@@ -217,7 +308,12 @@ MainWindow::MainWindow()
     connect(loadPresetButton, &QPushButton::clicked, this, &MainWindow::loadPreset);
     connect(refreshButton, &QPushButton::clicked, this, &MainWindow::refreshEnvironmentStatus);
     connect(runButton_, &QPushButton::clicked, this, &MainWindow::runConfiguredTask);
+    connect(cancelButton_, &QPushButton::clicked, this, &MainWindow::requestCancel);
     connect(advancedToggleButton_, &QToolButton::clicked, this, &MainWindow::toggleAdvancedSection);
+    connect(technicalLogToggleButton_, &QToolButton::clicked, this, &MainWindow::toggleTechnicalLog);
+    connect(openOutputButton_, &QPushButton::clicked, this, &MainWindow::openResultDirectory);
+    connect(exportSummaryButton_, &QPushButton::clicked, this, &MainWindow::exportSummaryLog);
+    connect(exportZipButton_, &QPushButton::clicked, this, &MainWindow::exportResultBundle);
     connect(singleModeButton_, &QRadioButton::toggled, this, &MainWindow::handleFormEdited);
     connect(directoryModeButton_, &QRadioButton::toggled, this, &MainWindow::handleFormEdited);
     connect(autoDetectModelsCheck_, &QCheckBox::toggled, this, &MainWindow::handleFormEdited);
@@ -232,12 +328,22 @@ MainWindow::MainWindow()
     connect(outputObjEdit_, &QLineEdit::editingFinished, this, &MainWindow::handleFormEdited);
     connect(sizeEdit_, &QLineEdit::editingFinished, this, &MainWindow::handleFormEdited);
     connect(prefixEdit_, &QLineEdit::editingFinished, this, &MainWindow::handleFormEdited);
+    connect(runSession_.get(), &TaskRunSession::progressChanged, this, [this](const disassemble::core::RunProgress &progress) {
+        handleRunProgress(progress);
+    });
+    connect(runSession_.get(), &TaskRunSession::finished, this, [this](const disassemble::core::RunResult &result) {
+        handleRunFinished(result);
+    });
+    connect(runSession_.get(), &TaskRunSession::failed, this, [this](const QString &message) {
+        handleRunFailed(message);
+    });
 
+    applyRunState(false);
+    resetRunFeedback();
     if (const auto restored = presetStore_.loadLastSession()) {
         formState_ = *restored;
-        appendLog(QStringLiteral("已恢复上次配置。"));
+        appendSummaryLog(QStringLiteral("已恢复上次配置。"));
     }
-
     applyFormToUi();
     refreshEnvironmentStatus();
 }
@@ -278,12 +384,12 @@ void MainWindow::refreshEnvironmentStatus()
     validationLabel_->setStyleSheet(validation.ok
         ? QStringLiteral("color: #067647;")
         : QStringLiteral("color: #b42318;"));
-    runButton_->setEnabled(validation.ok);
+    runButton_->setEnabled(validation.ok && !taskRunning_);
 
     try {
         presetStore_.saveLastSession(formState_);
     } catch (const std::exception &error) {
-        appendLog(QStringLiteral("保存上次配置失败: %1").arg(utf8Text(error.what())));
+        appendSummaryLog(QStringLiteral("保存上次配置失败: %1").arg(utf8Text(error.what())));
     }
 }
 
@@ -351,7 +457,7 @@ void MainWindow::chooseInputImage()
 
     inputImageEdit_->setText(selected);
     singleModeButton_->setChecked(true);
-    appendLog(QStringLiteral("已选择输入图片: %1").arg(selected));
+    appendSummaryLog(QStringLiteral("已选择输入图片: %1").arg(selected));
     refreshEnvironmentStatus();
 }
 
@@ -364,7 +470,7 @@ void MainWindow::chooseInputDirectory()
 
     inputDirectoryEdit_->setText(selected);
     directoryModeButton_->setChecked(true);
-    appendLog(QStringLiteral("已选择输入目录: %1").arg(selected));
+    appendSummaryLog(QStringLiteral("已选择输入目录: %1").arg(selected));
     refreshEnvironmentStatus();
 }
 
@@ -376,7 +482,7 @@ void MainWindow::chooseOutputDirectory()
     }
 
     outputDirectoryEdit_->setText(selected);
-    appendLog(QStringLiteral("已选择输出目录: %1").arg(selected));
+    appendSummaryLog(QStringLiteral("已选择输出目录: %1").arg(selected));
     refreshEnvironmentStatus();
 }
 
@@ -388,7 +494,7 @@ void MainWindow::chooseInputObjPath()
     }
 
     inputObjEdit_->setText(selected);
-    appendLog(QStringLiteral("已设置 input.obj: %1").arg(selected));
+    appendSummaryLog(QStringLiteral("已设置 input.obj: %1").arg(selected));
     refreshEnvironmentStatus();
 }
 
@@ -400,7 +506,7 @@ void MainWindow::chooseOutputObjPath()
     }
 
     outputObjEdit_->setText(selected);
-    appendLog(QStringLiteral("已设置 output.obj: %1").arg(selected));
+    appendSummaryLog(QStringLiteral("已设置 output.obj: %1").arg(selected));
     refreshEnvironmentStatus();
 }
 
@@ -420,9 +526,9 @@ void MainWindow::savePreset()
 
     try {
         presetStore_.saveNamedPreset(name.toStdString(), formState_);
-        appendLog(QStringLiteral("已保存预设: %1").arg(name));
+        appendSummaryLog(QStringLiteral("已保存预设: %1").arg(name));
     } catch (const std::exception &error) {
-        appendLog(QStringLiteral("保存预设失败: %1").arg(utf8Text(error.what())));
+        appendSummaryLog(QStringLiteral("保存预设失败: %1").arg(utf8Text(error.what())));
     }
 }
 
@@ -461,16 +567,16 @@ void MainWindow::loadPreset()
     try {
         const auto loaded = presetStore_.loadNamedPreset(selected.toStdString());
         if (!loaded) {
-            appendLog(QStringLiteral("未找到预设: %1").arg(selected));
+            appendSummaryLog(QStringLiteral("未找到预设: %1").arg(selected));
             return;
         }
 
         formState_ = *loaded;
         applyFormToUi();
-        appendLog(QStringLiteral("已加载预设: %1").arg(selected));
+        appendSummaryLog(QStringLiteral("已加载预设: %1").arg(selected));
         refreshEnvironmentStatus();
     } catch (const std::exception &error) {
-        appendLog(QStringLiteral("加载预设失败: %1").arg(utf8Text(error.what())));
+        appendSummaryLog(QStringLiteral("加载预设失败: %1").arg(utf8Text(error.what())));
     }
 }
 
@@ -481,6 +587,9 @@ void MainWindow::toggleAdvancedSection()
 
 void MainWindow::handleFormEdited()
 {
+    if (taskRunning_) {
+        return;
+    }
     refreshEnvironmentStatus();
 }
 
@@ -490,27 +599,181 @@ void MainWindow::runConfiguredTask()
     refreshEnvironmentStatus();
     const auto validation = TaskFormValidator::validate(formState_, environmentStatus_);
     if (!validation.ok) {
-        appendLog(QStringLiteral("当前配置未通过校验，已阻止执行。"));
+        appendSummaryLog(QStringLiteral("当前配置未通过校验，已阻止执行。"));
         return;
     }
 
     try {
-        appendLog(formState_.usesSingleImageInput()
+        const auto task = RunController::buildTask(formState_, environmentStatus_);
+        resetRunFeedback();
+        applyRunState(true);
+        appendSummaryLog(formState_.usesSingleImageInput()
             ? QStringLiteral("开始处理图片: %1").arg(utf8Text(formState_.inputImagePath.string()))
             : QStringLiteral("开始处理目录: %1").arg(utf8Text(formState_.inputDirectory.string())));
-        const auto result = RunController::runTask(formState_, environmentStatus_);
-        for (const auto &message : result.logs) {
-            appendLog(utf8Text(message));
-        }
-        appendLog(QStringLiteral("成功 %1 个，失败 %2 个。").arg(result.successCount).arg(result.failedCount));
+        runSession_->start(task);
     } catch (const std::exception &error) {
-        appendLog(QStringLiteral("处理失败: %1").arg(utf8Text(error.what())));
+        appendSummaryLog(QStringLiteral("处理失败: %1").arg(utf8Text(error.what())));
     }
 }
 
-void MainWindow::appendLog(const QString &message)
+void MainWindow::requestCancel()
+{
+    if (!taskRunning_ || !runSession_) {
+        return;
+    }
+    runSession_->requestCancel();
+    cancelButton_->setEnabled(false);
+    cancelButton_->setText(QStringLiteral("正在取消..."));
+    appendSummaryLog(QStringLiteral("已请求安全取消，程序会在当前已开始的文件处理完成后停止。"));
+}
+
+void MainWindow::toggleTechnicalLog()
+{
+    technicalLogWidget_->setVisible(technicalLogToggleButton_->isChecked());
+}
+
+void MainWindow::openResultDirectory()
+{
+    if (!lastRunResult_ || lastRunResult_->outputRoot.empty()) {
+        appendSummaryLog(QStringLiteral("当前没有可打开的结果目录。"));
+        return;
+    }
+
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(lastRunResult_->outputRoot)));
+}
+
+void MainWindow::exportSummaryLog()
+{
+    if (!lastRunResult_) {
+        appendSummaryLog(QStringLiteral("当前没有可导出的结果。"));
+        return;
+    }
+
+    try {
+        const auto summaryPath = RunController::exportLogSummary(*lastRunResult_, summaryLogLines_);
+        appendSummaryLog(QStringLiteral("已导出日志摘要: %1").arg(QString::fromStdString(summaryPath.string())));
+    } catch (const std::exception &error) {
+        appendSummaryLog(QStringLiteral("导出日志摘要失败: %1").arg(utf8Text(error.what())));
+    }
+}
+
+void MainWindow::exportResultBundle()
+{
+    if (!lastRunResult_) {
+        appendSummaryLog(QStringLiteral("当前没有可导出的结果。"));
+        return;
+    }
+
+    try {
+        const auto bundlePath = RunController::exportResultBundle(*lastRunResult_, summaryLogLines_);
+        appendSummaryLog(QStringLiteral("已导出 zip: %1").arg(QString::fromStdString(bundlePath.string())));
+    } catch (const std::exception &error) {
+        appendSummaryLog(QStringLiteral("导出 zip 失败: %1").arg(utf8Text(error.what())));
+    }
+}
+
+void MainWindow::handleRunProgress(const disassemble::core::RunProgress &progress)
+{
+    progressStageLabel_->setText(QStringLiteral("阶段: %1").arg(stageText(progress.stage)));
+    progressFileLabel_->setText(fileNameText(progress.currentInputPath));
+    progressStatsLabel_->setText(QStringLiteral("成功 %1，失败 %2").arg(progress.successCount).arg(progress.failedCount));
+    const int progressMaximum = progress.totalInputs > 0 ? progress.totalInputs : 1;
+    const int progressValue = progress.completedInputs < progress.totalInputs
+        ? progress.completedInputs
+        : progress.totalInputs;
+    progressBar_->setMaximum(progressMaximum);
+    progressBar_->setValue(progressValue);
+
+    if (progress.stage != lastLoggedStage_) {
+        appendSummaryLog(QStringLiteral("状态更新: %1").arg(stageText(progress.stage)));
+        lastLoggedStage_ = progress.stage;
+    }
+}
+
+void MainWindow::handleRunFinished(const disassemble::core::RunResult &result)
+{
+    applyRunState(false);
+    lastRunResult_ = result;
+    for (const auto &message : result.logs) {
+        appendTechnicalLog(utf8Text(message));
+    }
+
+    if (result.cancelled) {
+        appendSummaryLog(QStringLiteral("任务已安全取消，已生成的结果会继续保留。"));
+    } else {
+        appendSummaryLog(QStringLiteral("任务完成，成功 %1 个，失败 %2 个。").arg(result.successCount).arg(result.failedCount));
+    }
+
+    renderResult(result);
+}
+
+void MainWindow::handleRunFailed(const QString &message)
+{
+    applyRunState(false);
+    appendSummaryLog(QStringLiteral("处理失败: %1").arg(message));
+}
+
+void MainWindow::applyRunState(bool running)
+{
+    taskRunning_ = running;
+    formSectionWidget_->setEnabled(!running);
+    if (running) {
+        runButton_->setEnabled(false);
+    } else {
+        const auto validation = TaskFormValidator::validate(formState_, environmentStatus_);
+        runButton_->setEnabled(validation.ok);
+    }
+    cancelButton_->setEnabled(running);
+    cancelButton_->setText(QStringLiteral("安全取消"));
+}
+
+void MainWindow::resetRunFeedback()
+{
+    lastRunResult_.reset();
+    summaryLogLines_.clear();
+    lastLoggedStage_ = disassemble::core::RunStage::Validating;
+    logOutput_->clear();
+    technicalLogOutput_->clear();
+    progressStageLabel_->setText(QStringLiteral("阶段: 待开始"));
+    progressFileLabel_->setText(QStringLiteral("当前文件: 暂无"));
+    progressStatsLabel_->setText(QStringLiteral("成功 0，失败 0"));
+    progressBar_->setMaximum(1);
+    progressBar_->setValue(0);
+    resultWidget_->setVisible(false);
+}
+
+void MainWindow::renderResult(const disassemble::core::RunResult &result)
+{
+    resultSummaryLabel_->setText(
+        result.cancelled
+            ? QStringLiteral("本次任务已安全取消。成功 %1 个，失败 %2 个。").arg(result.successCount).arg(result.failedCount)
+            : QStringLiteral("本次任务已完成。成功 %1 个，失败 %2 个。").arg(result.successCount).arg(result.failedCount));
+
+    if (result.failures.empty()) {
+        resultFailuresLabel_->setText(QStringLiteral("失败摘要: 无"));
+    } else {
+        QStringList failureLines;
+        for (const auto &failure : result.failures) {
+            failureLines << QStringLiteral("%1: %2")
+                .arg(QString::fromStdString(std::filesystem::path(failure.inputPath).filename().string()))
+                .arg(utf8Text(failure.reason));
+        }
+        resultFailuresLabel_->setText(QStringLiteral("失败摘要:\n%1").arg(failureLines.join(QStringLiteral("\n"))));
+    }
+
+    resultOutputLabel_->setText(QStringLiteral("结果目录: %1").arg(QString::fromStdString(result.outputRoot)));
+    resultWidget_->setVisible(true);
+}
+
+void MainWindow::appendSummaryLog(const QString &message)
 {
     logOutput_->appendPlainText(message);
+    summaryLogLines_.push_back(message.toUtf8().toStdString());
+}
+
+void MainWindow::appendTechnicalLog(const QString &message)
+{
+    technicalLogOutput_->appendPlainText(message);
 }
 
 std::filesystem::path MainWindow::applicationDir() const

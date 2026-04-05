@@ -214,31 +214,84 @@ void RunResult::addLog(std::string message)
     logs.push_back(std::move(message));
 }
 
-RunResult CpuDisassemblyRunner::run(const ProcessingTask &task) const
+RunResult CpuDisassemblyRunner::run(const ProcessingTask &task,
+                                    ProgressCallback onProgress,
+                                    CancelCheck isCancelRequested) const
 {
+    auto emitProgress = [&](RunStage stage,
+                            int totalInputs,
+                            int completedInputs,
+                            int successCount,
+                            int failedCount,
+                            bool cancelRequested,
+                            std::string currentInputPath = std::string()) {
+        if (!onProgress) {
+            return;
+        }
+
+        RunProgress progress;
+        progress.stage = stage;
+        progress.totalInputs = totalInputs;
+        progress.completedInputs = completedInputs;
+        progress.successCount = successCount;
+        progress.failedCount = failedCount;
+        progress.cancelRequested = cancelRequested;
+        progress.currentInputPath = std::move(currentInputPath);
+        onProgress(progress);
+    };
+
+    emitProgress(RunStage::Validating, 0, 0, 0, 0, false);
     validateTask(task);
+    emitProgress(RunStage::PreparingOutput, 0, 0, 0, 0, false);
     ensureOutputDirectories(task);
 
+    emitProgress(RunStage::CollectingInputs, 0, 0, 0, 0, false);
     auto inputs = ImageCatalog::collect(task);
     if (inputs.empty()) {
         throw std::runtime_error(u8"没有找到可处理的输入图片");
     }
 
     RunResult result;
+    result.outputRoot = task.outputRoot;
     result.logs.push_back(std::string(u8"开始处理 ") + std::to_string(inputs.size()) + u8" 个输入文件");
 
     std::mutex resultMutex;
     std::atomic_size_t cursor{0};
+    std::atomic_bool stopRequested{false};
     const unsigned int workerCount = task.enableParallel && task.maxWorkers > 1
         ? std::min<unsigned int>(task.maxWorkers, static_cast<unsigned int>(inputs.size()))
         : 1;
 
+    emitProgress(RunStage::Processing, static_cast<int>(inputs.size()), 0, 0, 0, false);
+
     auto worker = [&]() {
         while (true) {
+            if (isCancelRequested && isCancelRequested()) {
+                stopRequested.store(true);
+            }
+            if (stopRequested.load()) {
+                return;
+            }
+
             const size_t index = cursor.fetch_add(1);
             if (index >= inputs.size()) {
                 return;
             }
+
+            int successBefore = 0;
+            int failedBefore = 0;
+            {
+                std::lock_guard<std::mutex> lock(resultMutex);
+                successBefore = result.successCount;
+                failedBefore = result.failedCount;
+            }
+            emitProgress(RunStage::Processing,
+                         static_cast<int>(inputs.size()),
+                         successBefore + failedBefore,
+                         successBefore,
+                         failedBefore,
+                         stopRequested.load(),
+                         inputs[index].string());
 
             try {
                 runSingleImage(task, inputs[index], result, resultMutex);
@@ -248,6 +301,25 @@ RunResult CpuDisassemblyRunner::run(const ProcessingTask &task) const
                 result.failures.push_back({inputs[index].string(), error.what()});
                 result.logs.push_back(std::string(u8"处理失败: ") + inputs[index].string() + " - " + error.what());
             }
+
+            int successAfter = 0;
+            int failedAfter = 0;
+            {
+                std::lock_guard<std::mutex> lock(resultMutex);
+                successAfter = result.successCount;
+                failedAfter = result.failedCount;
+            }
+            if (isCancelRequested && isCancelRequested()) {
+                stopRequested.store(true);
+            }
+
+            emitProgress(RunStage::Processing,
+                         static_cast<int>(inputs.size()),
+                         successAfter + failedAfter,
+                         successAfter,
+                         failedAfter,
+                         stopRequested.load(),
+                         inputs[index].string());
         }
     };
 
@@ -261,7 +333,26 @@ RunResult CpuDisassemblyRunner::run(const ProcessingTask &task) const
         thread.join();
     }
 
-    result.logs.push_back(std::string(u8"处理结束，成功 ") + std::to_string(result.successCount) + u8"，失败 " + std::to_string(result.failedCount));
+    result.cancelled = stopRequested.load();
+    if (result.cancelled) {
+        result.logs.push_back(std::string(u8"处理已安全取消，成功 ")
+            + std::to_string(result.successCount) + u8"，失败 " + std::to_string(result.failedCount));
+        emitProgress(RunStage::Cancelled,
+                     static_cast<int>(inputs.size()),
+                     result.successCount + result.failedCount,
+                     result.successCount,
+                     result.failedCount,
+                     true);
+    } else {
+        result.logs.push_back(std::string(u8"处理结束，成功 ")
+            + std::to_string(result.successCount) + u8"，失败 " + std::to_string(result.failedCount));
+        emitProgress(RunStage::Finished,
+                     static_cast<int>(inputs.size()),
+                     result.successCount + result.failedCount,
+                     result.successCount,
+                     result.failedCount,
+                     false);
+    }
     return result;
 }
 
