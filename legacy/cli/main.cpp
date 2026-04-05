@@ -3,13 +3,8 @@
 
 #include "../../core/engine/CpuDisassemblyRunner.h"
 #include "../../core/io/LegacyTextConfigLoader.h"
-#include "../../welcome_regulation/welcome_regulation.h"
-
 int main(int argc, char *argv[])
 {
-    welcome::welcome_string();
-    regulation::regulation_string();
-
     if (argc < 2)
     {
         std::cerr << "用法: legacy_cli <config.txt>" << std::endl;

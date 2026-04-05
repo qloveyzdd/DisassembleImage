@@ -9,6 +9,7 @@ namespace fs = std::filesystem;
 namespace disassemble::desktop {
 
 using disassemble::core::ImageSize;
+using disassemble::core::CpuDisassemblyRunner;
 using disassemble::core::ProcessingDirection;
 using disassemble::core::ProcessingTask;
 using disassemble::core::RunResult;

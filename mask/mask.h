@@ -1,6 +1,5 @@
 #pragma once
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/opencv.hpp"
 
 #include "../server_info/server_info.h"
 #include "../point_uv/point_uv.h"
@@ -17,8 +16,8 @@ public:
     disassembly(std::vector<cv::Point2f *> input_point, cv::Point2f *output_point);
     disassembly(std::vector<cv::Point2f *> input_point, cv::Point2f *output_point, cv::Point2f max);
     cv::Mat get_transmtx() const { return transmtx; } //获取变换矩阵
-    std::vector<cv::Point2f> get_quad_pts() { return quad_pts; };
-    cv::Point2f get_max_point() {return max_point;};
+    std::vector<cv::Point2f> get_quad_pts() const { return quad_pts; };
+    cv::Point2f get_max_point() const {return max_point;};
 };
 
 class disassembly_factory
@@ -28,5 +27,5 @@ private:
 public:
     disassembly_factory(obj_uv_padding *obj_input, obj_basic *obj_output, input_image_info *input_message, output_image_info *output_message, group_direction direction_in); //多面片转单图片
     disassembly_factory(obj_uv_padding *obj_input, input_image_info *input_message, output_image_info *output_message);                                                      //单面片转单图片
-    vector<disassembly *> get_prim() { return prim; };
+    vector<disassembly *> get_prim() const { return prim; };
 };

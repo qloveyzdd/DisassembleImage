@@ -17,7 +17,7 @@
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/VcpkgToolchain.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/VcpkgWorkspaceToolchain.cmake"
       }
     },
     {
@@ -31,7 +31,7 @@
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/VcpkgToolchain.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/VcpkgWorkspaceToolchain.cmake"
       }
     }
   ],

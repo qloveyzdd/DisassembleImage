@@ -1,0 +1,11 @@
+set(_local_vcpkg_root "${CMAKE_CURRENT_LIST_DIR}/../tools/vcpkg")
+
+if(EXISTS "${_local_vcpkg_root}/scripts/buildsystems/vcpkg.cmake")
+    message(STATUS "Using workspace vcpkg at ${_local_vcpkg_root}")
+    include("${_local_vcpkg_root}/scripts/buildsystems/vcpkg.cmake")
+elseif(DEFINED ENV{VCPKG_ROOT} AND EXISTS "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+    message(STATUS "Using VCPKG_ROOT from environment: $ENV{VCPKG_ROOT}")
+    include("$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+else()
+    message(STATUS "No local vcpkg found at ${_local_vcpkg_root} and VCPKG_ROOT is not available. Falling back to system packages.")
+endif()

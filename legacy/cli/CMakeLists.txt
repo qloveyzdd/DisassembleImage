@@ -5,7 +5,6 @@
 target_link_libraries(legacy_cli
     PRIVATE
         disassemble_core
-        welcomeregulation
 )
 
 target_include_directories(legacy_cli
