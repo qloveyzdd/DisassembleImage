@@ -25,7 +25,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(WindowsDeploy)
 include(WindowsDeployOverride)
 
-add_subdirectory(welcome_regulation)
 add_subdirectory(point_uv)
 add_subdirectory(mask)
 add_subdirectory(server_info)
