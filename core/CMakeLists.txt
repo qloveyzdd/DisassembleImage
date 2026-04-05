@@ -1,4 +1,6 @@
 ﻿add_library(disassemble_core STATIC
+    gpu/GpuBackendInfo.cpp
+    gpu/GpuBackendInfo.h
     model/FacePositionPrefix.cpp
     model/FacePositionPrefix.h
     model/PreviewGalleryItem.h

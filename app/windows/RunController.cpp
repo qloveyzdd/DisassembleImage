@@ -9,6 +9,7 @@
 #include <QStringList>
 
 #include "../../core/engine/CpuDisassemblyRunner.h"
+#include "../../core/gpu/GpuBackendInfo.h"
 
 namespace fs = std::filesystem;
 
@@ -17,6 +18,7 @@ namespace disassemble::desktop {
 using disassemble::core::ImageSize;
 using disassemble::core::CpuDisassemblyRunner;
 using disassemble::core::OutputConflictPolicy;
+using disassemble::core::ProcessingBackend;
 using disassemble::core::ProcessingDirection;
 using disassemble::core::ProcessingTask;
 using disassemble::core::RunResult;
@@ -34,8 +36,19 @@ std::string buildSummaryText(const RunResult &result, const std::vector<std::str
     text += u8"DisassembleImage 运行摘要\n";
     text += std::string(u8"输出目录: ") + result.outputRoot + "\n";
     text += std::string(u8"状态: ") + (result.cancelled ? u8"已取消" : u8"已完成") + "\n";
+    text += std::string(u8"请求后端: ") + disassemble::core::processingBackendLabel(result.requestedBackend) + "\n";
+    text += std::string(u8"实际后端: ") + disassemble::core::processingBackendLabel(result.activeBackend) + "\n";
+    if (!result.acceleratorName.empty()) {
+        text += std::string(u8"GPU 设备: ") + result.acceleratorName + "\n";
+    }
+    if (!result.fallbackReason.empty()) {
+        text += std::string(u8"回退说明: ") + result.fallbackReason + "\n";
+    }
     text += std::string(u8"成功数量: ") + std::to_string(result.successCount) + "\n";
     text += std::string(u8"失败数量: ") + std::to_string(result.failedCount) + "\n";
+    text += std::string(u8"总耗时(ms): ") + std::to_string(result.totalProcessingMs) + "\n";
+    text += std::string(u8"GPU 热点耗时(ms): ") + std::to_string(result.gpuHotPathMs) + "\n";
+    text += std::string(u8"一致性摘要: ") + result.consistencySummary + "\n";
     if (!result.failures.empty()) {
         text += u8"失败摘要:\n";
         for (const auto &failure : result.failures) {
@@ -76,6 +89,11 @@ std::filesystem::path writeSummaryFile(const RunResult &result, const std::vecto
 
 } // namespace
 
+disassemble::core::GpuBackendInfo RunController::probeGpuBackend()
+{
+    return disassemble::core::detectGpuBackend();
+}
+
 ProcessingTask RunController::buildTask(const TaskFormState &state,
                                         const EnvironmentStatus &environment)
 {
@@ -113,6 +131,7 @@ ProcessingTask RunController::buildTask(const TaskFormState &state,
         task.prefixes = TaskFormState::parsePrefixes(state.prefixesText);
     }
     task.outputConflictPolicy = state.outputConflictPolicy;
+    task.processingBackend = state.processingBackend;
     task.enableParallel = state.enableParallel;
     task.maxWorkers = state.maxWorkers;
     return task;
@@ -131,7 +150,8 @@ RunResult RunController::runTask(const ProcessingTask &task,
                                  const CancelCheck &isCancelRequested)
 {
     CpuDisassemblyRunner runner;
-    return runner.run(task, onProgress, isCancelRequested);
+    const auto backendInfo = probeGpuBackend();
+    return runner.run(task, backendInfo, onProgress, isCancelRequested);
 }
 
 ProcessingTask RunController::buildSmokeTask(const fs::path &inputImage,
@@ -149,6 +169,7 @@ ProcessingTask RunController::buildSmokeTask(const fs::path &inputImage,
     state.outputSizesText = TaskFormState::formatOutputSizes({ImageSize{6144, 6720}});
     state.prefixesText = "radian";
     state.outputConflictPolicy = OutputConflictPolicy::OverwriteExisting;
+    state.processingBackend = ProcessingBackend::Cpu;
     state.enableParallel = false;
     state.maxWorkers = 1;
 

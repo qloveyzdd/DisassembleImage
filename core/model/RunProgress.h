@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "ProcessingTask.h"
+
 namespace disassemble::core {
 
 enum class RunStage {
@@ -20,6 +22,11 @@ struct RunProgress {
     int successCount = 0;
     int failedCount = 0;
     bool cancelRequested = false;
+    ProcessingBackend requestedBackend = ProcessingBackend::Auto;
+    ProcessingBackend activeBackend = ProcessingBackend::Cpu;
+    std::string acceleratorName;
+    std::string fallbackReason;
+    double elapsedMs = 0.0;
     std::string currentInputPath;
 };
 

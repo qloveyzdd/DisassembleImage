@@ -15,6 +15,7 @@
 #include "TaskFormState.h"
 #include "TaskPresetStore.h"
 #include "TaskRunSession.h"
+#include "../../core/gpu/GpuBackendInfo.h"
 #include "../../core/model/PreviewGalleryItem.h"
 #include "../../core/model/ProcessingTask.h"
 #include "../../core/model/RunProgress.h"
@@ -72,12 +73,14 @@ private:
     TaskFormState formState_;
     TaskPresetStore presetStore_;
     EnvironmentStatus environmentStatus_;
+    disassemble::core::GpuBackendInfo backendInfo_;
     std::unique_ptr<TaskRunSession> runSession_;
     std::optional<disassemble::core::ProcessingTask> lastRunTask_;
     std::optional<disassemble::core::RunResult> lastRunResult_;
     std::vector<disassemble::core::PreviewGalleryItem> previewItems_;
     std::vector<std::string> summaryLogLines_;
     disassemble::core::RunStage lastLoggedStage_ = disassemble::core::RunStage::Validating;
+    QString lastFallbackReason_;
     bool taskRunning_ = false;
 
     QWidget *formSectionWidget_;
@@ -99,6 +102,7 @@ private:
     QLineEdit *prefixEdit_;
     QComboBox *directionCombo_;
     QComboBox *outputPolicyCombo_;
+    QComboBox *backendCombo_;
     QToolButton *advancedToggleButton_;
     QWidget *advancedWidget_;
     QCheckBox *parallelCheck_;

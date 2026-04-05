@@ -85,6 +85,36 @@ disassemble::core::OutputConflictPolicy outputPolicyFromIndex(int index)
     }
 }
 
+int backendIndex(disassemble::core::ProcessingBackend backend)
+{
+    switch (backend) {
+    case disassemble::core::ProcessingBackend::Cpu:
+        return 1;
+    case disassemble::core::ProcessingBackend::Gpu:
+        return 2;
+    case disassemble::core::ProcessingBackend::Auto:
+    default:
+        return 0;
+    }
+}
+
+disassemble::core::ProcessingBackend backendFromIndex(int index)
+{
+    switch (index) {
+    case 1:
+        return disassemble::core::ProcessingBackend::Cpu;
+    case 2:
+        return disassemble::core::ProcessingBackend::Gpu;
+    default:
+        return disassemble::core::ProcessingBackend::Auto;
+    }
+}
+
+QString backendText(disassemble::core::ProcessingBackend backend)
+{
+    return utf8Text(disassemble::core::processingBackendLabel(backend));
+}
+
 QString stageText(disassemble::core::RunStage stage)
 {
     switch (stage) {
@@ -139,6 +169,7 @@ MainWindow::MainWindow()
       prefixEdit_(new QLineEdit(this)),
       directionCombo_(new QComboBox(this)),
       outputPolicyCombo_(new QComboBox(this)),
+      backendCombo_(new QComboBox(this)),
       advancedToggleButton_(new QToolButton(this)),
       advancedWidget_(new QWidget(this)),
       parallelCheck_(new QCheckBox(QStringLiteral("启用并行"), this)),
@@ -231,8 +262,10 @@ MainWindow::MainWindow()
     advancedToggleButton_->setText(QStringLiteral("高级设置"));
     advancedToggleButton_->setCheckable(true);
     auto *advancedLayout = new QFormLayout(advancedWidget_);
+    backendCombo_->addItems({QStringLiteral("自动（优先 GPU）"), QStringLiteral("仅 CPU"), QStringLiteral("优先 GPU")});
     workerSpin_->setMinimum(1);
     workerSpin_->setMaximum(128);
+    advancedLayout->addRow(QStringLiteral("计算后端"), backendCombo_);
     advancedLayout->addRow(parallelCheck_);
     advancedLayout->addRow(QStringLiteral("并行线程数"), workerSpin_);
     advancedWidget_->setVisible(false);
@@ -347,6 +380,7 @@ MainWindow::MainWindow()
     connect(workerSpin_, qOverload<int>(&QSpinBox::valueChanged), this, &MainWindow::handleFormEdited);
     connect(directionCombo_, qOverload<int>(&QComboBox::currentIndexChanged), this, &MainWindow::handleFormEdited);
     connect(outputPolicyCombo_, qOverload<int>(&QComboBox::currentIndexChanged), this, &MainWindow::handleFormEdited);
+    connect(backendCombo_, qOverload<int>(&QComboBox::currentIndexChanged), this, &MainWindow::handleFormEdited);
     connect(inputImageEdit_, &QLineEdit::editingFinished, this, &MainWindow::handleFormEdited);
     connect(inputDirectoryEdit_, &QLineEdit::editingFinished, this, &MainWindow::handleFormEdited);
     connect(outputDirectoryEdit_, &QLineEdit::editingFinished, this, &MainWindow::handleFormEdited);
@@ -378,6 +412,7 @@ void MainWindow::refreshEnvironmentStatus()
 {
     captureFormFromUi();
     environmentStatus_ = EnvironmentCheck::inspect(applicationDir(), formState_.outputRoot);
+    backendInfo_ = RunController::probeGpuBackend();
 
     {
         QSignalBlocker inputObjBlocker(inputObjEdit_);
@@ -402,6 +437,14 @@ void MainWindow::refreshEnvironmentStatus()
     QStringList lines;
     for (const auto &message : environmentStatus_.messages) {
         lines << utf8Text(message);
+    }
+    if (backendInfo_.canUseGpu()) {
+        lines << QStringLiteral("GPU 状态: 可用 (%1)").arg(utf8Text(backendInfo_.deviceName));
+    } else if (!backendInfo_.unavailableReason.empty()) {
+        lines << QStringLiteral("GPU 状态: 当前不可用，运行时会回退到 CPU (%1)")
+                     .arg(utf8Text(backendInfo_.unavailableReason));
+    } else {
+        lines << QStringLiteral("GPU 状态: 当前不可用，运行时会回退到 CPU");
     }
     environmentLabel_->setText(lines.join(QStringLiteral("\n")));
 
@@ -437,6 +480,7 @@ void MainWindow::captureFormFromUi()
     formState_.prefixesText = prefixEdit_->text().toStdString();
     formState_.direction = directionFromIndex(directionCombo_->currentIndex());
     formState_.outputConflictPolicy = outputPolicyFromIndex(outputPolicyCombo_->currentIndex());
+    formState_.processingBackend = backendFromIndex(backendCombo_->currentIndex());
     formState_.enableParallel = parallelCheck_->isChecked();
     formState_.maxWorkers = static_cast<unsigned int>(workerSpin_->value());
 }
@@ -455,6 +499,7 @@ void MainWindow::applyFormToUi()
     QSignalBlocker prefixBlocker(prefixEdit_);
     QSignalBlocker directionBlocker(directionCombo_);
     QSignalBlocker policyBlocker(outputPolicyCombo_);
+    QSignalBlocker backendBlocker(backendCombo_);
     QSignalBlocker parallelBlocker(parallelCheck_);
     QSignalBlocker workerBlocker(workerSpin_);
 
@@ -470,6 +515,7 @@ void MainWindow::applyFormToUi()
     prefixEdit_->setText(QString::fromStdString(formState_.prefixesText));
     directionCombo_->setCurrentIndex(directionIndex(formState_.direction));
     outputPolicyCombo_->setCurrentIndex(outputPolicyIndex(formState_.outputConflictPolicy));
+    backendCombo_->setCurrentIndex(backendIndex(formState_.processingBackend));
     parallelCheck_->setChecked(formState_.enableParallel);
     workerSpin_->setValue(static_cast<int>(formState_.maxWorkers));
 }
@@ -703,7 +749,11 @@ void MainWindow::handleRunProgress(const disassemble::core::RunProgress &progres
 {
     progressStageLabel_->setText(QStringLiteral("阶段: %1").arg(stageText(progress.stage)));
     progressFileLabel_->setText(fileNameText(progress.currentInputPath));
-    progressStatsLabel_->setText(QStringLiteral("成功 %1，失败 %2").arg(progress.successCount).arg(progress.failedCount));
+    progressStatsLabel_->setText(QStringLiteral("成功 %1，失败 %2，后端 %3，耗时 %4 ms")
+                                     .arg(progress.successCount)
+                                     .arg(progress.failedCount)
+                                     .arg(backendText(progress.activeBackend))
+                                     .arg(progress.elapsedMs, 0, 'f', 0));
     const int progressMaximum = progress.totalInputs > 0 ? progress.totalInputs : 1;
     const int progressValue = progress.completedInputs < progress.totalInputs
         ? progress.completedInputs
@@ -714,6 +764,13 @@ void MainWindow::handleRunProgress(const disassemble::core::RunProgress &progres
     if (progress.stage != lastLoggedStage_) {
         appendSummaryLog(QStringLiteral("状态更新: %1").arg(stageText(progress.stage)));
         lastLoggedStage_ = progress.stage;
+    }
+    if (!progress.fallbackReason.empty()) {
+        const auto fallbackText = utf8Text(progress.fallbackReason);
+        if (lastFallbackReason_ != fallbackText) {
+            appendSummaryLog(fallbackText);
+            lastFallbackReason_ = fallbackText;
+        }
     }
 }
 
@@ -729,6 +786,14 @@ void MainWindow::handleRunFinished(const disassemble::core::RunResult &result)
         appendSummaryLog(QStringLiteral("任务已安全取消，已生成的结果会继续保留。"));
     } else {
         appendSummaryLog(QStringLiteral("任务完成，成功 %1 个，失败 %2 个。").arg(result.successCount).arg(result.failedCount));
+    }
+    appendSummaryLog(QStringLiteral("本次实际后端: %1").arg(backendText(result.activeBackend)));
+    if (!result.fallbackReason.empty()) {
+        const auto fallbackText = utf8Text(result.fallbackReason);
+        if (lastFallbackReason_ != fallbackText) {
+            appendSummaryLog(fallbackText);
+            lastFallbackReason_ = fallbackText;
+        }
     }
 
     renderResult(result);
@@ -760,6 +825,7 @@ void MainWindow::resetRunFeedback()
     previewItems_.clear();
     summaryLogLines_.clear();
     lastLoggedStage_ = disassemble::core::RunStage::Validating;
+    lastFallbackReason_.clear();
     logOutput_->clear();
     technicalLogOutput_->clear();
     progressStageLabel_->setText(QStringLiteral("阶段: 待开始"));
@@ -777,10 +843,22 @@ void MainWindow::resetRunFeedback()
 
 void MainWindow::renderResult(const disassemble::core::RunResult &result)
 {
-    resultSummaryLabel_->setText(
-        result.cancelled
+    QStringList summaryLines;
+    summaryLines << (result.cancelled
             ? QStringLiteral("本次任务已安全取消。成功 %1 个，失败 %2 个。").arg(result.successCount).arg(result.failedCount)
             : QStringLiteral("本次任务已完成。成功 %1 个，失败 %2 个。").arg(result.successCount).arg(result.failedCount));
+    summaryLines << QStringLiteral("请求后端: %1").arg(backendText(result.requestedBackend));
+    summaryLines << QStringLiteral("实际后端: %1").arg(backendText(result.activeBackend));
+    summaryLines << QStringLiteral("总耗时: %1 ms").arg(result.totalProcessingMs, 0, 'f', 0);
+    summaryLines << QStringLiteral("GPU 热点耗时: %1 ms").arg(result.gpuHotPathMs, 0, 'f', 0);
+    summaryLines << QStringLiteral("一致性摘要: %1").arg(utf8Text(result.consistencySummary));
+    if (!result.acceleratorName.empty()) {
+        summaryLines << QStringLiteral("GPU 设备: %1").arg(utf8Text(result.acceleratorName));
+    }
+    if (!result.fallbackReason.empty()) {
+        summaryLines << QStringLiteral("回退说明: %1").arg(utf8Text(result.fallbackReason));
+    }
+    resultSummaryLabel_->setText(summaryLines.join(QStringLiteral("\n")));
 
     if (result.failures.empty()) {
         resultFailuresLabel_->setText(QStringLiteral("失败摘要: 无"));

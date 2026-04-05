@@ -13,6 +13,12 @@ enum class OutputConflictPolicy {
     AutoRename
 };
 
+enum class ProcessingBackend {
+    Auto,
+    Cpu,
+    Gpu
+};
+
 struct ProcessingTask {
     std::string inputImagePath;
     std::string inputDirectory;
@@ -23,6 +29,7 @@ struct ProcessingTask {
     std::vector<ImageSize> outputSizes;
     std::vector<std::string> prefixes;
     OutputConflictPolicy outputConflictPolicy = OutputConflictPolicy::ForbidOverwrite;
+    ProcessingBackend processingBackend = ProcessingBackend::Auto;
     bool enableParallel = false;
     unsigned int maxWorkers = 1;
 

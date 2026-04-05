@@ -94,6 +94,30 @@ disassemble::core::OutputConflictPolicy fromJsonConflictPolicy(const QString &po
     return disassemble::core::OutputConflictPolicy::ForbidOverwrite;
 }
 
+QString toJsonProcessingBackend(disassemble::core::ProcessingBackend backend)
+{
+    switch (backend) {
+    case disassemble::core::ProcessingBackend::Auto:
+        return QStringLiteral("auto");
+    case disassemble::core::ProcessingBackend::Cpu:
+        return QStringLiteral("cpu");
+    case disassemble::core::ProcessingBackend::Gpu:
+        return QStringLiteral("gpu");
+    }
+    return QStringLiteral("auto");
+}
+
+disassemble::core::ProcessingBackend fromJsonProcessingBackend(const QString &backend)
+{
+    if (backend == QStringLiteral("cpu")) {
+        return disassemble::core::ProcessingBackend::Cpu;
+    }
+    if (backend == QStringLiteral("gpu")) {
+        return disassemble::core::ProcessingBackend::Gpu;
+    }
+    return disassemble::core::ProcessingBackend::Auto;
+}
+
 QJsonObject toJsonObject(const disassemble::desktop::TaskFormState &state, const QString &name)
 {
     QJsonObject object;
@@ -110,6 +134,7 @@ QJsonObject toJsonObject(const disassemble::desktop::TaskFormState &state, const
     object[QStringLiteral("outputSizesText")] = QString::fromStdString(state.outputSizesText);
     object[QStringLiteral("prefixesText")] = QString::fromStdString(state.prefixesText);
     object[QStringLiteral("outputConflictPolicy")] = toJsonConflictPolicy(state.outputConflictPolicy);
+    object[QStringLiteral("processingBackend")] = toJsonProcessingBackend(state.processingBackend);
     object[QStringLiteral("enableParallel")] = state.enableParallel;
     object[QStringLiteral("maxWorkers")] = static_cast<int>(state.maxWorkers);
     return object;
@@ -129,6 +154,7 @@ disassemble::desktop::TaskFormState fromJsonObject(const QJsonObject &object)
     state.outputSizesText = object.value(QStringLiteral("outputSizesText")).toString(QStringLiteral("6144*6720")).toStdString();
     state.prefixesText = object.value(QStringLiteral("prefixesText")).toString(QStringLiteral("radian")).toStdString();
     state.outputConflictPolicy = fromJsonConflictPolicy(object.value(QStringLiteral("outputConflictPolicy")).toString());
+    state.processingBackend = fromJsonProcessingBackend(object.value(QStringLiteral("processingBackend")).toString());
     state.enableParallel = object.value(QStringLiteral("enableParallel")).toBool(false);
     state.maxWorkers = static_cast<unsigned int>(std::max(1, object.value(QStringLiteral("maxWorkers")).toInt(1)));
     return state;

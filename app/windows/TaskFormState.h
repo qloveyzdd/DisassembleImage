@@ -26,6 +26,7 @@ struct TaskFormState {
     std::string outputSizesText = "6144*6720";
     std::string prefixesText = "radian";
     disassemble::core::OutputConflictPolicy outputConflictPolicy = disassemble::core::OutputConflictPolicy::ForbidOverwrite;
+    disassemble::core::ProcessingBackend processingBackend = disassemble::core::ProcessingBackend::Auto;
     bool enableParallel = false;
     unsigned int maxWorkers = 1;
 

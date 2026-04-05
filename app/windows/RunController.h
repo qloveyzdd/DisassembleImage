@@ -6,6 +6,7 @@
 
 #include "EnvironmentCheck.h"
 #include "TaskFormState.h"
+#include "../../core/gpu/GpuBackendInfo.h"
 #include "../../core/model/RunProgress.h"
 #include "../../core/model/ProcessingTask.h"
 #include "../../core/model/RunResult.h"
@@ -16,6 +17,8 @@ class RunController {
 public:
     using ProgressCallback = std::function<void(const disassemble::core::RunProgress &)>;
     using CancelCheck = std::function<bool()>;
+
+    static disassemble::core::GpuBackendInfo probeGpuBackend();
 
     static disassemble::core::ProcessingTask buildTask(const TaskFormState &state,
                                                        const EnvironmentStatus &environment);
