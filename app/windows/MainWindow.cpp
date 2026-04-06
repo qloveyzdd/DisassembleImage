@@ -143,6 +143,11 @@ QString fileNameText(const std::string &path)
         .arg(QString::fromStdString(std::filesystem::path(path).filename().string()));
 }
 
+QString displayText(const std::string &value, const QString &fallback = QStringLiteral("未提供"))
+{
+    return value.empty() ? fallback : utf8Text(value);
+}
+
 } // namespace
 
 namespace disassemble::desktop {
@@ -152,6 +157,7 @@ MainWindow::MainWindow()
       runSession_(std::make_unique<TaskRunSession>(this)),
       formSectionWidget_(new QWidget(this)),
       environmentLabel_(new QLabel(this)),
+      gpuDiagnosticLabel_(new QLabel(this)),
       validationLabel_(new QLabel(this)),
       singleModeButton_(new QRadioButton(QStringLiteral("单张图片"), this)),
       directoryModeButton_(new QRadioButton(QStringLiteral("图片目录"), this)),
@@ -174,6 +180,7 @@ MainWindow::MainWindow()
       advancedWidget_(new QWidget(this)),
       parallelCheck_(new QCheckBox(QStringLiteral("启用并行"), this)),
       workerSpin_(new QSpinBox(this)),
+      refreshDiagnosticButton_(new QPushButton(QStringLiteral("刷新诊断"), this)),
       runButton_(new QPushButton(QStringLiteral("开始处理"), this)),
       cancelButton_(new QPushButton(QStringLiteral("安全取消"), this)),
       progressStageLabel_(new QLabel(QStringLiteral("阶段: 待开始"), this)),
@@ -271,11 +278,17 @@ MainWindow::MainWindow()
     advancedWidget_->setVisible(false);
 
     auto *actionLayout = new QHBoxLayout();
-    auto *refreshButton = new QPushButton(QStringLiteral("刷新校验"), this);
+    auto *refreshButton = new QPushButton(QStringLiteral("刷新环境"), this);
     actionLayout->addWidget(refreshButton);
+    actionLayout->addWidget(refreshDiagnosticButton_);
     actionLayout->addWidget(runButton_);
     actionLayout->addWidget(cancelButton_);
     actionLayout->addStretch();
+
+    auto *diagnosticGroup = new QGroupBox(QStringLiteral("OpenCL 诊断"), this);
+    auto *diagnosticLayout = new QVBoxLayout(diagnosticGroup);
+    gpuDiagnosticLabel_->setWordWrap(true);
+    diagnosticLayout->addWidget(gpuDiagnosticLabel_);
 
     auto *progressGroup = new QGroupBox(QStringLiteral("运行状态"), this);
     auto *progressLayout = new QVBoxLayout(progressGroup);
@@ -332,11 +345,13 @@ MainWindow::MainWindow()
     resultWidget_->setVisible(false);
 
     environmentLabel_->setWordWrap(true);
+    gpuDiagnosticLabel_->setWordWrap(true);
     validationLabel_->setWordWrap(true);
     validationLabel_->setStyleSheet(QStringLiteral("color: #b42318;"));
 
     formLayout->addLayout(presetLayout);
     formLayout->addWidget(environmentLabel_);
+    formLayout->addWidget(diagnosticGroup);
     formLayout->addWidget(validationLabel_);
     formLayout->addWidget(inputModeGroup);
     formLayout->addWidget(resourceGroup);
@@ -364,6 +379,7 @@ MainWindow::MainWindow()
     connect(savePresetButton, &QPushButton::clicked, this, &MainWindow::savePreset);
     connect(loadPresetButton, &QPushButton::clicked, this, &MainWindow::loadPreset);
     connect(refreshButton, &QPushButton::clicked, this, &MainWindow::refreshEnvironmentStatus);
+    connect(refreshDiagnosticButton_, &QPushButton::clicked, this, &MainWindow::refreshEnvironmentStatus);
     connect(runButton_, &QPushButton::clicked, this, &MainWindow::runConfiguredTask);
     connect(cancelButton_, &QPushButton::clicked, this, &MainWindow::requestCancel);
     connect(advancedToggleButton_, &QToolButton::clicked, this, &MainWindow::toggleAdvancedSection);
@@ -438,15 +454,8 @@ void MainWindow::refreshEnvironmentStatus()
     for (const auto &message : environmentStatus_.messages) {
         lines << utf8Text(message);
     }
-    if (backendInfo_.canUseGpu()) {
-        lines << QStringLiteral("GPU 状态: 可用 (%1)").arg(utf8Text(backendInfo_.deviceName));
-    } else if (!backendInfo_.unavailableReason.empty()) {
-        lines << QStringLiteral("GPU 状态: 当前不可用，运行时会回退到 CPU (%1)")
-                     .arg(utf8Text(backendInfo_.unavailableReason));
-    } else {
-        lines << QStringLiteral("GPU 状态: 当前不可用，运行时会回退到 CPU");
-    }
     environmentLabel_->setText(lines.join(QStringLiteral("\n")));
+    updateGpuDiagnostic();
 
     const auto validation = TaskFormValidator::validate(formState_, environmentStatus_);
     validationLabel_->setText(utf8Text(validation.summaryText()));
@@ -460,6 +469,33 @@ void MainWindow::refreshEnvironmentStatus()
     } catch (const std::exception &error) {
         appendSummaryLog(QStringLiteral("保存上次配置失败: %1").arg(utf8Text(error.what())));
     }
+}
+
+void MainWindow::updateGpuDiagnostic()
+{
+    QStringList lines;
+    lines << QStringLiteral("OpenCL 支持: %1").arg(backendInfo_.openClSupported ? QStringLiteral("是") : QStringLiteral("否"));
+    lines << QStringLiteral("可用 GPU 设备: %1").arg(backendInfo_.gpuDeviceAvailable ? QStringLiteral("是") : QStringLiteral("否"));
+    lines << QStringLiteral("当前请求后端: %1").arg(backendText(formState_.processingBackend));
+    lines << QStringLiteral("上次实际后端: %1").arg(lastRunResult_
+            ? backendText(lastRunResult_->activeBackend)
+            : QStringLiteral("尚未运行"));
+    lines << QStringLiteral("设备名称: %1").arg(displayText(backendInfo_.deviceName));
+    lines << QStringLiteral("设备厂商: %1").arg(displayText(backendInfo_.vendorName));
+    lines << QStringLiteral("驱动版本: %1").arg(displayText(backendInfo_.driverVersion));
+    lines << QStringLiteral("OpenCL C 版本: %1").arg(displayText(backendInfo_.openClVersion));
+
+    if (backendInfo_.canUseGpu()) {
+        lines << QStringLiteral("诊断结论: 当前环境可启用 GPU。");
+    } else {
+        lines << QStringLiteral("诊断结论: %1").arg(displayText(backendInfo_.unavailableReason, QStringLiteral("当前环境无法启用 GPU。")));
+    }
+
+    if (lastRunResult_ && !lastRunResult_->fallbackReason.empty()) {
+        lines << QStringLiteral("上次回退原因: %1").arg(utf8Text(lastRunResult_->fallbackReason));
+    }
+
+    gpuDiagnosticLabel_->setText(lines.join(QStringLiteral("\n")));
 }
 
 void MainWindow::captureFormFromUi()
@@ -778,6 +814,7 @@ void MainWindow::handleRunFinished(const disassemble::core::RunResult &result)
 {
     applyRunState(false);
     lastRunResult_ = result;
+    updateGpuDiagnostic();
     for (const auto &message : result.logs) {
         appendTechnicalLog(utf8Text(message));
     }
@@ -802,6 +839,7 @@ void MainWindow::handleRunFinished(const disassemble::core::RunResult &result)
 void MainWindow::handleRunFailed(const QString &message)
 {
     applyRunState(false);
+    updateGpuDiagnostic();
     appendSummaryLog(QStringLiteral("处理失败: %1").arg(message));
 }
 
@@ -839,6 +877,7 @@ void MainWindow::resetRunFeedback()
     preview3dWidget_->setMesh({});
     reset3dViewButton_->setEnabled(false);
     resultWidget_->setVisible(false);
+    updateGpuDiagnostic();
 }
 
 void MainWindow::renderResult(const disassemble::core::RunResult &result)

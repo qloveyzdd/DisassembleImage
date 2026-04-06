@@ -10,6 +10,9 @@ struct GpuBackendInfo {
     bool openClSupported = false;
     bool gpuDeviceAvailable = false;
     std::string deviceName;
+    std::string vendorName;
+    std::string driverVersion;
+    std::string openClVersion;
     std::string unavailableReason;
 
     bool canUseGpu() const;

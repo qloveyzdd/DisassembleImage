@@ -25,10 +25,14 @@ GpuBackendInfo detectGpuBackend()
     }
 
     info.gpuDeviceAvailable = true;
-    info.deviceName = context.device(0).name();
+    const cv::ocl::Device device = context.device(0);
+    info.deviceName = device.name();
     if (info.deviceName.empty()) {
         info.deviceName = u8"OpenCL GPU";
     }
+    info.vendorName = device.vendorName();
+    info.driverVersion = device.driverVersion();
+    info.openClVersion = device.OpenCL_C_Version();
     return info;
 }
 

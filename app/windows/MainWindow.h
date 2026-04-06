@@ -42,6 +42,7 @@ public:
 
 private:
     void refreshEnvironmentStatus();
+    void updateGpuDiagnostic();
     void captureFormFromUi();
     void applyFormToUi();
     void chooseInputImage();
@@ -85,6 +86,7 @@ private:
 
     QWidget *formSectionWidget_;
     QLabel *environmentLabel_;
+    QLabel *gpuDiagnosticLabel_;
     QLabel *validationLabel_;
     QRadioButton *singleModeButton_;
     QRadioButton *directoryModeButton_;
@@ -107,6 +109,7 @@ private:
     QWidget *advancedWidget_;
     QCheckBox *parallelCheck_;
     QSpinBox *workerSpin_;
+    QPushButton *refreshDiagnosticButton_;
     QPushButton *runButton_;
     QPushButton *cancelButton_;
     QLabel *progressStageLabel_;
