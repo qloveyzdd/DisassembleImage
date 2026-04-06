@@ -474,12 +474,21 @@ void MainWindow::refreshEnvironmentStatus()
 void MainWindow::updateGpuDiagnostic()
 {
     QStringList lines;
+    lines << QStringLiteral("加载器状态: %1").arg(displayText(backendInfo_.loaderStatus));
     lines << QStringLiteral("OpenCL 支持: %1").arg(backendInfo_.openClSupported ? QStringLiteral("是") : QStringLiteral("否"));
+    lines << QStringLiteral("平台枚举: %1").arg(backendInfo_.platformEnumerationSucceeded ? QStringLiteral("成功") : QStringLiteral("失败"));
+    lines << QStringLiteral("平台数量: %1").arg(backendInfo_.platformCount);
     lines << QStringLiteral("可用 GPU 设备: %1").arg(backendInfo_.gpuDeviceAvailable ? QStringLiteral("是") : QStringLiteral("否"));
+    lines << QStringLiteral("GPU 设备数量: %1").arg(backendInfo_.gpuDeviceCount);
     lines << QStringLiteral("当前请求后端: %1").arg(backendText(formState_.processingBackend));
     lines << QStringLiteral("上次实际后端: %1").arg(lastRunResult_
             ? backendText(lastRunResult_->activeBackend)
             : QStringLiteral("尚未运行"));
+    lines << QStringLiteral("失败阶段: %1").arg(displayText(backendInfo_.failureStage, QStringLiteral("未诊断")));
+    lines << QStringLiteral("平台摘要:\n%1").arg(displayText(backendInfo_.platformSummary));
+    lines << QStringLiteral("设备枚举:\n%1").arg(displayText(backendInfo_.deviceEnumerationStatus));
+    lines << QStringLiteral("上下文状态: %1").arg(displayText(backendInfo_.contextStatus));
+    lines << QStringLiteral("选中平台: %1").arg(displayText(backendInfo_.selectedPlatformName));
     lines << QStringLiteral("设备名称: %1").arg(displayText(backendInfo_.deviceName));
     lines << QStringLiteral("设备厂商: %1").arg(displayText(backendInfo_.vendorName));
     lines << QStringLiteral("驱动版本: %1").arg(displayText(backendInfo_.driverVersion));
@@ -494,6 +503,7 @@ void MainWindow::updateGpuDiagnostic()
     if (lastRunResult_ && !lastRunResult_->fallbackReason.empty()) {
         lines << QStringLiteral("上次回退原因: %1").arg(utf8Text(lastRunResult_->fallbackReason));
     }
+    lines << QStringLiteral("建议动作: %1").arg(displayText(backendInfo_.recommendation));
 
     gpuDiagnosticLabel_->setText(lines.join(QStringLiteral("\n")));
 }
