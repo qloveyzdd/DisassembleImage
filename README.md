@@ -1,82 +1,69 @@
 # DisassembleImage
 
-用于把单张图片按 `OBJ/UV` 几何关系拆分成多张切片图，并在桌面程序中完成配置、处理、结果查看和 3D 对照。
+一个在 Windows 上运行的本地图像拆分工具。
 
-## 功能概览
+它会根据 `input.obj` / `output.obj` 里的几何与 UV 信息，把输入图片拆分成多张切片图，并提供桌面界面完成参数配置、执行处理、结果预览、3D 对照和导出。
 
-- Windows 原生桌面程序
-- 支持单张图片和图片目录两种输入方式
-- 支持图形化参数配置、预设保存和启动前校验
-- 支持执行进度、日志、结果导出和结果目录打开
-- 支持切片缩略图、大图预览和 3D 对照
-- 支持 `自动 / CPU / GPU` 三种后端模式
-- GPU 不可用时会明确提示并回退到 CPU
+## 当前状态
+
+- 已完成 `v1.0`
+- 目标平台：`Windows 10/11 x64`
+- 图形界面：`Qt6 Widgets`
+- 图像处理：`OpenCV`
+- GPU 路线：`OpenCV + OpenCL + UMat`
+- 当 GPU 不可用时，会明确提示并自动回退到 CPU
 
 ## 目录说明
 
-- [app/windows](E:/DisassembleImage/app/windows): 桌面界面和运行控制
-- [core](E:/DisassembleImage/core): 核心处理逻辑、模型和 GPU 探测
-- [tests](E:/DisassembleImage/tests): smoke 测试
-- [HD](E:/DisassembleImage/HD): 示例输入图和序列测试图
-- [input.obj](E:/DisassembleImage/input.obj): 输入模型
-- [output.obj](E:/DisassembleImage/output.obj): 输出模型
-
-## 环境要求
-
-### 运行环境
-
-- Windows 10/11 x64
-- 建议安装最新显卡驱动
-- 若要测试 GPU，当前主路径依赖 `OpenCL`
-
-### 开发环境
-
-- Visual Studio 2022
-- CMake 3.26 或更高版本
-- Git
-
-### 第三方依赖
-
-项目当前通过工程内 `vcpkg` 恢复主要依赖：
-
-- `OpenCV`
-- `Qt6`
-
-相关配置见：
-
-- [CMakePresets.json](E:/DisassembleImage/CMakePresets.json)
-- [vcpkg.json](E:/DisassembleImage/vcpkg.json)
-- [VcpkgWorkspaceToolchain.cmake](E:/DisassembleImage/cmake/VcpkgWorkspaceToolchain.cmake)
+- `app/windows/`：桌面界面、任务表单、运行控制、预览与 3D 组件
+- `core/`：核心处理逻辑、OBJ/UV 解析、切片计划、GPU 诊断
+- `cmake/`：vcpkg 工具链和 Windows 部署辅助脚本
+- `tests/`：Phase 1 到 Phase 5 的 smoke 测试
+- `HD/`：示例输入和序列测试图片
+- `input.obj`：输入模型
+- `output.obj`：输出模型
+- `TARGET_MACHINE_CHECKLIST.md`：目标机部署与验收检查清单
 
 ## 直接使用二进制
 
-当前已经生成了一份可直接分发的 Windows 二进制包：
+优先使用已经打好的 Release 包：
 
-- GitHub Release 页面：[v1.0](https://github.com/qloveyzdd/DisassembleImage/releases/tag/v1.0)
+- GitHub Release：[v1.0](https://github.com/qloveyzdd/DisassembleImage/releases/tag/v1.0)
 - 直接下载：[DisassembleImage-v1.0-win64.zip](https://github.com/qloveyzdd/DisassembleImage/releases/download/v1.0/DisassembleImage-v1.0-win64.zip)
-- 本地压缩包：[DisassembleImage-v1.0-win64.zip](E:/DisassembleImage/build/release-packages/DisassembleImage-v1.0-win64.zip)
-- 解压目录：[disassemble_desktop](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop)
 
-直接使用方式：
+使用步骤：
 
-1. 从 GitHub Release 下载 `DisassembleImage-v1.0-win64.zip`
+1. 下载并解压 `DisassembleImage-v1.0-win64.zip`
 2. 保持解压后的目录结构不变
-3. 运行：
-   - [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
+3. 运行 `DisassembleImageDesktop.exe`
 
 注意：
 
 - 不要只单独拷贝 `DisassembleImageDesktop.exe`
-- `Qt/OpenCV` 运行库、插件目录、`input.obj`、`output.obj` 需要和程序放在同一套目录里
-- 当前包适合本地分发和手动测试
+- `Qt`、`OpenCV` 运行库、插件目录、`input.obj`、`output.obj` 需要和程序放在同一套目录中
+- 如果你是从源码构建，请优先使用部署目录中的可执行文件，而不是只拿构建目录下的 `exe`
 
-当前推荐直接从 GitHub Release 分发，而不是把 zip 提交到仓库。
+## 从源码构建
 
-## 构建说明
+### 环境要求
+
+- Windows 10/11 x64
+- Visual Studio 2022
+- CMake 3.26 或更高版本
+- Git
+
+项目通过工程内 `vcpkg` 恢复主要依赖：
+
+- `opencv`
+- `qtbase`
+
+相关配置：
+
+- `CMakePresets.json`
+- `vcpkg.json`
+- `cmake/VcpkgWorkspaceToolchain.cmake`
 
 ### Debug 构建
-
-在仓库根目录执行：
 
 ```powershell
 cmake --preset windows-msvc-debug
@@ -92,73 +79,90 @@ cmake --build --preset build-windows-release --target disassemble_desktop
 cmake --build --preset build-windows-release --target windows_deploy_check
 ```
 
-### 生成后的可执行文件
+### 可执行文件位置
 
-开发目录：
+Debug 开发构建：
 
-- [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-debug/app/windows/Debug/DisassembleImageDesktop.exe)
+- `build/windows-msvc-debug/app/windows/Debug/DisassembleImageDesktop.exe`
 
-推荐手动测试和分发使用 Release 部署目录：
+Debug 部署目录：
 
-- [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
+- `build/windows-msvc-debug/deploy/disassemble_desktop/DisassembleImageDesktop.exe`
 
-Debug 部署目录主要用于开发调试：
+Release 部署目录：
 
-- [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-debug/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
+- `build/windows-msvc-release/deploy/disassemble_desktop/DisassembleImageDesktop.exe`
 
-不要只单独拷贝 `exe`，需要和同目录下的 `Qt/OpenCV` 运行库一起保留。
+本地压缩包：
+
+- `build/release-packages/DisassembleImage-v1.0-win64.zip`
 
 ## 使用说明
 
-### 基本处理流程
+### 基本流程
 
-1. 启动部署目录下的桌面程序。
-2. 选择输入方式：
+1. 启动桌面程序
+2. 选择输入模式：
    - 单张图片
    - 图片目录
-3. 选择输入图片或输入目录。
-4. 选择输出目录。
-5. 默认会自动探测：
-   - [input.obj](E:/DisassembleImage/input.obj)
-   - [output.obj](E:/DisassembleImage/output.obj)
-6. 按需要设置：
+3. 选择输入图片或输入目录
+4. 选择输出目录
+5. 检查或手动指定：
+   - `input.obj`
+   - `output.obj`
+6. 设置常用参数：
    - 输出尺寸
    - 输出前缀
    - 拼接方式
    - 输出策略
-7. 如需高级设置，可展开：
-   - 计算后端
+7. 如有需要，展开高级设置：
+   - 后端模式：`自动 / CPU / GPU`
    - 并行开关
    - 并行线程数
-8. 点击“开始处理”。
+8. 点击开始处理
 9. 处理完成后查看：
    - 摘要日志
    - 技术日志
-   - 结果目录
-   - 切片缩略图
-   - 3D 对照
+   - 本次结果区
+   - 缩略图、大图和 3D 对照
 
-### 后端说明
+### 输出策略
 
-- `自动`: 优先尝试 GPU，不可用时回退 CPU
-- `仅 CPU`: 强制走 CPU
-- `优先 GPU`: 优先走 GPU，不可用时给出明确提示并回退
+- `禁止覆盖`
+- `覆盖同名`
+- `自动重命名`
 
-### OpenCL / GPU 说明
+### 逐面输出命名
+
+当选择逐面输出时，程序会根据面的二维位置自动命名，例如：
+
+- `top_left`
+- `center_left`
+- `bottom_right`
+
+## GPU / OpenCL 说明
 
 当前 GPU 路线基于 `OpenCV + OpenCL + UMat`。
 
 这意味着：
 
 - 有显卡不等于一定能启用 GPU
-- 必须有可用的 OpenCL 运行环境
-- 如果缺少 OpenCL 或驱动不完整，程序会提示并回退 CPU
+- 机器必须有可用的 OpenCL 运行环境
+- 如果 OpenCL 不可用，程序会提示原因并回退到 CPU
 
-目标机检查可参考：
+界面中已经提供：
 
-- [TARGET_MACHINE_CHECKLIST.md](E:/DisassembleImage/TARGET_MACHINE_CHECKLIST.md)
+- OpenCL 支持状态
+- 可用 GPU 设备状态
+- 平台枚举结果
+- 失败阶段
+- 回退原因
 
-## 测试说明
+如果目标机要做部署或验收，请同时参考：
+
+- `TARGET_MACHINE_CHECKLIST.md`
+
+## 测试
 
 ### Smoke 测试
 
@@ -170,48 +174,37 @@ ctest --output-on-failure -C Debug
 
 ### 序列测试素材
 
-[HD](E:/DisassembleImage/HD) 目录中包含序列测试图：
+`HD/` 目录内包含 `a0000.jpg` 到 `a0199.jpg` 共 200 张序列图，可用于：
 
-- `a0000.jpg` 到 `a0199.jpg`
-
-这些图片用于测试：
-
-- 目录批处理
-- CPU 并行
-- 序列处理速度
-- 同尺寸输入下的上下文复用与映射复用
+- 目录批处理验证
+- CPU 并行验证
+- 序列性能验证
+- 同尺寸输入下的上下文复用和映射复用验证
 
 ## 常见问题
 
-### 1. 启动时报缺少 DLL
+### 1. 启动时提示缺少 DLL
 
-请从完整部署目录启动，优先使用 Release 包：
+请从完整部署目录启动，或直接使用 Release 包。
 
-- [GitHub Release 下载页](https://github.com/qloveyzdd/DisassembleImage/releases/tag/v1.0)
-- [DisassembleImage-v1.0-win64.zip](E:/DisassembleImage/build/release-packages/DisassembleImage-v1.0-win64.zip)
-- [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
+不要只拷贝单个 `exe` 文件。
 
-开发调试时也可以使用 Debug 部署目录：
+### 2. 程序提示“未能启用 GPU，已回退到 CPU”
 
-- [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-debug/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
+这通常说明当前机器没有可用的 OpenCL 运行环境，或显卡驱动链不完整。
 
-不要只复制单个 `exe`。
-
-### 2. 显示“未能启用 GPU，已回退到 CPU”
-
-说明当前机器没有可用的 `OpenCL` 运行环境，或驱动链不完整。  
-这不是程序崩溃，而是按设计回退。
+这不是程序崩溃，而是设计内的正常回退。
 
 ### 3. 中文日志乱码
 
-请使用当前仓库中的新版本构建产物，不要混用旧的历史部署目录。
+请使用当前仓库构建出的新版本部署目录，不要混用历史遗留部署产物。
 
 ### 4. 序列处理还是慢
 
-当前版本已经做了：
+当前版本已经做了这些优化：
 
 - CPU 默认自适应多线程
-- 同尺寸序列图的处理上下文复用
+- 同尺寸序列图处理上下文复用
 - 像素映射复用
 
 如果仍然慢，下一层瓶颈通常是：
@@ -220,10 +213,10 @@ ctest --output-on-failure -C Debug
 - JPEG 写出
 - 磁盘吞吐
 
-## 版本状态
+## 版本
 
-当前仓库已经完成 `v1.0` 里程碑归档，相关记录见：
+当前仓库已完成 `v1.0` 归档，相关里程碑记录位于：
 
-- [MILESTONES.md](E:/DisassembleImage/.planning/MILESTONES.md)
+- `.planning/MILESTONES.md`
 
-要点：这是一个已经完成 `v1.0` 桌面化交付的本地图片拆分工具，推荐从部署目录直接启动测试。
+要点：推荐直接使用 Release 包，开发时再走 CMake + vcpkg 构建流程。
