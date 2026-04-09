@@ -52,12 +52,14 @@
 
 当前已经生成了一份可直接分发的 Windows 二进制包：
 
+- GitHub Release 页面：[v1.0](https://github.com/qloveyzdd/DisassembleImage/releases/tag/v1.0)
+- 直接下载：[DisassembleImage-v1.0-win64.zip](https://github.com/qloveyzdd/DisassembleImage/releases/download/v1.0/DisassembleImage-v1.0-win64.zip)
 - 本地压缩包：[DisassembleImage-v1.0-win64.zip](E:/DisassembleImage/build/release-packages/DisassembleImage-v1.0-win64.zip)
 - 解压目录：[disassemble_desktop](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop)
 
 直接使用方式：
 
-1. 解压 `DisassembleImage-v1.0-win64.zip`
+1. 从 GitHub Release 下载 `DisassembleImage-v1.0-win64.zip`
 2. 保持解压后的目录结构不变
 3. 运行：
    - [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
@@ -68,7 +70,7 @@
 - `Qt/OpenCV` 运行库、插件目录、`input.obj`、`output.obj` 需要和程序放在同一套目录里
 - 当前包适合本地分发和手动测试
 
-如果后续要对外发布，建议把同一个 zip 上传到 GitHub Release，而不是直接提交到仓库。
+当前推荐直接从 GitHub Release 分发，而不是把 zip 提交到仓库。
 
 ## 构建说明
 
@@ -185,6 +187,7 @@ ctest --output-on-failure -C Debug
 
 请从完整部署目录启动，优先使用 Release 包：
 
+- [GitHub Release 下载页](https://github.com/qloveyzdd/DisassembleImage/releases/tag/v1.0)
 - [DisassembleImage-v1.0-win64.zip](E:/DisassembleImage/build/release-packages/DisassembleImage-v1.0-win64.zip)
 - [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
 
