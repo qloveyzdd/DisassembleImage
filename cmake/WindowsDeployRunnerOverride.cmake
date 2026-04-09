@@ -1,3 +1,7 @@
+if(POLICY CMP0207)
+    cmake_policy(SET CMP0207 NEW)
+endif()
+
 if(NOT DEFINED WINDEPLOYQT_EXECUTABLE OR WINDEPLOYQT_EXECUTABLE STREQUAL "")
     message(FATAL_ERROR "windeployqt executable was not found. Set Qt6_DIR or ensure Qt tools are on PATH.")
 endif()
@@ -30,8 +34,14 @@ file(GET_RUNTIME_DEPENDENCIES
     UNRESOLVED_DEPENDENCIES_VAR unresolved_dependencies
 )
 
+get_filename_component(_target_dir "${TARGET_FILE}" DIRECTORY)
+
 foreach(runtime_dependency IN LISTS resolved_dependencies)
     get_filename_component(runtime_name "${runtime_dependency}" NAME)
+    if(NOT runtime_dependency MATCHES "^${_target_dir}[/\\\\]"
+       AND NOT runtime_dependency MATCHES "^${CMAKE_BINARY_DIR}[/\\\\]vcpkg_installed[/\\\\]")
+        continue()
+    endif()
     if(runtime_name MATCHES "^api-ms-" OR runtime_name MATCHES "^ext-ms-")
         continue()
     endif()

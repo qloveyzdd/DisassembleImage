@@ -38,11 +38,13 @@
   "buildPresets": [
     {
       "name": "build-windows-debug",
-      "configurePreset": "windows-msvc-debug"
+      "configurePreset": "windows-msvc-debug",
+      "configuration": "Debug"
     },
     {
       "name": "build-windows-release",
-      "configurePreset": "windows-msvc-release"
+      "configurePreset": "windows-msvc-release",
+      "configuration": "Release"
     }
   ]
 }
