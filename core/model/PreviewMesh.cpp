@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <stdexcept>
 
-#include "../../point_uv/point_uv.h"
+#include "ObjModel.h"
 #include "RunResult.h"
 
 namespace fs = std::filesystem;
@@ -12,6 +12,7 @@ namespace fs = std::filesystem;
 namespace {
 
 using disassemble::core::FaceTextureAssignment;
+using disassemble::core::ObjModel;
 using disassemble::core::PreviewFaceQuad;
 using disassemble::core::PreviewGalleryItem;
 using disassemble::core::PreviewMesh;
@@ -53,22 +54,22 @@ void appendFace(PreviewMesh &mesh,
     mesh.faces.push_back(face);
 }
 
-std::array<cv::Point3f, 4> collectSpatialQuad(const std::vector<cv::Point3f *> &points,
-                                              int *indices)
+std::array<cv::Point3f, 4> collectSpatialQuad(const std::vector<cv::Point3f> &points,
+                                              const std::array<int, 4> &indices)
 {
     std::array<cv::Point3f, 4> quad{};
     for (size_t index = 0; index < quad.size(); ++index) {
-        quad[index] = *points[indices[index]];
+        quad[index] = points[indices[index]];
     }
     return quad;
 }
 
-std::array<cv::Point2f, 4> collectUvQuad(const std::vector<cv::Point2f *> &points,
-                                         int *indices)
+std::array<cv::Point2f, 4> collectUvQuad(const std::vector<cv::Point2f> &points,
+                                         const std::array<int, 4> &indices)
 {
     std::array<cv::Point2f, 4> quad{};
     for (size_t index = 0; index < quad.size(); ++index) {
-        quad[index] = *points[indices[index]];
+        quad[index] = points[indices[index]];
     }
     return quad;
 }
@@ -80,13 +81,13 @@ PreviewMesh buildGroupedPreviewMesh(const disassemble::core::ProcessingTask &tas
         return {};
     }
 
-    obj_basic inputObj(task.inputObjPath);
-    obj_basic outputObj(task.outputObjPath);
+    const auto inputObj = ObjModel::load(task.inputObjPath);
+    const auto outputObj = ObjModel::load(task.outputObjPath);
 
-    const auto spatialPoints = inputObj.get_spatial_point_location();
-    const auto spatialFaces = inputObj.get_spatial_prim();
-    const auto outputUvPoints = outputObj.get_uv_point_location();
-    const auto outputUvFaces = outputObj.get_prim();
+    const auto &spatialPoints = inputObj.spatialPoints();
+    const auto &spatialFaces = inputObj.faces();
+    const auto &outputUvPoints = outputObj.uvPoints();
+    const auto &outputUvFaces = outputObj.faces();
 
     if (spatialFaces.size() != outputUvFaces.size()) {
         throw std::runtime_error(u8"构建 grouped 预览 mesh 失败: input.obj 与 output.obj 面数不一致");
@@ -100,8 +101,8 @@ PreviewMesh buildGroupedPreviewMesh(const disassemble::core::ProcessingTask &tas
         assignment.outputImagePath = item.outputImagePath;
         assignment.displayName = item.displayName;
         appendFace(mesh,
-                   collectSpatialQuad(spatialPoints, spatialFaces[faceIndex]),
-                   collectUvQuad(outputUvPoints, outputUvFaces[faceIndex]),
+                   collectSpatialQuad(spatialPoints, spatialFaces[faceIndex].spatialIndices),
+                   collectUvQuad(outputUvPoints, outputUvFaces[faceIndex].uvIndices),
                    assignment);
     }
 
@@ -111,9 +112,9 @@ PreviewMesh buildGroupedPreviewMesh(const disassemble::core::ProcessingTask &tas
 PreviewMesh buildFacePreviewMesh(const disassemble::core::ProcessingTask &task,
                                  const std::vector<PreviewGalleryItem> &itemsForInput)
 {
-    obj_basic inputObj(task.inputObjPath);
-    const auto spatialPoints = inputObj.get_spatial_point_location();
-    const auto spatialFaces = inputObj.get_spatial_prim();
+    const auto inputObj = ObjModel::load(task.inputObjPath);
+    const auto &spatialPoints = inputObj.spatialPoints();
+    const auto &spatialFaces = inputObj.faces();
 
     std::vector<PreviewGalleryItem> orderedItems = itemsForInput;
     std::sort(orderedItems.begin(), orderedItems.end(), [](const PreviewGalleryItem &left, const PreviewGalleryItem &right) {
@@ -138,7 +139,7 @@ PreviewMesh buildFacePreviewMesh(const disassemble::core::ProcessingTask &task,
         assignment.outputImagePath = item.outputImagePath;
         assignment.displayName = item.displayName;
         appendFace(mesh,
-                   collectSpatialQuad(spatialPoints, spatialFaces[item.faceIndex]),
+                   collectSpatialQuad(spatialPoints, spatialFaces[item.faceIndex].spatialIndices),
                    localUvs,
                    assignment);
     }

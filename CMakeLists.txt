@@ -25,12 +25,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(WindowsDeploy)
 include(WindowsDeployOverride)
 
-add_subdirectory(point_uv)
-add_subdirectory(mask)
-add_subdirectory(server_info)
 add_subdirectory(core)
 add_subdirectory(app/windows)
-add_subdirectory(legacy/cli)
 
 if(DISASSEMBLEIMAGE_BUILD_TESTS)
     add_subdirectory(tests)

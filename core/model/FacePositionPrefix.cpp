@@ -7,26 +7,28 @@
 #include <stdexcept>
 #include <vector>
 
-#include "../../point_uv/point_uv.h"
+#include "ObjModel.h"
 
 namespace {
 
+using disassemble::core::PaddedUvModel;
+
 struct FaceCenter {
     size_t originalIndex = 0;
-    float x = 0.0f;
-    float y = 0.0f;
-    float ySpan = 0.0f;
+    float x = 0.0F;
+    float y = 0.0F;
+    float ySpan = 0.0F;
 };
 
 struct RowGroup {
     std::vector<FaceCenter> faces;
-    float averageY = 0.0f;
+    float averageY = 0.0F;
 };
 
 float medianYSpan(std::vector<FaceCenter> faces)
 {
     if (faces.empty()) {
-        return 0.0f;
+        return 0.0F;
     }
 
     std::sort(faces.begin(), faces.end(), [](const FaceCenter &left, const FaceCenter &right) {
@@ -96,37 +98,36 @@ std::string columnLabel(size_t index, size_t total)
 
 std::vector<FaceCenter> loadFaceCenters(const std::string &inputObjPath)
 {
-    obj_uv_padding inputObj(inputObjPath);
+    const auto inputObj = PaddedUvModel::load(inputObjPath);
+    const auto &uvPoints = inputObj.model.uvPoints();
+    const auto &faces = inputObj.model.faces();
 
-    const auto uvPoints = inputObj.get_uv_point_location();
-    const auto prims = inputObj.get_prim();
-    std::vector<FaceCenter> faces;
-    faces.reserve(prims.size());
-
-    for (size_t faceIndex = 0; faceIndex < prims.size(); ++faceIndex) {
-        const auto *prim = prims[faceIndex];
-        float sumX = 0.0f;
-        float sumY = 0.0f;
-        float minY = 1.0f;
-        float maxY = 0.0f;
+    std::vector<FaceCenter> result;
+    result.reserve(faces.size());
+    for (size_t faceIndex = 0; faceIndex < faces.size(); ++faceIndex) {
+        const auto &face = faces[faceIndex];
+        float sumX = 0.0F;
+        float sumY = 0.0F;
+        float minY = 1.0F;
+        float maxY = 0.0F;
 
         for (int pointIndex = 0; pointIndex < 4; ++pointIndex) {
-            const auto *uv = uvPoints[prim[pointIndex]];
-            sumX += uv->x;
-            sumY += uv->y;
-            minY = std::min(minY, uv->y);
-            maxY = std::max(maxY, uv->y);
+            const auto &uv = uvPoints[face.uvIndices[pointIndex]];
+            sumX += uv.x;
+            sumY += uv.y;
+            minY = std::min(minY, uv.y);
+            maxY = std::max(maxY, uv.y);
         }
 
-        faces.push_back({
+        result.push_back(FaceCenter{
             faceIndex,
-            sumX / 4.0f,
-            sumY / 4.0f,
+            sumX / 4.0F,
+            sumY / 4.0F,
             maxY - minY
         });
     }
 
-    return faces;
+    return result;
 }
 
 std::vector<RowGroup> clusterRows(std::vector<FaceCenter> faces)
@@ -139,7 +140,7 @@ std::vector<RowGroup> clusterRows(std::vector<FaceCenter> faces)
     });
 
     std::vector<RowGroup> rows;
-    const float tolerance = std::max(0.02f, medianYSpan(faces) * 0.5f);
+    const float tolerance = std::max(0.02F, medianYSpan(faces) * 0.5F);
     for (const auto &face : faces) {
         if (rows.empty() || std::fabs(face.y - rows.back().averageY) > tolerance) {
             rows.push_back({{face}, face.y});
@@ -168,17 +169,16 @@ namespace disassemble::core {
 std::vector<std::string> buildFacePositionPrefixes(const std::string &inputObjPath)
 {
     if (inputObjPath.empty()) {
-        throw std::runtime_error(u8"未找到 input.obj，无法按面位置生成前缀");
+        throw std::runtime_error("missing input.obj for face position prefixes");
     }
 
     const auto rows = clusterRows(loadFaceCenters(inputObjPath));
-    std::vector<std::string> prefixes;
     size_t totalFaces = 0;
     for (const auto &row : rows) {
         totalFaces += row.faces.size();
     }
-    prefixes.resize(totalFaces);
 
+    std::vector<std::string> prefixes(totalFaces);
     for (size_t rowIndex = 0; rowIndex < rows.size(); ++rowIndex) {
         const auto &row = rows[rowIndex];
         const auto currentRowLabel = rowLabel(rowIndex, rows.size());

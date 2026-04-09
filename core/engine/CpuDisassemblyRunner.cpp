@@ -15,12 +15,12 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "../../mask/mask.h"
-#include "../../server_info/server_info.h"
 #include "../gpu/GpuBackendInfo.h"
 #include "../io/ImageCatalog.h"
 #include "../model/FacePositionPrefix.h"
+#include "../model/ObjModel.h"
 #include "../model/PreviewGalleryItem.h"
+#include "../model/SlicePlan.h"
 
 namespace fs = std::filesystem;
 
@@ -36,6 +36,7 @@ using disassemble::core::RunFailure;
 using disassemble::core::RunProgress;
 using disassemble::core::RunResult;
 using disassemble::core::RunStage;
+using disassemble::core::SlicePrimitive;
 
 struct ScopedOpenClState {
     explicit ScopedOpenClState(bool enabled)
@@ -86,45 +87,22 @@ struct ProcessingContextKeyHash {
     }
 };
 
-group_direction toLegacyDirection(ProcessingDirection direction)
-{
-    switch (direction) {
-    case ProcessingDirection::None:
-        return group_direction::NONE;
-    case ProcessingDirection::X:
-        return group_direction::X;
-    case ProcessingDirection::Y:
-        return group_direction::Y;
-    }
-    return group_direction::NONE;
-}
-
-std::vector<std::vector<int>> toLegacySizes(const std::vector<ImageSize> &sizes)
-{
-    std::vector<std::vector<int>> converted;
-    converted.reserve(sizes.size());
-    for (const auto &size : sizes) {
-        converted.push_back({size.width, size.height});
-    }
-    return converted;
-}
-
 struct RemapCacheEntry {
     cv::Mat mapX;
     cv::Mat mapY;
     cv::Size outputSize;
 };
 
-RemapCacheEntry buildRemapCacheEntry(const disassembly *prim)
+RemapCacheEntry buildRemapCacheEntry(const SlicePrimitive &primitive)
 {
-    const auto quadPoint = prim->get_quad_pts()[2];
+    const auto quadPoint = primitive.quadPoints[2];
     RemapCacheEntry entry;
     entry.outputSize = cv::Size(static_cast<int>(quadPoint.x), static_cast<int>(quadPoint.y));
     entry.mapX = cv::Mat(entry.outputSize, CV_32FC1);
     entry.mapY = cv::Mat(entry.outputSize, CV_32FC1);
 
     cv::Mat inverseTransform;
-    prim->get_transmtx().convertTo(inverseTransform, CV_64F);
+    primitive.transform.convertTo(inverseTransform, CV_64F);
     inverseTransform = inverseTransform.inv();
 
     for (int y = 0; y < entry.outputSize.height; ++y) {
@@ -150,37 +128,32 @@ struct CachedProcessingContext {
     explicit CachedProcessingContext(const ProcessingTask &task,
                                      int inputWidth,
                                      int inputHeight)
-        : inputInfo(std::vector<int>{inputWidth, inputHeight}),
-          outputInfo(toLegacySizes(task.outputSizes))
     {
-        inputObj = std::make_unique<obj_uv_padding>(task.inputObjPath);
+        const ImageSize inputSize{inputWidth, inputHeight};
+        inputModel = std::make_unique<disassemble::core::PaddedUvModel>(disassemble::core::PaddedUvModel::load(task.inputObjPath));
 
         if (task.usesGroupedOutput()) {
-            outputObj = std::make_unique<obj_basic>(task.outputObjPath);
-            factory = std::make_unique<disassembly_factory>(inputObj.get(),
-                                                            outputObj.get(),
-                                                            &inputInfo,
-                                                            &outputInfo,
-                                                            toLegacyDirection(task.direction));
+            outputModel = std::make_unique<disassemble::core::ObjModel>(disassemble::core::ObjModel::load(task.outputObjPath));
+            primitives = disassemble::core::SlicePlanBuilder::buildGrouped(*inputModel,
+                                                                           *outputModel,
+                                                                           inputSize,
+                                                                           task.outputSizes.front(),
+                                                                           task.direction);
             prefixes = task.prefixes;
         } else {
-            factory = std::make_unique<disassembly_factory>(inputObj.get(), &inputInfo, &outputInfo);
+            primitives = disassemble::core::SlicePlanBuilder::buildPerFace(*inputModel, inputSize, task.outputSizes);
             prefixes = disassemble::core::buildFacePositionPrefixes(task.inputObjPath);
         }
 
-        prims = factory->get_prim();
-        remapEntries.reserve(prims.size());
-        for (const auto *prim : prims) {
-            remapEntries.push_back(buildRemapCacheEntry(prim));
+        remapEntries.reserve(primitives.size());
+        for (const auto &primitive : primitives) {
+            remapEntries.push_back(buildRemapCacheEntry(primitive));
         }
     }
 
-    input_image_info inputInfo;
-    output_image_info outputInfo;
-    std::unique_ptr<obj_uv_padding> inputObj;
-    std::unique_ptr<obj_basic> outputObj;
-    std::unique_ptr<disassembly_factory> factory;
-    std::vector<disassembly *> prims;
+    std::unique_ptr<disassemble::core::PaddedUvModel> inputModel;
+    std::unique_ptr<disassemble::core::ObjModel> outputModel;
+    std::vector<SlicePrimitive> primitives;
     std::vector<std::string> prefixes;
     std::vector<RemapCacheEntry> remapEntries;
 };
@@ -301,12 +274,12 @@ ExecutionMode buildExecutionMode(const ProcessingTask &task, const GpuBackendInf
 }
 
 cv::Mat warpPiece(const cv::Mat &inputImage,
-                  const disassembly *prim,
+                  const SlicePrimitive &primitive,
                   const RemapCacheEntry *remapEntry,
                   bool useGpu,
                   double &gpuHotPathMs)
 {
-    const auto quadPoint = prim->get_quad_pts()[2];
+    const auto quadPoint = primitive.quadPoints[2];
     const cv::Size outputSize(static_cast<int>(quadPoint.x), static_cast<int>(quadPoint.y));
 
     if (!useGpu) {
@@ -319,7 +292,7 @@ cv::Mat warpPiece(const cv::Mat &inputImage,
                       cv::INTER_LINEAR,
                       cv::BORDER_CONSTANT);
         } else {
-            cv::warpPerspective(inputImage, output, prim->get_transmtx(), outputSize);
+            cv::warpPerspective(inputImage, output, primitive.transform, outputSize);
         }
         return output;
     }
@@ -329,7 +302,7 @@ cv::Mat warpPiece(const cv::Mat &inputImage,
     inputImage.copyTo(gpuInput);
     cv::UMat gpuOutput;
     const auto start = std::chrono::steady_clock::now();
-    cv::warpPerspective(gpuInput, gpuOutput, prim->get_transmtx(), outputSize);
+    cv::warpPerspective(gpuInput, gpuOutput, primitive.transform, outputSize);
     const auto end = std::chrono::steady_clock::now();
     gpuHotPathMs += elapsedMilliseconds(start, end);
 
@@ -385,7 +358,7 @@ void runSingleImage(const ProcessingTask &task,
 
     const auto context = contextCache.get(inputImage.cols, inputImage.rows);
 
-    if (!task.usesGroupedOutput() && task.outputSizes.size() != context->prims.size()) {
+    if (!task.usesGroupedOutput() && task.outputSizes.size() != context->primitives.size()) {
         throw std::runtime_error(u8"一对一模式下输出尺寸数量必须与 input.obj 面数一致");
     }
 
@@ -393,13 +366,13 @@ void runSingleImage(const ProcessingTask &task,
     std::vector<disassemble::core::PreviewGalleryItem> generatedPreviewItems;
 
     if (!task.usesGroupedOutput()) {
-        if (context->prefixes.size() != context->prims.size()) {
+        if (context->prefixes.size() != context->primitives.size()) {
             throw std::runtime_error(u8"一对一模式下无法根据面位置生成完整前缀");
         }
 
-        for (size_t index = 0; index < context->prims.size(); ++index) {
+        for (size_t index = 0; index < context->primitives.size(); ++index) {
             cv::Mat quad = warpPiece(inputImage,
-                                     context->prims[index],
+                                     context->primitives[index],
                                      &context->remapEntries[index],
                                      useGpu,
                                      metrics.gpuHotPathMs);
@@ -420,9 +393,9 @@ void runSingleImage(const ProcessingTask &task,
         }
     } else {
         std::vector<cv::Mat> pieces;
-        for (size_t index = 0; index < context->prims.size(); ++index) {
+        for (size_t index = 0; index < context->primitives.size(); ++index) {
             pieces.push_back(warpPiece(inputImage,
-                                       context->prims[index],
+                                       context->primitives[index],
                                        &context->remapEntries[index],
                                        useGpu,
                                        metrics.gpuHotPathMs));
