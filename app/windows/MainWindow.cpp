@@ -6,6 +6,7 @@
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QFormLayout>
+#include <QGuiApplication>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QInputDialog>
@@ -16,6 +17,8 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QScrollArea>
+#include <QScreen>
 #include <QSignalBlocker>
 #include <QSpinBox>
 #include <QStringList>
@@ -148,6 +151,8 @@ QString displayText(const std::string &value, const QString &fallback = QStringL
     return value.empty() ? fallback : utf8Text(value);
 }
 
+constexpr size_t kMaxPreview3dItems = 96;
+
 } // namespace
 
 namespace disassemble::desktop {
@@ -155,7 +160,7 @@ namespace disassemble::desktop {
 MainWindow::MainWindow()
     : presetStore_(),
       runSession_(std::make_unique<TaskRunSession>(this)),
-      formSectionWidget_(new QWidget(this)),
+      formSectionWidget_(new QWidget()),
       environmentLabel_(new QLabel(this)),
       gpuDiagnosticLabel_(new QLabel(this)),
       validationLabel_(new QLabel(this)),
@@ -202,11 +207,15 @@ MainWindow::MainWindow()
       previewGalleryWidget_(new PreviewGalleryWidget(this)),
       outputPreviewPane_(new PreviewImagePane(QStringLiteral("切片预览"), this)),
       preview3dWidget_(new Preview3DWidget(this)),
+      load3dPreviewButton_(new QPushButton(QStringLiteral("加载 3D 预览"), this)),
       reset3dViewButton_(new QPushButton(QStringLiteral("重置 3D 视角"), this))
 {
-    auto *central = new QWidget(this);
+    auto *scrollArea = new QScrollArea(this);
+    auto *central = new QWidget(scrollArea);
     auto *mainLayout = new QVBoxLayout(central);
     auto *formLayout = new QVBoxLayout(formSectionWidget_);
+    mainLayout->setContentsMargins(16, 16, 16, 16);
+    mainLayout->setSpacing(12);
 
     auto *presetLayout = new QHBoxLayout();
     auto *savePresetButton = new QPushButton(QStringLiteral("保存预设"), this);
@@ -302,9 +311,11 @@ MainWindow::MainWindow()
 
     logOutput_->setReadOnly(true);
     logOutput_->setPlaceholderText(QStringLiteral("这里显示面向普通同事的摘要日志。"));
+    logOutput_->setMinimumHeight(120);
     technicalLogToggleButton_->setText(QStringLiteral("技术日志"));
     technicalLogToggleButton_->setCheckable(true);
     technicalLogOutput_->setReadOnly(true);
+    technicalLogOutput_->setMinimumHeight(140);
     technicalLogWidget_->setVisible(false);
     auto *technicalLayout = new QVBoxLayout(technicalLogWidget_);
     technicalLayout->setContentsMargins(0, 0, 0, 0);
@@ -321,6 +332,7 @@ MainWindow::MainWindow()
     auto *galleryTitle = new QLabel(QStringLiteral("切片缩略图"), this);
     auto *preview3dPane = new QWidget(this);
     auto *preview3dLayout = new QVBoxLayout(preview3dPane);
+    auto *preview3dButtonsLayout = new QHBoxLayout();
     auto *preview3dTitle = new QLabel(QStringLiteral("3D 对照"), this);
     resultButtonsLayout->addWidget(openOutputButton_);
     resultButtonsLayout->addWidget(exportSummaryButton_);
@@ -332,7 +344,10 @@ MainWindow::MainWindow()
     galleryLayout->addWidget(outputPreviewPane_);
     preview3dLayout->setContentsMargins(0, 0, 0, 0);
     preview3dLayout->addWidget(preview3dTitle);
-    preview3dLayout->addWidget(reset3dViewButton_);
+    preview3dButtonsLayout->addWidget(load3dPreviewButton_);
+    preview3dButtonsLayout->addWidget(reset3dViewButton_);
+    preview3dButtonsLayout->addStretch();
+    preview3dLayout->addLayout(preview3dButtonsLayout);
     preview3dLayout->addWidget(preview3dWidget_, 1);
     previewLayout->addWidget(sourcePreviewPane_, 1);
     previewLayout->addWidget(galleryPane, 1);
@@ -367,9 +382,21 @@ MainWindow::MainWindow()
     mainLayout->addWidget(technicalLogWidget_);
     mainLayout->addWidget(resultWidget_);
 
-    setCentralWidget(central);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(central);
+
+    setCentralWidget(scrollArea);
     setWindowTitle(QStringLiteral("DisassembleImage"));
-    resize(1180, 840);
+    setMinimumSize(720, 520);
+
+    QSize initialSize(1180, 840);
+    if (const auto *screen = QGuiApplication::primaryScreen()) {
+        const QSize availableSize = screen->availableGeometry().size() - QSize(48, 48);
+        if (availableSize.width() > 0 && availableSize.height() > 0) {
+            initialSize = initialSize.boundedTo(availableSize);
+        }
+    }
+    resize(initialSize);
 
     connect(singleBrowseButton, &QPushButton::clicked, this, &MainWindow::chooseInputImage);
     connect(directoryBrowseButton, &QPushButton::clicked, this, &MainWindow::chooseInputDirectory);
@@ -388,6 +415,7 @@ MainWindow::MainWindow()
     connect(exportSummaryButton_, &QPushButton::clicked, this, &MainWindow::exportSummaryLog);
     connect(exportZipButton_, &QPushButton::clicked, this, &MainWindow::exportResultBundle);
     connect(previewGalleryWidget_, &PreviewGalleryWidget::currentItemChanged, this, &MainWindow::handlePreviewSelectionChanged);
+    connect(load3dPreviewButton_, &QPushButton::clicked, this, &MainWindow::loadSelectedPreview3d);
     connect(reset3dViewButton_, &QPushButton::clicked, preview3dWidget_, &Preview3DWidget::resetCamera);
     connect(singleModeButton_, &QRadioButton::toggled, this, &MainWindow::handleFormEdited);
     connect(directoryModeButton_, &QRadioButton::toggled, this, &MainWindow::handleFormEdited);
@@ -885,6 +913,7 @@ void MainWindow::resetRunFeedback()
     sourcePreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的原图。"));
     outputPreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的切片。"));
     preview3dWidget_->setMesh({});
+    load3dPreviewButton_->setEnabled(false);
     reset3dViewButton_->setEnabled(false);
     resultWidget_->setVisible(false);
     updateGpuDiagnostic();
@@ -892,6 +921,11 @@ void MainWindow::resetRunFeedback()
 
 void MainWindow::renderResult(const disassemble::core::RunResult &result)
 {
+    previewItems_ = disassemble::core::buildPreviewGalleryItems(result);
+    for (auto &item : previewItems_) {
+        item.selected = false;
+    }
+
     QStringList summaryLines;
     summaryLines << (result.cancelled
             ? QStringLiteral("本次任务已安全取消。成功 %1 个，失败 %2 个。").arg(result.successCount).arg(result.failedCount)
@@ -906,6 +940,12 @@ void MainWindow::renderResult(const disassemble::core::RunResult &result)
     }
     if (!result.fallbackReason.empty()) {
         summaryLines << QStringLiteral("回退说明: %1").arg(utf8Text(result.fallbackReason));
+    }
+    summaryLines << QStringLiteral("预览方式: 点击缩略图后再加载图片，3D 预览需手动点击");
+    if (result.outputFiles.size() > previewItems_.size()) {
+        summaryLines << QStringLiteral("缩略图样本: %1 / %2")
+                            .arg(static_cast<qulonglong>(previewItems_.size()))
+                            .arg(static_cast<qulonglong>(result.outputFiles.size()));
     }
     resultSummaryLabel_->setText(summaryLines.join(QStringLiteral("\n")));
 
@@ -922,19 +962,25 @@ void MainWindow::renderResult(const disassemble::core::RunResult &result)
     }
 
     resultOutputLabel_->setText(QStringLiteral("结果目录: %1").arg(QString::fromStdString(result.outputRoot)));
-    previewItems_ = disassemble::core::buildPreviewGalleryItems(result);
-    if (!previewItems_.empty()) {
-        for (auto &item : previewItems_) {
-            item.selected = false;
-        }
-        previewItems_.front().selected = true;
-    }
     previewGalleryWidget_->setItems(previewItems_);
     if (previewItems_.empty()) {
         sourcePreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的原图。"));
         outputPreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的切片。"));
         preview3dWidget_->setMesh({});
+        load3dPreviewButton_->setEnabled(false);
         reset3dViewButton_->setEnabled(false);
+    } else {
+        sourcePreviewPane_->clearWithMessage(QStringLiteral("点击缩略图后加载原图。"));
+        outputPreviewPane_->clearWithMessage(QStringLiteral("点击缩略图后加载切片。"));
+        preview3dWidget_->setMesh({});
+        load3dPreviewButton_->setEnabled(false);
+        reset3dViewButton_->setEnabled(false);
+        if (result.outputFiles.size() > previewItems_.size()) {
+            appendSummaryLog(QStringLiteral("结果较多，为避免卡顿，仅保留 %1 项缩略图样本；图片和 3D 预览改为按需加载。")
+                                 .arg(static_cast<qulonglong>(previewItems_.size())));
+        } else {
+            appendSummaryLog(QStringLiteral("结果已生成；点击缩略图后加载图片，3D 预览需手动点击。"));
+        }
     }
     resultWidget_->setVisible(true);
 }
@@ -946,23 +992,47 @@ void MainWindow::handlePreviewSelectionChanged()
         sourcePreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的原图。"));
         outputPreviewPane_->clearWithMessage(QStringLiteral("当前没有可预览的切片。"));
         preview3dWidget_->setMesh({});
+        load3dPreviewButton_->setEnabled(false);
         reset3dViewButton_->setEnabled(false);
         return;
     }
 
     sourcePreviewPane_->setImagePath(currentItem->inputImagePath);
     outputPreviewPane_->setImagePath(currentItem->outputImagePath);
-    reset3dViewButton_->setEnabled(true);
+    preview3dWidget_->setMesh({});
+    reset3dViewButton_->setEnabled(false);
 
     if (!lastRunTask_) {
+        load3dPreviewButton_->setEnabled(false);
+        preview3dWidget_->setMesh({});
+        return;
+    }
+
+    load3dPreviewButton_->setEnabled(true);
+}
+
+void MainWindow::loadSelectedPreview3d()
+{
+    const auto currentItem = previewGalleryWidget_->currentItem();
+    if (!currentItem || !currentItem->isValid() || !lastRunTask_) {
+        load3dPreviewButton_->setEnabled(false);
+        reset3dViewButton_->setEnabled(false);
         preview3dWidget_->setMesh({});
         return;
     }
 
     try {
-        const auto itemsForInput = disassemble::core::filterPreviewGalleryItemsByInput(previewGalleryWidget_->items(),
-                                                                                       currentItem->inputImagePath);
-        preview3dWidget_->setMesh(disassemble::core::buildPreviewMesh(*lastRunTask_, itemsForInput));
+        auto itemsForInput = disassemble::core::filterPreviewGalleryItemsByInput(previewGalleryWidget_->items(),
+                                                                                 currentItem->inputImagePath);
+        if (!lastRunTask_->usesGroupedOutput() && itemsForInput.size() > kMaxPreview3dItems) {
+            itemsForInput.resize(kMaxPreview3dItems);
+            appendSummaryLog(QStringLiteral("当前输入对应切片较多，3D 预览仅加载前 %1 张，避免界面卡顿。")
+                                 .arg(static_cast<int>(kMaxPreview3dItems)));
+        }
+
+        const auto mesh = disassemble::core::buildPreviewMesh(*lastRunTask_, itemsForInput);
+        preview3dWidget_->setMesh(mesh);
+        reset3dViewButton_->setEnabled(!mesh.empty());
     } catch (const std::exception &error) {
         preview3dWidget_->setMesh({});
         reset3dViewButton_->setEnabled(false);

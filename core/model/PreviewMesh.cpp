@@ -18,6 +18,8 @@ using disassemble::core::PreviewGalleryItem;
 using disassemble::core::PreviewMesh;
 using disassemble::core::PreviewVertex;
 
+constexpr size_t kMaxPreviewGalleryItems = 60;
+
 PreviewVertex makeVertex(const cv::Point3f &position, const cv::Point2f &uv)
 {
     PreviewVertex vertex;
@@ -168,8 +170,11 @@ std::vector<PreviewGalleryItem> buildPreviewGalleryItems(const RunResult &result
     }
 
     std::vector<PreviewGalleryItem> fallbackItems;
-    fallbackItems.reserve(result.outputFiles.size());
+    fallbackItems.reserve(std::min(result.outputFiles.size(), kMaxPreviewGalleryItems));
     for (const auto &outputFile : result.outputFiles) {
+        if (fallbackItems.size() >= kMaxPreviewGalleryItems) {
+            break;
+        }
         fallbackItems.push_back(makeFallbackItem(outputFile));
     }
     return fallbackItems;

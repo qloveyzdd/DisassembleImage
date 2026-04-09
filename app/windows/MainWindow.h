@@ -60,6 +60,7 @@ private:
     void openResultDirectory();
     void exportSummaryLog();
     void exportResultBundle();
+    void loadSelectedPreview3d();
     void handleRunProgress(const disassemble::core::RunProgress &progress);
     void handleRunFinished(const disassemble::core::RunResult &result);
     void handleRunFailed(const QString &message);
@@ -131,6 +132,7 @@ private:
     PreviewGalleryWidget *previewGalleryWidget_;
     PreviewImagePane *outputPreviewPane_;
     Preview3DWidget *preview3dWidget_;
+    QPushButton *load3dPreviewButton_;
     QPushButton *reset3dViewButton_;
 };
 

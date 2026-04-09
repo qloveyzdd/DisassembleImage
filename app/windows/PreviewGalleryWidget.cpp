@@ -5,6 +5,7 @@
 #include <QColor>
 #include <QHBoxLayout>
 #include <QIcon>
+#include <QImageReader>
 #include <QListWidget>
 #include <QPixmap>
 
@@ -14,13 +15,22 @@ namespace {
 
 QPixmap buildThumbnail(const std::string &imagePath)
 {
-    QPixmap pixmap(QString::fromStdString(imagePath));
-    if (pixmap.isNull()) {
+    QImageReader reader(QString::fromStdString(imagePath));
+    reader.setAutoTransform(true);
+    const QSize sourceSize = reader.size();
+    if (sourceSize.isValid()) {
+        QSize scaledSize = sourceSize;
+        scaledSize.scale(112, 112, Qt::KeepAspectRatio);
+        reader.setScaledSize(scaledSize);
+    }
+
+    const QImage image = reader.read();
+    if (image.isNull()) {
         QPixmap placeholder(112, 112);
         placeholder.fill(QColor(232, 234, 237));
         return placeholder;
     }
-    return pixmap.scaled(112, 112, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    return QPixmap::fromImage(image);
 }
 
 } // namespace
@@ -51,7 +61,7 @@ void PreviewGalleryWidget::setItems(const std::vector<disassemble::core::Preview
     items_ = items;
     listWidget_->clear();
 
-    int selectedRow = items_.empty() ? -1 : 0;
+    int selectedRow = -1;
     for (int index = 0; index < static_cast<int>(items_.size()); ++index) {
         const auto &item = items_[index];
         auto *listItem = new QListWidgetItem(QIcon(buildThumbnail(item.outputImagePath)),

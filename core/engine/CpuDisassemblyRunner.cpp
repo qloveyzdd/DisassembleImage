@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cstddef>
 #include <filesystem>
 #include <memory>
 #include <mutex>
@@ -37,6 +38,8 @@ using disassemble::core::RunProgress;
 using disassemble::core::RunResult;
 using disassemble::core::RunStage;
 using disassemble::core::SlicePrimitive;
+
+constexpr size_t kMaxStoredPreviewItems = 60;
 
 struct ScopedOpenClState {
     explicit ScopedOpenClState(bool enabled)
@@ -389,7 +392,9 @@ void runSingleImage(const ProcessingTask &task,
             item.outputImagePath = outputPath.string();
             item.displayName = displayNameFor(outputPath);
             item.faceIndex = static_cast<int>(index);
-            generatedPreviewItems.push_back(item);
+            if (generatedPreviewItems.size() < kMaxStoredPreviewItems) {
+                generatedPreviewItems.push_back(item);
+            }
         }
     } else {
         std::vector<cv::Mat> pieces;
@@ -421,7 +426,9 @@ void runSingleImage(const ProcessingTask &task,
         item.inputImagePath = inputPath.string();
         item.outputImagePath = outputPath.string();
         item.displayName = displayNameFor(outputPath);
-        generatedPreviewItems.push_back(item);
+        if (generatedPreviewItems.size() < kMaxStoredPreviewItems) {
+            generatedPreviewItems.push_back(item);
+        }
     }
 
     std::lock_guard<std::mutex> lock(resultMutex);
@@ -429,7 +436,13 @@ void runSingleImage(const ProcessingTask &task,
     result.gpuHotPathMs += metrics.gpuHotPathMs;
     result.logs.push_back(std::string(u8"处理完成: ") + inputPath.string());
     result.outputFiles.insert(result.outputFiles.end(), generatedFiles.begin(), generatedFiles.end());
-    result.previewItems.insert(result.previewItems.end(), generatedPreviewItems.begin(), generatedPreviewItems.end());
+    if (result.previewItems.size() < kMaxStoredPreviewItems && !generatedPreviewItems.empty()) {
+        const size_t remainingPreviewSlots = kMaxStoredPreviewItems - result.previewItems.size();
+        const size_t appendCount = std::min(remainingPreviewSlots, generatedPreviewItems.size());
+        result.previewItems.insert(result.previewItems.end(),
+                                   generatedPreviewItems.begin(),
+                                   generatedPreviewItems.begin() + static_cast<std::ptrdiff_t>(appendCount));
+    }
 }
 
 } // namespace

@@ -8,11 +8,18 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPolygonF>
+#include <QImageReader>
 #include <QVector3D>
 #include <QVector4D>
 #include <QWheelEvent>
 
 namespace disassemble::desktop {
+
+namespace {
+
+constexpr int kMaxPreviewTextureEdge = 256;
+
+}
 
 Preview3DWidget::Preview3DWidget(QWidget *parent)
     : QOpenGLWidget(parent)
@@ -194,7 +201,16 @@ QImage Preview3DWidget::textureFor(const std::string &outputImagePath) const
         return found->second;
     }
 
-    const QImage texture(QString::fromStdString(outputImagePath));
+    QImageReader reader(QString::fromStdString(outputImagePath));
+    reader.setAutoTransform(true);
+    const QSize sourceSize = reader.size();
+    if (sourceSize.isValid()) {
+        QSize scaledSize = sourceSize;
+        scaledSize.scale(kMaxPreviewTextureEdge, kMaxPreviewTextureEdge, Qt::KeepAspectRatio);
+        reader.setScaledSize(scaledSize);
+    }
+
+    const QImage texture = reader.read();
     textureCache_[outputImagePath] = texture;
     return texture;
 }
