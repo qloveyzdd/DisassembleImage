@@ -48,6 +48,28 @@
 - [vcpkg.json](E:/DisassembleImage/vcpkg.json)
 - [VcpkgWorkspaceToolchain.cmake](E:/DisassembleImage/cmake/VcpkgWorkspaceToolchain.cmake)
 
+## 直接使用二进制
+
+当前已经生成了一份可直接分发的 Windows 二进制包：
+
+- 本地压缩包：[DisassembleImage-v1.0-win64.zip](E:/DisassembleImage/build/release-packages/DisassembleImage-v1.0-win64.zip)
+- 解压目录：[disassemble_desktop](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop)
+
+直接使用方式：
+
+1. 解压 `DisassembleImage-v1.0-win64.zip`
+2. 保持解压后的目录结构不变
+3. 运行：
+   - [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
+
+注意：
+
+- 不要只单独拷贝 `DisassembleImageDesktop.exe`
+- `Qt/OpenCV` 运行库、插件目录、`input.obj`、`output.obj` 需要和程序放在同一套目录里
+- 当前包适合本地分发和手动测试
+
+如果后续要对外发布，建议把同一个 zip 上传到 GitHub Release，而不是直接提交到仓库。
+
 ## 构建说明
 
 ### Debug 构建
@@ -74,7 +96,11 @@ cmake --build --preset build-windows-release --target windows_deploy_check
 
 - [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-debug/app/windows/Debug/DisassembleImageDesktop.exe)
 
-推荐手动测试使用部署目录：
+推荐手动测试和分发使用 Release 部署目录：
+
+- [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
+
+Debug 部署目录主要用于开发调试：
 
 - [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-debug/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
 
@@ -157,7 +183,12 @@ ctest --output-on-failure -C Debug
 
 ### 1. 启动时报缺少 DLL
 
-请从部署目录启动：
+请从完整部署目录启动，优先使用 Release 包：
+
+- [DisassembleImage-v1.0-win64.zip](E:/DisassembleImage/build/release-packages/DisassembleImage-v1.0-win64.zip)
+- [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-release/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
+
+开发调试时也可以使用 Debug 部署目录：
 
 - [DisassembleImageDesktop.exe](E:/DisassembleImage/build/windows-msvc-debug/deploy/disassemble_desktop/DisassembleImageDesktop.exe)
 
