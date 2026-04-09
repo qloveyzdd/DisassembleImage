@@ -1,0 +1,71 @@
+name: Bug Report
+description: 报告可复现的问题
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 问题描述
+      description: 用 1-3 句话说明你遇到了什么问题
+    validations:
+      required: true
+  - type: dropdown
+    id: input_mode
+    attributes:
+      label: 输入模式
+      options:
+        - 单张图片
+        - 图片目录
+        - 其他
+    validations:
+      required: true
+  - type: textarea
+    id: model_files
+    attributes:
+      label: 模型与样例
+      description: 请说明使用的 input.obj / output.obj，以及是否能提供最小复现样例
+    validations:
+      required: true
+  - type: dropdown
+    id: backend
+    attributes:
+      label: 运行模式
+      options:
+        - 自动
+        - CPU
+        - GPU
+    validations:
+      required: true
+  - type: textarea
+    id: gpu_status
+    attributes:
+      label: OpenCL / GPU 状态
+      description: 粘贴界面里的 OpenCL 状态、失败阶段或回退原因
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 请尽量给出最短复现步骤
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息
+      description: Windows 版本、CPU、GPU、驱动版本、是否可按 TARGET_MACHINE_CHECKLIST 复现
+    validations:
+      required: true

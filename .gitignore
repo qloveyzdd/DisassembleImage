@@ -1,0 +1,12 @@
+build/
+release-packages/
+.planning/
+AGENTS.md
+vcpkg_installed/
+.vs/
+.idea/
+*.user
+*.VC.db
+*.VC.opendb
+*.suo
+CMakeUserPresets.json

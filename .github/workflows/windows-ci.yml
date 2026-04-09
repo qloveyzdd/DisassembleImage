@@ -1,0 +1,30 @@
+name: Windows CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  VCPKG_DISABLE_METRICS: 1
+
+jobs:
+  build-and-test:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        shell: pwsh
+        run: cmake --preset windows-msvc-debug
+
+      - name: Build desktop and smoke tests
+        shell: pwsh
+        run: cmake --build --preset build-windows-debug --target disassemble_desktop phase1_smoke phase2_smoke phase3_smoke phase4_smoke phase5_smoke
+
+      - name: Run smoke tests
+        shell: pwsh
+        run: ctest --test-dir build/windows-msvc-debug --output-on-failure -L smoke -C Debug
