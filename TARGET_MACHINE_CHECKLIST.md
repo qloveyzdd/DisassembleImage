@@ -44,5 +44,4 @@
 
 ## 验收记录
 
-- Intel 机器结果回填到 [08-INTEL-UAT.md](E:/DisassembleImage/.planning/phases/08-target-machine-uat/08-INTEL-UAT.md)
-- AMD 机器结果回填到 [08-AMD-UAT.md](E:/DisassembleImage/.planning/phases/08-target-machine-uat/08-AMD-UAT.md)
+- Intel / AMD 机器的验收结果，请整理到你们当前使用的验收记录、issue 或 release 备注中。
