@@ -16,6 +16,7 @@
 - Visual Studio 2022
 - CMake 3.26+
 - Git
+- `vcpkg`（放在 `tools/vcpkg`，或通过 `VCPKG_ROOT` 提供）
 
 配置与构建：
 

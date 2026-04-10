@@ -8,6 +8,7 @@ on:
 
 env:
   VCPKG_DISABLE_METRICS: 1
+  VCPKG_ROOT: ${{ runner.temp }}\vcpkg
 
 jobs:
   build-and-test:
@@ -16,6 +17,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup vcpkg
+        shell: pwsh
+        run: |
+          if (-not (Test-Path $env:VCPKG_ROOT)) {
+            git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
+          }
+          & (Join-Path $env:VCPKG_ROOT "bootstrap-vcpkg.bat") -disableMetrics
 
       - name: Configure
         shell: pwsh

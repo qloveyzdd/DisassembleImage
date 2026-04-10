@@ -38,6 +38,8 @@ Windows 可执行包请从 GitHub Releases 下载：
 
 - <https://github.com/qloveyzdd/DisassembleImage/releases>
 
+标签版本推送后，仓库会自动构建并上传对应的 Windows 发布包。
+
 运行时请保持部署目录完整，不要只单独拷贝 `DisassembleImageDesktop.exe`。  
 `Qt`、`OpenCV` 运行库、插件目录以及所需模型文件需要和程序放在同一套目录结构内。
 
@@ -50,10 +52,15 @@ Windows 可执行包请从 GitHub Releases 下载：
 - CMake 3.26+
 - Git
 
-项目通过仓库内的 `vcpkg` 清单恢复主要依赖：
+项目通过 `vcpkg.json` 清单恢复主要依赖：
 
 - `opencv`
 - `qtbase`
+
+准备依赖时二选一即可：
+
+- 把 `vcpkg` 放在 `tools/vcpkg`
+- 或提前设置环境变量 `VCPKG_ROOT`
 
 配置文件：
 

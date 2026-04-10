@@ -3,8 +3,10 @@ release-packages/
 .planning/
 AGENTS.md
 vcpkg_installed/
+.vscode/
 .vs/
 .idea/
+tools/vcpkg/
 *.user
 *.VC.db
 *.VC.opendb
